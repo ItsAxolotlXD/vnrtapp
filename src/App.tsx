@@ -2639,7 +2639,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                          <img src={active.logo} alt={active.name} className="h-6 w-6 md:h-10 md:w-10 object-contain" referrerPolicy="no-referrer" />
                       </div>
                       <div className="space-y-0.5 md:space-y-1">
-                        <h4 className="text-lg md:text-2xl font-bold tracking-tighter text-white uppercase">{active.name}</h4>
+                        <h4 className="text-sm md:text-lg font-bold tracking-tighter text-white uppercase">{active.name.toLowerCase().includes("hd") ? active.name : `${active.name} HD`}</h4>
                         {active.desc && (
                           <p className="text-[10px] md:text-xs text-[#4AC4FE] font-bold uppercase tracking-wider max-w-sm">
                             {active.desc}
@@ -3024,9 +3024,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             <motion.h2 
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              className={`text-2xl md:text-4xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-950"}`}
+              className={`text-lg md:text-2xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-950"}`}
             >
-              {active.name}
+              {active.name.toLowerCase().includes("hd") ? active.name : `${active.name} HD`}
             </motion.h2>
             <div className="flex items-center gap-2">
               {isMaintenance ? (
@@ -3523,7 +3523,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               <div className="p-1.5 rounded-lg bg-[#4AC4FE]/10 text-[#4AC4FE]">
                 <Calendar size={16} />
               </div>
-              <span className="text-xs md:text-sm font-black uppercase tracking-wider">Lịch Phát Sóng Kênh {active.name}</span>
+              <span className="text-xs md:text-sm font-black uppercase tracking-wider">Lịch Phát Sóng Kênh {active.name.toLowerCase().includes("hd") ? active.name : `${active.name} HD`}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -4010,7 +4010,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                     <span className="text-sm sm:text-base font-black uppercase tracking-wider block">
                       {mode === "realm" ? "Nhập luồng / URL" : "Lịch Phát Sóng Kênh"}
                     </span>
-                    <span className="text-[10px] opacity-60 font-medium block">Đang xem: {active.name}</span>
+                    <span className="text-[10px] opacity-60 font-medium block">Đang xem: {active.name.toLowerCase().includes("hd") ? active.name : `${active.name} HD`}</span>
                   </div>
                 </div>
                 <button 
