@@ -2640,9 +2640,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       </div>
                       <div className="space-y-0.5 md:space-y-1">
                         <h4 className="text-lg md:text-2xl font-bold tracking-tighter text-white uppercase">{active.name}</h4>
-                        {active.name.includes("VTV6") && (
-                          <p className="text-[10px] md:text-xs text-white/70 font-medium leading-relaxed max-w-sm">
-                            ❤️ Chân thành cảm ơn sự đóng góp của <strong className="font-bold text-[#4AC4FE]">Kênh chuyên về tư liệu</strong> trên Discord
+                        {active.desc && (
+                          <p className="text-[10px] md:text-xs text-[#4AC4FE] font-bold uppercase tracking-wider max-w-sm">
+                            {active.desc}
                           </p>
                         )}
                         <div className="flex items-center gap-2 md:gap-3">
@@ -3042,9 +3042,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               )}
             </div>
           </div>
-          {active.name.includes("VTV6") && (
-            <p className={`text-xs md:text-sm font-medium leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-              ❤️ Chân thành cảm ơn sự đóng góp của <strong className="font-bold text-[#4AC4FE]">Kênh chuyên về tư liệu</strong> trên Discord
+          {active.desc && (
+            <p className={`text-xs md:text-sm font-bold tracking-wide uppercase ${isDark ? "text-[#4AC4FE]" : "text-sky-600"}`}>
+              {active.desc}
             </p>
           )}
         </div>
@@ -3487,7 +3487,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           }`}>
             <button
               onClick={() => setLiveTabSection("channels")}
-              className={`px-5 py-2 rounded-[16px] text-xs font-black tracking-wide uppercase transition-all flex items-center gap-1.5 ${
+              className={`px-5 py-2 rounded-[16px] text-xs font-normal tracking-wide uppercase transition-all flex items-center gap-1.5 ${
                 liveTabSection === "channels"
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
@@ -3498,7 +3498,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             </button>
             <button
               onClick={() => setLiveTabSection("schedule")}
-              className={`px-5 py-2 rounded-[16px] text-xs font-black tracking-wide uppercase transition-all flex items-center gap-1.5 ${
+              className={`px-5 py-2 rounded-[16px] text-xs font-normal tracking-wide uppercase transition-all flex items-center gap-1.5 ${
                 liveTabSection === "schedule"
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
@@ -4485,7 +4485,7 @@ function SearchPopup({
                 <div className="px-4 py-2">
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Kênh truyền hình</p>
                 </div>
-                <div className={asContent ? "grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3" : "space-y-1"}>
+                <div className={asContent ? "grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3" : "grid grid-cols-3 sm:grid-cols-4 gap-2.5"}>
                   {filteredChannels.map((ch, idx) => (
                     <button
                       key={`search-ch-${ch.name}-${idx}`}
@@ -7433,6 +7433,7 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMen
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isListening, setIsListening] = useState(false);
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -7493,15 +7494,54 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMen
           <MicIcon size={20} className="md:w-5 md:h-5" />
         </button>
         {setSearchFilterOption && searchFilterOption && (
-          <select
-            value={searchFilterOption}
-            onChange={(e) => setSearchFilterOption(e.target.value as any)}
-            className={`bg-transparent text-xs ${textColor} font-bold border-none outline-none cursor-pointer max-w-[124px] pr-2 shrink-0`}
-          >
-            <option value="Tất cả kênh" className={isDark ? "bg-[#181924] text-white" : "bg-white text-black"}>Tất cả kênh</option>
-            <option value="Kênh của Vplay" className={isDark ? "bg-[#181924] text-white" : "bg-white text-black"}>Kênh của Vplay</option>
-            <option value="Package của bạn" className={isDark ? "bg-[#181924] text-white" : "bg-white text-black"}>Package của bạn</option>
-          </select>
+          <div className="relative">
+            <button 
+              type="button"
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className={`p-1.5 rounded-full transition-all ${showFilterDropdown ? "text-[#4AC4FE] bg-[#4AC4FE]/10" : `${iconColor} opacity-40 hover:opacity-100`}`}
+              title="Lọc kết quả tìm kiếm"
+            >
+              <Filter size={18} className="md:w-5 md:h-5" />
+            </button>
+            <AnimatePresence>
+              {showFilterDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className={`absolute right-0 top-full mt-2 z-50 min-w-[200px] rounded-xl border p-1 shadow-xl ${
+                    isDark ? "bg-[#181818] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
+                  }`}
+                >
+                  {[
+                    { label: "Tất cả", value: "Tất cả kênh" as const },
+                    { label: "Kênh của Vplay", value: "Kênh của Vplay" as const },
+                    { label: "Kênh package của bạn", value: "Package của bạn" as const }
+                  ].map((opt) => {
+                    const isActive = searchFilterOption === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setSearchFilterOption(opt.value);
+                          setShowFilterDropdown(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-between ${
+                          isActive
+                            ? "bg-[#4AC4FE]/10 text-[#4AC4FE]"
+                            : isDark ? "hover:bg-white/5 text-slate-300" : "hover:bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                        {isActive && <Check size={14} className="text-[#4AC4FE]" />}
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
       </div>
     </div>
@@ -7761,7 +7801,9 @@ function TopBar({
   activeTab,
   onSystemTrayClick,
   location = "Hanoi",
-  topbarSearchType = "box"
+  topbarSearchType = "box",
+  searchFilterOption,
+  setSearchFilterOption
 }: { 
   isDark: boolean, 
   onMenuClick: () => void, 
@@ -7789,9 +7831,12 @@ function TopBar({
   activeTab: string,
   onSystemTrayClick?: () => void,
   location?: string,
-  topbarSearchType?: "box" | "icon"
+  topbarSearchType?: "box" | "icon",
+  searchFilterOption?: "Tất cả kênh" | "Kênh của Vplay" | "Package của bạn",
+  setSearchFilterOption?: (val: "Tất cả kênh" | "Kênh của Vplay" | "Package của bạn") => void
 }) {
   const [isSearchButtonExpanded, setIsSearchButtonExpanded] = React.useState(false);
+  const [showTopBarFilterDropdown, setShowTopBarFilterDropdown] = React.useState(false);
   const hours = currentTime.getHours();
   const isDaytime = hours >= 5 && hours < 18;
   const WeatherIcon = isDaytime ? Sun : Moon;
@@ -7872,9 +7917,6 @@ function TopBar({
                 autoFocus
                 type="text"
                 value={searchQuery}
-                onFocus={() => {
-                  if(activeTab !== "Cài đặt") setActiveTab("Khám phá");
-                }}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onContextMenu={handleSearchContextMenu}
                 placeholder={getSearchPlaceholder()}
@@ -7884,6 +7926,56 @@ function TopBar({
                 <button onClick={() => setSearchQuery("")} className="p-1 hover:bg-black/10 rounded-full transition-all">
                   <X size={14} className={isDark ? "text-slate-300/60" : "text-slate-400"} />
                 </button>
+              )}
+              {setSearchFilterOption && searchFilterOption && (
+                <div className="relative">
+                  <button 
+                    type="button"
+                    onClick={() => setShowTopBarFilterDropdown(!showTopBarFilterDropdown)}
+                    className={`p-1.5 rounded-full transition-all ${showTopBarFilterDropdown ? "text-[#4AC4FE] bg-[#4AC4FE]/10" : (isDark ? "text-slate-100/40 hover:text-slate-200" : "text-slate-400 hover:text-slate-900")}`}
+                    title="Lọc kết quả tìm kiếm"
+                  >
+                    <Filter size={16} />
+                  </button>
+                  <AnimatePresence>
+                    {showTopBarFilterDropdown && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className={`absolute right-0 top-full mt-2 z-[250] min-w-[200px] rounded-xl border p-1 shadow-xl ${
+                          isDark ? "bg-[#181818] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
+                        }`}
+                      >
+                        {[
+                          { label: "Tất cả", value: "Tất cả kênh" as const },
+                          { label: "Kênh của Vplay", value: "Kênh của Vplay" as const },
+                          { label: "Kênh package của bạn", value: "Package của bạn" as const }
+                        ].map((opt) => {
+                          const isActive = searchFilterOption === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => {
+                                setSearchFilterOption(opt.value);
+                                setShowTopBarFilterDropdown(false);
+                              }}
+                              className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-between ${
+                                isActive
+                                  ? "bg-[#4AC4FE]/10 text-[#4AC4FE]"
+                                  : isDark ? "hover:bg-white/5 text-slate-300" : "hover:bg-slate-100 text-slate-700"
+                              }`}
+                            >
+                              <span>{opt.label}</span>
+                              {isActive && <Check size={14} className="text-[#4AC4FE]" />}
+                            </button>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               )}
               
               {/* Collapse/Close button */}
@@ -7918,9 +8010,6 @@ function TopBar({
             <input
               type="text"
               value={searchQuery}
-              onFocus={() => {
-                if(activeTab !== "Cài đặt") setActiveTab("Khám phá");
-              }}
               onChange={(e) => setSearchQuery(e.target.value)}
               onContextMenu={handleSearchContextMenu}
               placeholder={getSearchPlaceholder()}
@@ -7934,10 +8023,60 @@ function TopBar({
             <Tooltip text="Use microphone" isDark={isDark} position="bottom">
               <button 
                 onClick={startListening}
-                className={`p-2 rounded-full transition-all mr-2 ${isListening ? "text-red-500 animate-pulse bg-red-500/10" : (isDark ? "text-slate-100/40 hover:text-slate-200 hover:bg-black/5" : "text-slate-400 hover:text-slate-900 hover:bg-black/5")}`}>
+                className={`p-2 rounded-full transition-all mr-1 ${isListening ? "text-red-500 animate-pulse bg-red-500/10" : (isDark ? "text-slate-100/40 hover:text-slate-200 hover:bg-black/5" : "text-slate-400 hover:text-slate-900 hover:bg-black/5")}`}>
                 <Mic size={18} className={isListening ? "fill-red-500" : ""} strokeWidth={isListening ? 2.5 : 2} />
               </button>
             </Tooltip>
+            {setSearchFilterOption && searchFilterOption && (
+              <div className="relative mr-2">
+                <button 
+                  type="button"
+                  onClick={() => setShowTopBarFilterDropdown(!showTopBarFilterDropdown)}
+                  className={`p-2 rounded-full transition-all ${showTopBarFilterDropdown ? "text-[#4AC4FE] bg-[#4AC4FE]/10" : (isDark ? "text-slate-100/40 hover:text-slate-200 hover:bg-black/5" : "text-slate-400 hover:text-slate-900 hover:bg-black/5")}`}
+                  title="Lọc kết quả tìm kiếm"
+                >
+                  <Filter size={16} />
+                </button>
+                <AnimatePresence>
+                  {showTopBarFilterDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className={`absolute right-0 top-full mt-2 z-[250] min-w-[200px] rounded-xl border p-1 shadow-xl ${
+                        isDark ? "bg-[#181818] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
+                      }`}
+                    >
+                      {[
+                        { label: "Tất cả", value: "Tất cả kênh" as const },
+                        { label: "Kênh của Vplay", value: "Kênh của Vplay" as const },
+                        { label: "Kênh package của bạn", value: "Package của bạn" as const }
+                      ].map((opt) => {
+                        const isActive = searchFilterOption === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => {
+                              setSearchFilterOption(opt.value);
+                              setShowTopBarFilterDropdown(false);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-between ${
+                              isActive
+                                ? "bg-[#4AC4FE]/10 text-[#4AC4FE]"
+                                : isDark ? "hover:bg-white/5 text-slate-300" : "hover:bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            <span>{opt.label}</span>
+                            {isActive && <Check size={14} className="text-[#4AC4FE]" />}
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         )}
 
@@ -11434,6 +11573,7 @@ const [headingBar, setHeadingBar] = useState(() => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFilterOption, setSearchFilterOption] = useState<"Tất cả kênh" | "Kênh của Vplay" | "Package của bạn">("Tất cả kênh");
+  const [showModalFilterDropdown, setShowModalFilterDropdown] = useState(false);
 
   const allCustomChannels = useMemo(() => {
     const saved = localStorage.getItem("vplay_custom_playlists_v2");
@@ -11923,6 +12063,8 @@ const [headingBar, setHeadingBar] = useState(() => {
             isDark={isDark} 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
+            searchFilterOption={searchFilterOption}
+            setSearchFilterOption={setSearchFilterOption}
             isSearchOpen={isSearchOpen}
             activeTab={activeTab}
             onMenuClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
@@ -12391,15 +12533,54 @@ const [headingBar, setHeadingBar] = useState(() => {
                       placeholder="Find and explore Vplay"
                       className={`flex-1 bg-transparent border-none outline-none text-lg font-normal ${isDark ? "text-white placeholder:text-white/30" : "text-black placeholder:text-black/30"}`}
                     />
-                    <select
-                      value={searchFilterOption}
-                      onChange={(e) => setSearchFilterOption(e.target.value as any)}
-                      className="bg-transparent text-sm text-[#4AC4FE] font-black border-none outline-none cursor-pointer shrink-0 max-w-[124px] mr-2"
-                    >
-                      <option value="Tất cả kênh" className={isDark ? "bg-[#181924] text-white" : "bg-white text-black"}>Tất cả kênh</option>
-                      <option value="Kênh của Vplay" className={isDark ? "bg-[#181924] text-white" : "bg-white text-black"}>Kênh của Vplay</option>
-                      <option value="Package của bạn" className={isDark ? "bg-[#181924] text-white" : "bg-white text-black"}>Package của bạn</option>
-                    </select>
+                    <div className="relative shrink-0">
+                      <button 
+                        type="button"
+                        onClick={() => setShowModalFilterDropdown(!showModalFilterDropdown)}
+                        className={`p-2 rounded-full transition-all ${showModalFilterDropdown ? "text-[#4AC4FE] bg-[#4AC4FE]/10 mr-1" : "text-[#4AC4FE]/60 hover:text-[#4AC4FE] mr-1"}`}
+                        title="Bộ lọc tìm kiếm"
+                      >
+                        <Filter size={20} />
+                      </button>
+                      <AnimatePresence>
+                        {showModalFilterDropdown && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className={`absolute right-0 top-full mt-2 z-[300] min-w-[200px] rounded-xl border p-1 shadow-xl ${
+                              isDark ? "bg-[#181818] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
+                            }`}
+                          >
+                            {[
+                              { label: "Tất cả", value: "Tất cả kênh" as const },
+                              { label: "Kênh của Vplay", value: "Kênh của Vplay" as const },
+                              { label: "Kênh package của bạn", value: "Package của bạn" as const }
+                            ].map((opt) => {
+                              const isActive = searchFilterOption === opt.value;
+                              return (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => {
+                                    setSearchFilterOption(opt.value);
+                                    setShowModalFilterDropdown(false);
+                                  }}
+                                  className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-between ${
+                                    isActive
+                                      ? "bg-[#4AC4FE]/10 text-[#4AC4FE]"
+                                      : isDark ? "hover:bg-white/5 text-slate-300" : "hover:bg-slate-100 text-slate-700"
+                                  }`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isActive && <Check size={14} className="text-[#4AC4FE]" />}
+                                </button>
+                              );
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                     {searchQuery && (
                       <button onClick={() => setSearchQuery("")} className="p-1 rounded-full hover:bg-black/10">
                         <X size={16} />
