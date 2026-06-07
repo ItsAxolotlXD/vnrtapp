@@ -1,0 +1,10 @@
+{
+  "name": "vnrt approve",
+  "description": "A live TV streaming application with channel switching, program guides, AI assistant, and responsive design.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

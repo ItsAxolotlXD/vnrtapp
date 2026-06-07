@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-google: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: var(--vplay-primary, #4AC4FE);
+  --color-vplay-sidebar: var(--vplay-sidebar, #181818);
+  --color-vplay-background: var(--vplay-background, #181818);
+  --color-vplay-topbar: var(--vplay-topbar, #181818);
+}
+
+@layer base {
+  .btn-3d {
+    @apply transition-all duration-75 relative isolate;
+    transform: translate(0, 0);
+  }
+  .btn-3d:active {
+    transform: translate(8px, 8px) !important;
+    box-shadow: 0px 0px 0px 0px transparent !important;
+  }
+}
+
+.card-3d {
+  @apply transition-all duration-300 relative isolate border-2;
+  transform: translate(0, 0);
+}
+
+.btn-purple-3d {
+  @apply bg-primary border-2 border-white/20 text-black font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.3);
+}
+.btn-purple-3d:hover {
+  @apply opacity-90;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px rgba(0,0,0,0.3);
+}
+.btn-purple-3d:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-white-3d {
+  @apply bg-white border-2 border-slate-200 text-slate-900 font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 4px 4px 0px 0px #e2e8f0;
+}
+.btn-white-3d:hover {
+  @apply bg-slate-50;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #e2e8f0;
+}
+.btn-white-3d:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-3d-slate {
+  @apply bg-slate-100 border-2 border-slate-200 text-slate-600 px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 4px 4px 0px 0px #e2e8f0;
+}
+.btn-3d-slate:hover {
+  @apply bg-slate-50;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #e2e8f0;
+}
+.btn-3d-slate:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-vibrant-3d {
+  @apply bg-[#4AC4FE] border-2 border-[#6dd1ff] text-black px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 4px 4px 0px 0px #1e8cbd;
+}
+.btn-vibrant-3d:hover {
+  @apply bg-[#32bcfc];
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #1e8cbd;
+}
+.btn-vibrant-3d:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-3d-dark {
+  @apply bg-slate-900 border-2 border-white/20 text-slate-200 px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+}
+.btn-3d-dark:hover {
+  @apply bg-slate-800 border-white/30;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px rgba(0, 0, 0, 0.5);
+}
+.btn-3d-dark:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-3d-square {
+  @apply !px-0 flex items-center justify-center aspect-square;
+}
+
+.popup-3d-dark {
+  @apply bg-slate-900/90 border-2 border-white/10 rounded-[32px] backdrop-blur-2xl;
+  box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.8);
+}
+
+.popup-3d-light {
+  @apply bg-white/90 border-2 border-slate-200 rounded-[32px] backdrop-blur-2xl;
+  box-shadow: 6px 6px 0px 0px #cbd5e1;
+}
+
+
+@layer base {
+  button, 
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    cursor: pointer;
+  }
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.icon-fluent {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  user-select: none;
+  pointer-events: none;
+  filter: brightness(0); /* Default black */
+  transition: filter 0.2s ease;
+}
+
+.dark .icon-fluent,
+.icon-white,
+.text-white .icon-fluent,
+.bg-purple-600 .icon-fluent,
+.bg-red-500 .icon-fluent {
+  filter: brightness(0) invert(1); /* Pure white */
+}
+
+.btn-vibrant-3d .icon-fluent,
+.btn-purple-3d .icon-fluent {
+  filter: brightness(0) !important; /* Keep black */
+}
+
+/* Purple-500 approximation for active state */
+.text-purple-500 .icon-fluent,
+.icon-fluent.text-purple-500 {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(83%) saturate(2462%) hue-rotate(258deg) brightness(93%) contrast(102%);
+}
+
+.reduce-animations *,
+.reduce-animations *:before,
+.reduce-animations *:after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Custom styles for Frosted Glass Widgets board option */
+.frosted-glass-widgets-board {
+  color: #ffffff !important;
+}
+
+.frosted-glass-widgets-board .bg-white,
+.frosted-glass-widgets-board .bg-slate-50,
+.frosted-glass-widgets-board .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.frosted-glass-widgets-board .border-slate-100,
+.frosted-glass-widgets-board .border-slate-200,
+.frosted-glass-widgets-board .border-black\/5 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.frosted-glass-widgets-board .text-slate-800,
+.frosted-glass-widgets-board .text-slate-900,
+.frosted-glass-widgets-board .text-slate-700,
+.frosted-glass-widgets-board .text-slate-600 {
+  color: #ffffff !important;
+}
+
+.frosted-glass-widgets-board .text-slate-400,
+.frosted-glass-widgets-board .text-slate-500 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.frosted-glass-widgets-board .icon-fluent {
+  filter: brightness(0) invert(1) !important;
+}
+
+.frosted-glass-widgets-board input {
+  color: #ffffff !important;
+}
+
+.frosted-glass-widgets-board input::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.frosted-glass-widgets-board .hover\:bg-slate-50:hover, 
+.frosted-glass-widgets-board .hover\:bg-slate-100:hover,
+.frosted-glass-widgets-board .hover\:bg-white\/50:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Global transparent scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+  background: transparent !important;
+}
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-radius: 999px !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.card-channel-bg {
+  background-image: url("https://static.wikia.nocookie.net/ftv/images/3/3a/Bg.png/revision/latest/scale-to-width-down/1000?cb=20260604052754&path-prefix=vi");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
