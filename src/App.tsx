@@ -939,7 +939,7 @@ function HomeContent({
   });
 
   useEffect(() => {
-    const targetDate = new Date("2026-06-08T00:00:00+07:00").getTime();
+    const targetDate = new Date("2026-06-08T10:00:00+07:00").getTime();
 
     const updateTimer = () => {
       const now = new Date().getTime();
@@ -1185,7 +1185,7 @@ function HomeContent({
               VTV6 - Kênh Truyền hình Thể thao chính thức trở lại!
             </h2>
             <p className={`text-xs md:text-[13px] font-medium leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-              Kênh VTV6 dự kiến trở lại vào ngày 08/06/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao (trước kia là Ban thể thao) quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!
+              Kênh VTV6 dự kiến trở lại vào lúc 10h00 sáng ngày 08/06/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao (trước kia là Ban thể thao) quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!
             </p>
           </div>
         </div>
@@ -2641,7 +2641,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       <div className="space-y-0.5 md:space-y-1">
                         <h4 className="text-sm md:text-lg font-bold tracking-tighter text-white uppercase">{active.name.toLowerCase().includes("hd") ? active.name : `${active.name} HD`}</h4>
                         {active.desc && (
-                          <p className="text-[10px] md:text-xs text-[#4AC4FE] font-bold uppercase tracking-wider max-w-sm">
+                          <p className="text-[9px] md:text-[11px] text-white/60 font-bold uppercase tracking-wider max-w-sm">
                             {active.desc}
                           </p>
                         )}
@@ -3043,7 +3043,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             </div>
           </div>
           {active.desc && (
-            <p className={`text-xs md:text-sm font-bold tracking-wide uppercase ${isDark ? "text-[#4AC4FE]" : "text-sky-600"}`}>
+            <p className={`text-xs md:text-[13px] font-bold tracking-wide uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
               {active.desc}
             </p>
           )}
@@ -3493,7 +3493,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
             >
-              <Radio className="w-3.5 h-3.5" />
+              <Tv className="w-3.5 h-3.5" />
               Chuyển kênh
             </button>
             <button
@@ -11996,10 +11996,10 @@ const [headingBar, setHeadingBar] = useState(() => {
             isDark={isDark} 
             liquidGlass={liquidGlass}
             title="Coming soon - VTV6 sắp trở lại!"
-            description="Kênh VTV6 dự kiến trở lại vào 08/6/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!"
+            description="Kênh VTV6 dự kiến trở lại vào 10h00 sáng ngày 08/6/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!"
           >
             <div className="mt-8 flex flex-col items-center gap-6">
-              <Countdown targetDate="2026-06-08T00:00:00" isDark={isDark} />
+              <Countdown targetDate="2026-06-08T10:00:00" isDark={isDark} />
               <button 
                 onClick={() => setIsVTV6DialogOpen(false)}
                 className="w-full btn-vibrant-3d py-4 text-sm font-bold uppercase tracking-widest !rounded-2xl"
@@ -13480,6 +13480,8 @@ const [headingBar, setHeadingBar] = useState(() => {
             key="bottom-nav-stable"
             initial={{ scale: 1 }}
             animate={{ scale: 1 }}
+            onTouchStart={handleNavTouchStart}
+            onTouchEnd={handleNavTouchEnd}
             className={`flex-1 w-full flex items-center justify-between p-2 transition-all duration-500 overflow-hidden relative ${
               liquidGlass === "tinted"
                 ? `rounded-full border shadow-[0_20px_40px_rgba(0,0,0,0.15)] backdrop-blur-[100px] bg-white/80 border-white/80`
@@ -13562,10 +13564,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                                {isActive && (
                                 <motion.div
                                   layoutId="activeTabUnderline"
-                                  className={`absolute bottom-[-7px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-full z-10 ${
+                                  className={`absolute bottom-[-11px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-full z-10 ${
                                     activeUnderlineClass
                                   }`}
-                                  transition={{ type: "tween", ease: "easeIn", duration: 0.55 }}
+                                  transition={{ type: "spring", stiffness: 650, damping: 32 }}
                                 />
                               )}
                               <motion.div
