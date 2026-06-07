@@ -540,7 +540,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
       : isShrunk 
         ? "scale-[1.0]" 
         : (isHTVGroup || isLocalGroup)
-          ? "scale-[1.31]"
+          ? "scale-[1.27]"
           : "scale-[1.35]";
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
@@ -1884,6 +1884,38 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       observer.disconnect();
     };
   }, [setIsPlayerInView]);
+
+  const [lockPlayer, setLockPlayer] = useState(() => {
+    const saved = localStorage.getItem("vplay_lock_player");
+    return saved === null ? true : saved === "true";
+  });
+  const [isScrolledPast, setIsScrolledPast] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_lock_player", lockPlayer.toString());
+    if (!lockPlayer) {
+      setIsScrolledPast(false);
+    }
+  }, [lockPlayer]);
+
+  useEffect(() => {
+    if (!lockPlayer) {
+      setIsScrolledPast(false);
+      return;
+    }
+    const handleScroll = () => {
+      const threshold = window.innerWidth < 768 ? 100 : 320;
+      if (window.scrollY > threshold) {
+        setIsScrolledPast(true);
+      } else {
+        setIsScrolledPast(false);
+      }
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lockPlayer]);
+
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false); // Default to sound ON
   const [volume, setVolume] = useState(1);
@@ -2240,8 +2272,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         }
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      const proxyUrl = `/proxy?url=${encodeURIComponent(active.stream)}`;
-      video.src = proxyUrl;
+      video.src = active.stream;
       const onLoadedMetadata = () => {
         if (!isEffectMounted) return;
         const playPromise = video.play();
@@ -2279,7 +2310,15 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
-      video.play();
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(e => {
+          console.warn("Autoplay or resume prevented, trying muted fallback", e);
+          video.muted = true;
+          setIsMuted(true);
+          video.play().catch(() => {});
+        });
+      }
       setIsPlaying(true);
       enterFullscreen();
     } else {
@@ -2537,9 +2576,16 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       } lg:pr-[344px] xl:pr-[389px] pt-0 pb-0 md:py-0 md:px-0 px-0`}>
         
         {/* VIDEO PLAYER */}
+        {isScrolledPast && (
+          <div className="w-full aspect-video md:hidden shrink-0" id="player-scroll-placeholder" />
+        )}
         <div 
           ref={containerRef}
-          className={`bg-black flex items-center justify-center border-y md:border shadow-2xl relative overflow-hidden group w-full ${
+          className={`bg-black flex items-center justify-center border-y md:border shadow-2xl overflow-hidden group w-full transition-all duration-300 ${
+            isScrolledPast 
+              ? "fixed top-14 left-0 right-0 z-[120] md:sticky md:top-20 md:z-30 shadow-2xl border-b border-slate-800/40" 
+              : "relative md:sticky md:top-20 md:z-30"
+          } ${
             isMultiview ? "aspect-auto min-h-[300px] md:min-h-[400px]" : "aspect-video"
           } ${
             liquidGlass ? "rounded-none md:rounded-2xl" : "rounded-none md:rounded-lg"
@@ -2681,6 +2727,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 ref={videoRef}
                 className="w-full h-full object-contain cursor-pointer"
                 autoPlay
+                playsInline
                 muted={isMuted}
                 onClick={togglePlay}
                 onDoubleClick={toggleFullscreen}
@@ -2839,6 +2886,21 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                               </AnimatePresence>
                             </div>
                           )}
+                          <button 
+                            onClick={() => {
+                              const newVal = !lockPlayer;
+                              setLockPlayer(newVal);
+                              showToast(`Đã ${newVal ? "bật" : "tắt"} khóa trình phát khi cuộn trang`, newVal ? "success" : "info");
+                            }}
+                            className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
+                              lockPlayer 
+                                ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
+                                : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+                            }`}
+                            title={lockPlayer ? "Bỏ ghim/khóa trình phát" : "Ghim/khóa trình phát khi cuộn trang"}
+                          >
+                            <Pin size={18} className={`md:w-5 md:h-5 transition-transform ${lockPlayer ? "rotate-45" : ""}`} />
+                          </button>
                           <button 
                             onClick={() => toggleFavorite(active)}
                             className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
@@ -3170,6 +3232,25 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
              title="Phóng to"
            >
              <Maximize size={16} />
+           </button>
+
+           {/* Mobile-only Lock Player button */}
+           <button 
+             onClick={() => {
+               const newVal = !lockPlayer;
+               setLockPlayer(newVal);
+               showToast(`Đã ${newVal ? "bật" : "tắt"} khóa trình phát khi cuộn trang`, newVal ? "success" : "info");
+             }}
+             className={`md:hidden p-3 rounded-xl border transition-all ${
+               lockPlayer 
+                 ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg"
+                 : isDark 
+                   ? "bg-white/5 border-white/10 text-white hover:bg-white/10" 
+                   : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+             }`}
+             title={lockPlayer ? "Khóa trình phát" : "Mở khóa trình phát"}
+           >
+             <Pin size={16} className={`transition-transform ${lockPlayer ? "rotate-45" : ""}`} />
            </button>
 
            {featureFlags.screen_recording && (
