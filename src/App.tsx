@@ -531,13 +531,17 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isVTV = category === "VTV" || alt.includes("VTV");
   const isVTVcab = category === "VTVcab" || alt.includes("ON");
   const isShrunk = alt.includes("THVL") || alt.includes("Vĩnh Long") || alt.includes("QNgTV") || alt.includes("Quảng Ngãi");
+  const isHTVGroup = (category === "HTV" || alt.includes("HTV")) && alt !== "HTV Thể Thao";
+  const isLocalGroup = category === "Địa phương";
   const scaleClass = isVTVcab 
     ? "scale-[1.1]" 
     : isVTV
       ? "scale-[1.12]"
       : isShrunk 
         ? "scale-[1.0]" 
-        : "scale-[1.35]";
+        : (isHTVGroup || isLocalGroup)
+          ? "scale-[1.31]"
+          : "scale-[1.35]";
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
   const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
@@ -1901,6 +1905,50 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     }
   }, [active]);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFs = !!(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      );
+      if (!isFs) {
+        if (videoRef.current && !videoRef.current.paused) {
+          videoRef.current.pause();
+          setIsPlaying(false);
+        }
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleWebkitEndFullscreen = () => {
+      video.pause();
+      setIsPlaying(false);
+    };
+
+    video.addEventListener("webkitendfullscreen", handleWebkitEndFullscreen);
+    return () => {
+      video.removeEventListener("webkitendfullscreen", handleWebkitEndFullscreen);
+    };
+  }, [active]);
+
   // categories definition removed to avoid duplication
 
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -2233,11 +2281,59 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     if (video.paused) {
       video.play();
       setIsPlaying(true);
+      enterFullscreen();
     } else {
       video.pause();
       setIsPlaying(false);
     }
   };
+
+  const enterFullscreen = () => {
+    const container = containerRef.current;
+    const video = videoRef.current;
+    if (!container) {
+      if (video && typeof (video as any).webkitEnterFullscreen === 'function') {
+        try {
+          (video as any).webkitEnterFullscreen();
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+      return;
+    }
+
+    if (container.requestFullscreen) {
+      container.requestFullscreen().catch(() => {
+        if (video && typeof (video as any).webkitEnterFullscreen === 'function') {
+          try {
+            (video as any).webkitEnterFullscreen();
+          } catch (e) {}
+        }
+      });
+    } else if (video && typeof (video as any).webkitEnterFullscreen === 'function') {
+      try {
+        (video as any).webkitEnterFullscreen();
+      } catch (err) {
+        console.error("webkitEnterFullscreen list failed", err);
+      }
+    } else if ((container as any).webkitRequestFullscreen) {
+      try {
+        (container as any).webkitRequestFullscreen();
+      } catch (e) {}
+    }
+  };
+
+  const playChannelAndEnterFullscreen = (ch: Channel) => {
+    setActive(ch);
+    enterFullscreen();
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      enterFullscreen();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [active]);
 
   const toggleMute = () => {
     const video = videoRef.current;
@@ -2641,7 +2737,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       <div className="space-y-0.5 md:space-y-1">
                         <h4 className="text-sm md:text-lg font-bold tracking-tighter text-white uppercase">{active.name.toLowerCase().includes("hd") ? active.name : `${active.name} HD`}</h4>
                         {active.desc && (
-                          <p className="text-[9px] md:text-[11px] text-white/60 font-bold uppercase tracking-wider max-w-sm">
+                          <p className="text-[9px] md:text-[11px] text-white/60 font-normal uppercase tracking-wider max-w-sm">
                             {active.desc}
                           </p>
                         )}
@@ -2827,7 +2923,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       stream: urlStreamInput.trim(),
                       desc: `Luồng phát trực tiếp từ URL`
                     };
-                    setActive(customChan);
+                    playChannelAndEnterFullscreen(customChan);
                     
                     const dateString = new Date().toLocaleString("vi-VN");
                     setUrlHistory(prev => {
@@ -2883,7 +2979,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             stream: h.url,
                             desc: `Luồng phát trực tiếp từ URL`
                           };
-                          setActive(customChan);
+                          playChannelAndEnterFullscreen(customChan);
                           showToast(`Đang kết nối luồng "${h.name || "VLC Stream"}"`, "success");
                         }}
                         className={`p-2 rounded-xl border text-left cursor-pointer transition-all flex flex-col gap-0.5 ${
@@ -3043,7 +3139,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             </div>
           </div>
           {active.desc && (
-            <p className={`text-xs md:text-[13px] font-bold tracking-wide uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            <p className={`text-xs md:text-[13px] font-normal tracking-wide uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
               {active.desc}
             </p>
           )}
@@ -3407,7 +3503,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   stream: urlStreamInput.trim(),
                   desc: `Luồng phát trực tiếp từ URL`
                 };
-                setActive(customChan);
+                playChannelAndEnterFullscreen(customChan);
                 
                 // Save to history
                 const dateString = new Date().toLocaleString("vi-VN");
@@ -3458,7 +3554,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           stream: h.url,
                           desc: h.url
                         };
-                        setActive(customChan);
+                        playChannelAndEnterFullscreen(customChan);
                         showToast(`Luồng: ${h.name}`, "info");
                       }}
                     >
@@ -3911,7 +4007,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           <ChannelCard 
                             key={`tv-${cat}-${ch.name}-${ch.stream}`} 
                             ch={ch} 
-                            onClick={() => setActive(ch)} 
+                            onClick={() => playChannelAndEnterFullscreen(ch)} 
                             isDark={isDark} 
                             isActive={active.name === ch.name} 
                             favorites={favorites} 
@@ -4065,7 +4161,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           stream: urlStreamInput.trim(),
                           desc: `Luồng phát trực tiếp từ URL`
                         };
-                        setActive(customChan);
+                        playChannelAndEnterFullscreen(customChan);
                         
                         const dateString = new Date().toLocaleString("vi-VN");
                         setUrlHistory(prev => {
@@ -4122,7 +4218,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                                 stream: h.url,
                                 desc: `Luồng phát trực tiếp từ URL`
                               };
-                              setActive(customChan);
+                              playChannelAndEnterFullscreen(customChan);
                               setIsMobileScheduleOpen(false);
                               showToast(`Đang kết nối luồng "${h.name || "VLC Stream"}"`, "success");
                             }}
