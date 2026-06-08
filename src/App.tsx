@@ -597,7 +597,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         referrerPolicy="no-referrer"
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.15)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.15)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.15)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.15))" } : undefined}
+        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.25)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.25)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.25)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.25))" } : undefined}
       />
       {/* Reflection under the channel logos */}
       <div 
@@ -612,7 +612,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
           alt="" 
           referrerPolicy="no-referrer"
           className={`${className} object-contain p-0 scale-y-[-1] blur-[4px] opacity-80 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
-          style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.15)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.15)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.15)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.15))" } : undefined}
+          style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.25)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.25)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.25)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.25))" } : undefined}
         />
       </div>
     </div>
@@ -777,8 +777,8 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         )}
 
         {isActuallyActive && (
-          <div className="absolute bottom-2 right-2 bg-[#FF453A] text-white py-0.5 px-1.5 rounded-lg z-[25] shadow-lg flex items-center gap-1 border border-red-500/20 select-none">
-            <div className="flex items-end gap-[1.5px] h-2.5 w-2.5">
+          <div className="absolute bottom-2 right-2 h-5 w-5 bg-[#FF453A] text-white rounded-full z-[25] shadow-lg flex items-center justify-center border border-red-500/20 select-none">
+            <div className="flex items-end gap-[1.2px] h-2.5 w-2.5 justify-center">
               <motion.span 
                 animate={{ height: ["30%", "100%", "30%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0 }}
@@ -795,7 +795,6 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
                 className="w-[1.5px] bg-white rounded-full block animate-none" 
               />
             </div>
-            <span className="text-[7.5px] font-black tracking-wider uppercase leading-none">LIVE</span>
           </div>
         )}
         
