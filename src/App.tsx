@@ -603,7 +603,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   );
 }
 
-const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign, activeChannelName }: {
+const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign, activeChannelName, isLargeLayout }: {
   ch: Channel,
   onClick: (targetCh?: Channel) => void,
   isDark: boolean,
@@ -616,7 +616,8 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
   isLiveTab?: boolean,
   onContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
   useNewDesign?: boolean,
-  activeChannelName?: string
+  activeChannelName?: string,
+  isLargeLayout?: boolean
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
@@ -707,7 +708,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
                   className={`w-full text-left px-3.5 py-3 text-[10px] font-black tracking-[0.05em] uppercase rounded-xl transition-all flex items-center justify-between ${
                     isSelected
                       ? "bg-[#4AC4FE]/15 text-[#4AC4FE]"
-                      : isDark ? "hover:bg-white/5 text-slate-305" : "hover:bg-slate-100 text-slate-700"
+                      : isDark ? "hover:bg-white/5 text-slate-355" : "hover:bg-slate-100 text-slate-700"
                   }`}
                 >
                   <span>{item.label}</span>
@@ -722,12 +723,19 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
       <motion.button
         whileTap={{ scale: 0.98 }}
         onClick={handleCardClick}
-        style={useNewDesign ? {
-          backgroundImage: `url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDgwIDQwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48cGF0aCBkPSJNMCAyMCBDIDIwIDAsIDIwIDQwLCA0MCAyMCBDIDYwIDAsIDYwIDQwLCA4MCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJlOGYwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0wIDMwIEMgMjAgMTAsIDIwIDUwLCA0MCAzMCBDIDYwIDEwLCA2MCA1MCwgODAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48cGF0aCBkPSJNMCAxMCBDIDIwIC0xMCwgMjAgMzAsIDQwIDEwIEMgNjAgLTEwLCA2MCAzMCwgODAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48L3N2Zz4=")`,
-          backgroundSize: "60px 30px",
-          backgroundRepeat: "repeat"
-        } : undefined}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-none z-10 rounded-2xl border-[3px] ${
+        style={{
+          ...(useNewDesign ? {
+            backgroundImage: `url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDgwIDQwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48cGF0aCBkPSJNMCAyMCBDIDIwIDAsIDIwIDQwLCA0MCAyMCBDIDYwIDAsIDYwIDQwLCA4MCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJlOGYwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0wIDMwIEMgMjAgMTAsIDIwIDUwLCA0MCAzMCBDIDYwIDEwLCA2MCA1MCwgODAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48cGF0aCBkPSJNMCAxMCBDIDIwIC0xMCwgMjAgMzAsIDQwIDEwIEMgNjAgLTEwLCA2MCAzMCwgODAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48L3N2Zz4=")`,
+            backgroundSize: "60px 30px",
+            backgroundRepeat: "repeat"
+          } : {}),
+          ...(isLargeLayout ? {
+            backgroundImage: isDark 
+              ? "repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 10px, transparent 10px, transparent 20px)"
+              : "repeating-linear-gradient(135deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 10px, transparent 10px, transparent 20px)"
+          } : {})
+        }}
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[3px] ${
           isActuallyActive
             ? `border-[#4AC4FE] ${useNewDesign ? "" : (isDark ? "bg-[#202023]" : "bg-white")}`
             : useNewDesign
@@ -735,56 +743,68 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
               : isDark
                 ? `border-white/5 bg-[#202023] hover:brightness-110 group-hover:border-white`
                 : `border-[#e2e8f0] bg-white hover:brightness-105 group-hover:border-white`
-        }`}
+        } ${isLargeLayout ? "-skew-x-12 transform origin-center shadow-lg" : ""}`}
       >
 
         {isMaintenance && (
-          <div className="absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
+          <div className={`absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md ${isLargeLayout ? "skew-x-12 transform" : ""}`}>
             BẢO TRÌ
           </div>
         )}
         {isComingSoon && isVTV6 && (
-          <div className="absolute top-2 left-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
+          <div className={`absolute top-2 left-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md ${isLargeLayout ? "skew-x-12 transform" : ""}`}>
             {getVTV6Days()}d
           </div>
         )}
         {isComingSoon && !isVTV6 && (
-          <div className="absolute top-2 left-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase">
+          <div className={`absolute top-2 left-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase ${isLargeLayout ? "skew-x-12 transform" : ""}`}>
             SẮP RA MẮT
           </div>
         )}
 
         {ch.qualityBadge && (
-          <div className="absolute bottom-2 left-2 bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md z-20 shadow-md">
+          <div className={`absolute bottom-2 left-2 bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md z-20 shadow-md ${isLargeLayout ? "skew-x-12 transform" : ""}`}>
             {ch.qualityBadge}
           </div>
         )}
 
         {isActuallyActive && (
-          <div className="absolute bottom-1 right-1 bg-[#FF453A] text-white py-[2px] px-1.5 rounded-[5px] z-[25] shadow-md flex items-center gap-1 border border-red-500/20 select-none">
-            <div className="flex items-end gap-[1px] h-2 w-2 justify-center">
+          <div className={`absolute select-none z-[25] shadow-md flex items-center justify-center bg-[#FF453A] text-white border border-red-500/20 ${
+            isLargeLayout 
+              ? "bottom-2 right-2 py-1 px-3 rounded-lg gap-1.5 skew-x-12 transform" 
+              : "bottom-1 right-1 py-[2px] px-1.5 rounded-[5px] gap-1"
+          }`}>
+            <div className={`flex items-end justify-center ${
+              isLargeLayout ? "gap-[1.5px] h-3.5 w-3.5" : "gap-[1px] h-2 w-2"
+            }`}>
               <motion.span 
                 animate={{ height: ["30%", "100%", "30%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0 }}
-                className="w-[1px] bg-white rounded-full block animate-none" 
+                className={`${isLargeLayout ? "w-[1.5px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
               />
               <motion.span 
                 animate={{ height: ["100%", "30%", "100%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0.15 }}
-                className="w-[1px] bg-white rounded-full block animate-none" 
+                className={`${isLargeLayout ? "w-[1.5px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
               />
               <motion.span 
                 animate={{ height: ["50%", "100%", "50%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0.3 }}
-                className="w-[1px] bg-white rounded-full block animate-none" 
+                className={`${isLargeLayout ? "w-[1.5px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
               />
             </div>
-            <span className="text-[6.5px] font-black tracking-wider uppercase leading-none">LIVE</span>
+            <span className={`${
+              isLargeLayout ? "text-[10px] font-black tracking-widest" : "text-[6.5px] font-black tracking-wider"
+            } uppercase leading-none`}>LIVE</span>
           </div>
         )}
         
         {/* Logo parent perfectly centered vertically and horizontally inside the tile with scale transition on hover */}
-        <div className={`absolute inset-0 flex items-center justify-center z-10 ${ch.category === "VTVcab" ? "p-[14px] sm:p-[18px]" : "p-[5px] sm:p-[8px]"}`}>
+        <div className={`absolute inset-0 flex items-center justify-center z-10 transition-all duration-300 ${
+          ch.category === "VTVcab" 
+            ? (isLargeLayout ? "p-[22px]" : "p-[14px] sm:p-[18px]") 
+            : (isLargeLayout ? "p-[15px]" : "p-[5px] sm:p-[8px]")
+        } ${isLargeLayout ? "skew-x-12 transform scale-[0.65]" : "scale-100"}`}>
           <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out group-hover:scale-120">
             {/* Main Centered Logo */}
             <ChannelLogo 
@@ -4250,6 +4270,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             onContextMenu={onChannelContextMenu}
                             useNewDesign={useNewDesign}
                             activeChannelName={active?.name}
+                            isLargeLayout={isLargeLayout}
                           />
                         ))
                       )}
