@@ -1811,6 +1811,23 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
 
   const [liveSubTab, setLiveSubTab] = useState<"vplay" | "custom" | "url">(mode === "realm" ? "custom" : "vplay");
   const [liveTabSection, setLiveTabSection] = useState<"channels" | "schedule">("channels");
+  const [isLargeLayout, setIsLargeLayout] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem("vplay_is_large_layout");
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleLargeLayout = (val: boolean) => {
+    setIsLargeLayout(val);
+    try {
+      localStorage.setItem("vplay_is_large_layout", JSON.stringify(val));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const parseM3U = (text: string): Channel[] => {
     const lines = text.split("\n");
@@ -3518,6 +3535,20 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 </div>
               );
             })}
+
+            {/* Toggle Giao diện lớn */}
+            <button
+              onClick={() => handleToggleLargeLayout(!isLargeLayout)}
+              className={`flex items-center gap-2 p-1.5 px-3 rounded-xl border transition-all ${
+                isLargeLayout 
+                  ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-md font-black" 
+                  : isDark ? "bg-white/5 border-transparent hover:bg-white/10 text-slate-300" : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-800"
+              }`}
+              title="Bật/Tắt Giao diện lớn (Hiển thị 2 ô kênh/dòng)"
+            >
+              <LayoutGrid size={12} className={isLargeLayout ? "text-white" : "text-[#4AC4FE]"} />
+              <span className="text-xs font-bold">Giao diện lớn: {isLargeLayout ? "BẬT" : "TẮT"}</span>
+            </button>
           </div>
         </div>
       )}
@@ -3962,108 +3993,125 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               ))}
             </div>
 
-            {/* Mobile Filter & Sort side-by-side dropdowns */}
-            <div className="flex md:hidden w-full gap-3 relative z-30">
-              {/* Mobile Filter Dropdown */}
-              <div className="relative flex-1">
-                <button
-                  onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }}
-                  className={`w-full p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2 bg-white/5 border-white/5 text-white ${liquidGlass ? "backdrop-blur-md" : ""}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-[#4AC4FE]" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Lọc</span>
-                  </div>
-                  <span className="text-xs font-black truncate max-w-[80px] text-[#4AC4FE]">
-                    {filterType}
-                  </span>
-                </button>
+            {/* Mobile Filter & Sort side-by-side dropdowns & Toggle */}
+            <div className="flex md:hidden w-full flex-col gap-3 relative z-30">
+              <div className="flex w-full gap-3">
+                {/* Mobile Filter Dropdown */}
+                <div className="relative flex-1">
+                  <button
+                    onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }}
+                    className={`w-full p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2 bg-white/5 border-white/5 text-white ${liquidGlass ? "backdrop-blur-md" : ""}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4 text-[#4AC4FE]" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Lọc</span>
+                    </div>
+                    <span className="text-xs font-black truncate max-w-[80px] text-[#4AC4FE]">
+                      {filterType}
+                    </span>
+                  </button>
 
-                <AnimatePresence>
-                  {showFilterMenu && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowFilterMenu(false)} />
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
-                      >
-                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "HTV", "Các kênh địa phương"].map((type) => (
-                          <button
-                            key={type}
-                            onClick={() => {
-                              setFilterType(type);
-                              setShowFilterMenu(false);
-                            }}
-                            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                              filterType === type 
-                                ? "bg-[#4AC4FE] text-white" 
-                                : "text-white hover:bg-white/5"
-                            }`}
-                          >
-                            {type}
-                          </button>
-                        ))}
-                      </motion.div>
-                    </>
-                  )}
-                </AnimatePresence>
+                  <AnimatePresence>
+                    {showFilterMenu && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowFilterMenu(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
+                        >
+                          {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "HTV", "Các kênh địa phương"].map((type) => (
+                            <button
+                              key={type}
+                              onClick={() => {
+                                setFilterType(type);
+                                setShowFilterMenu(false);
+                              }}
+                              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                                filterType === type 
+                                  ? "bg-[#4AC4FE] text-white" 
+                                  : "text-white hover:bg-white/5"
+                              }`}
+                            >
+                              {type}
+                            </button>
+                          ))}
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Mobile Sort Dropdown */}
+                <div className="relative flex-1">
+                  <button
+                    onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }}
+                    className={`w-full p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2 bg-white/5 border-white/5 text-white ${liquidGlass ? "backdrop-blur-md" : ""}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sliders className="h-4 w-4 text-[#4AC4FE]" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Xếp</span>
+                    </div>
+                    <span className="text-xs font-black truncate max-w-[80px] text-[#4AC4FE]">
+                      {sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "A-Z" : "Z-A"}
+                    </span>
+                  </button>
+
+                  <AnimatePresence>
+                    {showSortMenu && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowSortMenu(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
+                        >
+                          {[
+                            { id: "default", label: "Mặc định" },
+                            { id: "az", label: "Sắp xếp A-Z" },
+                            { id: "za", label: "Sắp xếp Z-A" }
+                          ].map((opt) => (
+                            <button
+                              key={opt.id}
+                              onClick={() => {
+                                setSortOrder(opt.id as any);
+                                setShowSortMenu(false);
+                              }}
+                              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                                sortOrder === opt.id 
+                                  ? "bg-[#4AC4FE] text-white" 
+                                  : "text-white hover:bg-white/5"
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
 
-              {/* Mobile Sort Dropdown */}
-              <div className="relative flex-1">
-                <button
-                  onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }}
-                  className={`w-full p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2 bg-white/5 border-white/5 text-white ${liquidGlass ? "backdrop-blur-md" : ""}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-[#4AC4FE]" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Xếp</span>
-                  </div>
-                  <span className="text-xs font-black truncate max-w-[80px] text-[#4AC4FE]">
-                    {sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "A-Z" : "Z-A"}
-                  </span>
-                </button>
-
-                <AnimatePresence>
-                  {showSortMenu && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowSortMenu(false)} />
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
-                      >
-                        {[
-                          { id: "default", label: "Mặc định" },
-                          { id: "az", label: "Sắp xếp A-Z" },
-                          { id: "za", label: "Sắp xếp Z-A" }
-                        ].map((opt) => (
-                          <button
-                            key={opt.id}
-                            onClick={() => {
-                              setSortOrder(opt.id as any);
-                              setShowSortMenu(false);
-                            }}
-                            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                              sortOrder === opt.id 
-                                ? "bg-[#4AC4FE] text-white" 
-                                : "text-white hover:bg-white/5"
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </motion.div>
-                    </>
-                  )}
-                </AnimatePresence>
-              </div>
+              {/* Mobile Large Layout Toggle */}
+              <button
+                onClick={() => handleToggleLargeLayout(!isLargeLayout)}
+                className={`w-full p-3 rounded-xl border transition-all flex items-center justify-center gap-2 ${
+                  isLargeLayout
+                    ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg"
+                    : isDark 
+                      ? "bg-slate-800/40 border-slate-700/55 text-slate-200 hover:bg-slate-800/60" 
+                      : "bg-slate-100 border-slate-200 text-[#4AC4FE] hover:bg-slate-200"
+                }`}
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span className="text-xs font-black uppercase tracking-wider">Giao diện lớn: {isLargeLayout ? "BẬT" : "TẮT"}</span>
+              </button>
             </div>
 
-            <div className="hidden md:flex gap-2">
+            <div className="hidden md:flex gap-2.5 shrink-0">
               {/* Desktop Sort Button */}
               <button
                 onClick={() => {
@@ -4071,17 +4119,33 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   else if (sortOrder === "az") setSortOrder("za");
                   else setSortOrder("default");
                 }}
-                className={`p-3.5 md:p-3 rounded-xl border transition-all items-center gap-2 ${
+                className={`p-3.5 md:p-3 rounded-xl border transition-all flex items-center gap-2 ${
                   isDark 
                     ? "bg-slate-800/50 border-slate-700/50 text-white" 
-                    : "bg-white/50 border-white/60 text-slate-900"
+                    : "bg-[#4AC4FE]/5 border-[#4AC4FE]/20 text-slate-900"
                 } ${liquidGlass ? "backdrop-blur-md" : ""}`}
                 title={sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "Sắp xếp A-Z" : "Sắp xếp Z-A"}
               >
-                <Filter className="h-5 w-5" />
-                <span className="text-sm font-medium">
+                <Sliders className="h-5 w-5 text-[#4AC4FE] opacity-80" />
+                <span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
                   {sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "A-Z" : "Z-A"}
                 </span>
+              </button>
+
+              {/* Desktop Large Layout Toggle */}
+              <button
+                onClick={() => handleToggleLargeLayout(!isLargeLayout)}
+                className={`p-3 md:p-3 rounded-xl border transition-all flex items-center gap-2 ${
+                  isLargeLayout
+                    ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg font-black"
+                    : isDark 
+                      ? "bg-slate-800/50 border-slate-700/50 text-white hover:bg-slate-800" 
+                      : "bg-white border-slate-200 text-slate-900 hover:bg-slate-100 shadow-sm"
+                } ${liquidGlass ? "backdrop-blur-md" : ""}`}
+                title="Bật/Tắt Giao diện lớn (Hiển thị 2 ô kênh/dòng)"
+              >
+                <LayoutGrid className={`h-5 w-5 ${isLargeLayout ? "text-white" : "text-[#4AC4FE] opacity-80"}`} />
+                <span className="text-sm font-bold">Giao diện lớn</span>
               </button>
             </div>
           </div>
@@ -4154,7 +4218,11 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6">
+                    <div className={
+                      isLargeLayout 
+                        ? "grid grid-cols-2 gap-4 md:gap-8" 
+                        : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"
+                    }>
                       {cat === "Phát thanh" ? (
                         <div className={`col-span-full p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
                           isDark ? "border-white/10 bg-white/5 text-slate-400 hover:bg-white/10" : "border-black/5 bg-black/5 text-slate-500 hover:bg-black/[0.02]"
