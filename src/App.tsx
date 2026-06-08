@@ -540,7 +540,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
       : isShrunk 
         ? "scale-[1.0]" 
         : (isHTVGroup || isLocalGroup)
-          ? "scale-[1.27]"
+          ? "scale-[1.25]"
           : "scale-[1.35]";
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
@@ -651,17 +651,18 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
         style={useNewDesign ? {
-          backgroundImage: `url("https://static.wikia.nocookie.net/ftv/images/3/36/GroindBACK.png/revision/latest/scale-to-width-down/1000?cb=20260607080437&path-prefix=vi")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat"
+          backgroundImage: `url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDgwIDQwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48cGF0aCBkPSJNMCAyMCBDIDIwIDAsIDIwIDQwLCA0MCAyMCBDIDYwIDAsIDYwIDQwLCA4MCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJlOGYwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0wIDMwIEMgMjAgMTAsIDIwIDUwLCA0MCAzMCBDIDYwIDEwLCA2MCA1MCwgODAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48cGF0aCBkPSJNMCAxMCBDIDIwIC0xMCwgMjAgMzAsIDQwIDEwIEMgNjAgLTEwLCA2MCAzMCwgODAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48L3N2Zz4=")`,
+          backgroundSize: "60px 30px",
+          backgroundRepeat: "repeat"
         } : undefined}
         className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-none z-10 rounded-2xl border-[3px] ${
           isActive
             ? `border-[#4AC4FE] ${useNewDesign ? "" : (isDark ? "bg-[#202023]" : "bg-white")}`
-            : isDark
-              ? `border-white/5 ${useNewDesign ? "" : "bg-[#202023]"} hover:brightness-110 group-hover:border-white`
-              : `border-[#e2e8f0] ${useNewDesign ? "" : "bg-white"} hover:brightness-105 group-hover:border-white`
+            : useNewDesign
+              ? `border-slate-200/80 hover:border-[#4AC4FE]/40 hover:brightness-105`
+              : isDark
+                ? `border-white/5 bg-[#202023] hover:brightness-110 group-hover:border-white`
+                : `border-[#e2e8f0] bg-white hover:brightness-105 group-hover:border-white`
         }`}
       >
 
@@ -695,7 +696,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
                src={ch.logo} 
                alt={ch.name} 
                className="w-full h-full object-contain"
-               isDark={isDark} 
+               isDark={useNewDesign ? false : isDark} 
                liquidGlass={liquidGlass} 
                status={ch.status} 
                category={ch.category}
