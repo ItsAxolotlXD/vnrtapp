@@ -729,22 +729,14 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         whileTap={{ scale: 0.98 }}
         onClick={handleCardClick}
         style={{
-          backgroundImage: isLargeLayout
-            ? "repeating-linear-gradient(45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px)"
-            : isDark
-              ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px)"
-              : "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 1px, transparent 11px)"
+          backgroundImage: "repeating-linear-gradient(45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px)"
         }}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[3px] ${
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[3px] bg-white ${
           isLargeLayout
-            ? (isActuallyActive ? "border-[#4AC4FE] bg-white shadow-lg" : "border-[#e2e8f0]/80 bg-white hover:border-[#4AC4FE]/40 shadow-md")
+            ? (isActuallyActive ? "border-[#4AC4FE] shadow-lg" : "border-[#e2e8f0]/80 hover:border-[#4AC4FE]/40 shadow-md")
             : (isActuallyActive
-                ? `border-[#4AC4FE] ${useNewDesign ? "" : (isDark ? "bg-[#202023]" : "bg-white")}`
-                : useNewDesign
-                  ? `border-slate-200/50 hover:border-[#4AC4FE]/40 hover:brightness-105`
-                  : isDark
-                    ? `border-white/5 bg-[#202023] hover:brightness-110 group-hover:border-white`
-                    : `border-[#e2e8f0] bg-white hover:brightness-105 group-hover:border-white`)
+                ? "border-[#4AC4FE] shadow-md"
+                : "border-[#e2e8f0]/70 hover:border-[#4AC4FE]/40 hover:brightness-105")
         }`}
       >
 
