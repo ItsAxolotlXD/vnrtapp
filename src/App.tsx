@@ -597,7 +597,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         referrerPolicy="no-referrer"
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.45)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.45)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.45)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.45))" } : undefined}
+        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.35)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.35)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.35)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.35))" } : undefined}
       />
     </div>
   );
