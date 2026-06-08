@@ -582,6 +582,8 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
     );
   }
 
+  const isHTV = category === "HTV" || alt.toLowerCase().includes("htv");
+
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <img 
@@ -590,6 +592,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         referrerPolicy="no-referrer"
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+        style={isHTV ? { filter: "drop-shadow(1.5px 0px 0px #000) drop-shadow(-1.5px 0px 0px #000) drop-shadow(0px 1.5px 0px #000) drop-shadow(0px -1.5px 0px #000)" } : undefined}
       />
       {/* Reflection under the channel logos */}
       <div 
@@ -604,6 +607,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
           alt="" 
           referrerPolicy="no-referrer"
           className={`${className} object-contain p-0 scale-y-[-1] blur-[4px] opacity-80 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
+          style={isHTV ? { filter: "drop-shadow(1.5px 0px 0px #000) drop-shadow(-1.5px 0px 0px #000) drop-shadow(0px 1.5px 0px #000) drop-shadow(0px -1.5px 0px #000)" } : undefined}
         />
       </div>
     </div>
@@ -685,6 +689,29 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         {ch.qualityBadge && (
           <div className="absolute bottom-2 left-2 bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md z-20 shadow-md">
             {ch.qualityBadge}
+          </div>
+        )}
+
+        {isActive && (
+          <div className="absolute bottom-2 right-2 bg-[#FF453A] text-white py-0.5 px-1.5 rounded-lg z-[25] shadow-lg flex items-center gap-1 border border-red-500/20 select-none">
+            <div className="flex items-end gap-[1.5px] h-2.5 w-2.5">
+              <motion.span 
+                animate={{ height: ["30%", "100%", "30%"] }}
+                transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0 }}
+                className="w-[1.5px] bg-white rounded-full block animate-none" 
+              />
+              <motion.span 
+                animate={{ height: ["100%", "30%", "100%"] }}
+                transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0.15 }}
+                className="w-[1.5px] bg-white rounded-full block animate-none" 
+              />
+              <motion.span 
+                animate={{ height: ["50%", "100%", "50%"] }}
+                transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0.3 }}
+                className="w-[1.5px] bg-white rounded-full block animate-none" 
+              />
+            </div>
+            <span className="text-[7.5px] font-black tracking-wider uppercase leading-none">LIVE</span>
           </div>
         )}
         
@@ -3932,30 +3959,6 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               </div>
             </div>
 
-            {/* Mobile Use new design Toggle Switch */}
-            <div className={`flex md:hidden items-center justify-between p-3.5 rounded-xl border z-20 ${
-              isDark 
-                ? "bg-white/5 border-white/5 text-white" 
-                : "bg-white border-slate-200 text-slate-600 shadow-sm"
-            } ${liquidGlass ? "backdrop-blur-md" : ""}`}>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Use new design</span>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={useNewDesign}
-                onClick={() => setUseNewDesign(!useNewDesign)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  useNewDesign ? 'bg-[#4AC4FE]' : isDark ? 'bg-slate-740' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                    useNewDesign ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-
             <div className="hidden md:flex gap-2">
               {/* Desktop Sort Button */}
               <button
@@ -3976,30 +3979,6 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   {sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "A-Z" : "Z-A"}
                 </span>
               </button>
-
-              {/* Use new design Toggle Switch */}
-              <div className={`p-3.5 md:p-3 rounded-xl border transition-all flex items-center justify-between gap-3 ${
-                isDark 
-                  ? "bg-slate-800/50 border-slate-700/50 text-white" 
-                  : "bg-white/50 border-white/60 text-slate-900"
-              } ${liquidGlass ? "backdrop-blur-md" : ""}`}>
-                <span className="text-xs font-bold whitespace-nowrap">Use new design</span>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={useNewDesign}
-                  onClick={() => setUseNewDesign(!useNewDesign)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    useNewDesign ? 'bg-[#4AC4FE]' : isDark ? 'bg-slate-700' : 'bg-slate-300'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                      useNewDesign ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
             </div>
           </div>
         )}
@@ -8105,56 +8084,7 @@ function TopBar({
                   <X size={14} className={isDark ? "text-slate-300/60" : "text-slate-400"} />
                 </button>
               )}
-              {setSearchFilterOption && searchFilterOption && (
-                <div className="relative">
-                  <button 
-                    type="button"
-                    onClick={() => setShowTopBarFilterDropdown(!showTopBarFilterDropdown)}
-                    className={`p-1.5 rounded-full transition-all ${showTopBarFilterDropdown ? "text-[#4AC4FE] bg-[#4AC4FE]/10" : (isDark ? "text-slate-100/40 hover:text-slate-200" : "text-slate-400 hover:text-slate-900")}`}
-                    title="Lọc kết quả tìm kiếm"
-                  >
-                    <Filter size={16} />
-                  </button>
-                  <AnimatePresence>
-                    {showTopBarFilterDropdown && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className={`absolute right-0 top-full mt-2 z-[250] min-w-[200px] rounded-xl border p-1 shadow-xl ${
-                          isDark ? "bg-[#181818] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
-                        }`}
-                      >
-                        {[
-                          { label: "Tất cả", value: "Tất cả kênh" as const },
-                          { label: "Kênh của Vplay", value: "Kênh của Vplay" as const },
-                          { label: "Kênh package của bạn", value: "Package của bạn" as const }
-                        ].map((opt) => {
-                          const isActive = searchFilterOption === opt.value;
-                          return (
-                            <button
-                              key={opt.value}
-                              type="button"
-                              onClick={() => {
-                                setSearchFilterOption(opt.value);
-                                setShowTopBarFilterDropdown(false);
-                              }}
-                              className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-between ${
-                                isActive
-                                  ? "bg-[#4AC4FE]/10 text-[#4AC4FE]"
-                                  : isDark ? "hover:bg-white/5 text-slate-300" : "hover:bg-slate-100 text-slate-700"
-                              }`}
-                            >
-                              <span>{opt.label}</span>
-                              {isActive && <Check size={14} className="text-[#4AC4FE]" />}
-                            </button>
-                          );
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )}
+
               
               {/* Collapse/Close button */}
               <button 
@@ -8205,56 +8135,7 @@ function TopBar({
                 <Mic size={18} className={isListening ? "fill-red-500" : ""} strokeWidth={isListening ? 2.5 : 2} />
               </button>
             </Tooltip>
-            {setSearchFilterOption && searchFilterOption && (
-              <div className="relative mr-2">
-                <button 
-                  type="button"
-                  onClick={() => setShowTopBarFilterDropdown(!showTopBarFilterDropdown)}
-                  className={`p-2 rounded-full transition-all ${showTopBarFilterDropdown ? "text-[#4AC4FE] bg-[#4AC4FE]/10" : (isDark ? "text-slate-100/40 hover:text-slate-200 hover:bg-black/5" : "text-slate-400 hover:text-slate-900 hover:bg-black/5")}`}
-                  title="Lọc kết quả tìm kiếm"
-                >
-                  <Filter size={16} />
-                </button>
-                <AnimatePresence>
-                  {showTopBarFilterDropdown && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className={`absolute right-0 top-full mt-2 z-[250] min-w-[200px] rounded-xl border p-1 shadow-xl ${
-                        isDark ? "bg-[#181818] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
-                      }`}
-                    >
-                      {[
-                        { label: "Tất cả", value: "Tất cả kênh" as const },
-                        { label: "Kênh của Vplay", value: "Kênh của Vplay" as const },
-                        { label: "Kênh package của bạn", value: "Package của bạn" as const }
-                      ].map((opt) => {
-                        const isActive = searchFilterOption === opt.value;
-                        return (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() => {
-                              setSearchFilterOption(opt.value);
-                              setShowTopBarFilterDropdown(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-between ${
-                              isActive
-                                ? "bg-[#4AC4FE]/10 text-[#4AC4FE]"
-                                : isDark ? "hover:bg-white/5 text-slate-300" : "hover:bg-slate-100 text-slate-700"
-                            }`}
-                          >
-                            <span>{opt.label}</span>
-                            {isActive && <Check size={14} className="text-[#4AC4FE]" />}
-                          </button>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
+
           </div>
         )}
 
@@ -11345,13 +11226,8 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
     localStorage.setItem("vplay_pinning", isPinningEnabled.toString());
   }, [isPinningEnabled]);
   const [activeChannel, setActiveChannel] = useState(channels[0]);
-  const [useNewDesign, setUseNewDesign] = useState<boolean>(() => {
-    return localStorage.getItem("vplay_use_new_design") === "true";
-  });
-
-  useEffect(() => {
-    localStorage.setItem("vplay_use_new_design", useNewDesign.toString());
-  }, [useNewDesign]);
+  const useNewDesign = true;
+  const setUseNewDesign = useCallback(() => {}, []);
   const [isPlayerInView, setIsPlayerInView] = useState(true);
   const [pipExplicitlyClosed, setPipExplicitlyClosed] = useState(false);
   const [sortOrder, setSortOrder] = useState<"default" | "az" | "za">("default");
