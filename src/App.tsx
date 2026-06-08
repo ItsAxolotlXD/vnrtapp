@@ -597,7 +597,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         referrerPolicy="no-referrer"
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px #000) drop-shadow(-1.5px 0px 0px #000) drop-shadow(0px 1.5px 0px #000) drop-shadow(0px -1.5px 0px #000)" } : undefined}
+        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.15)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.15)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.15)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.15))" } : undefined}
       />
       {/* Reflection under the channel logos */}
       <div 
@@ -612,16 +612,16 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
           alt="" 
           referrerPolicy="no-referrer"
           className={`${className} object-contain p-0 scale-y-[-1] blur-[4px] opacity-80 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
-          style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px #000) drop-shadow(-1.5px 0px 0px #000) drop-shadow(0px 1.5px 0px #000) drop-shadow(0px -1.5px 0px #000)" } : undefined}
+          style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.15)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.15)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.15)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.15))" } : undefined}
         />
       </div>
     </div>
   );
 }
 
-const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign }: {
+const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign, activeChannelName }: {
   ch: Channel,
-  onClick: () => void,
+  onClick: (targetCh?: Channel) => void,
   isDark: boolean,
   isActive?: boolean,
   favorites: string[],
@@ -631,11 +631,41 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
   key?: string | number,
   isLiveTab?: boolean,
   onContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
-  useNewDesign?: boolean
+  useNewDesign?: boolean,
+  activeChannelName?: string
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
   const isVTV6 = ch.name.includes("VTV6");
+
+  const [showVTV5Dropdown, setShowVTV5Dropdown] = useState(false);
+
+  const v5National = useMemo(() => channels.find(c => c.name === "VTV5") || ch, [ch]);
+  const v5TNB = useMemo(() => channels.find(c => c.name === "VTV5 Tây Nam Bộ") || ch, [ch]);
+  const v5TN = useMemo(() => channels.find(c => c.name === "VTV5 Tây Nguyên") || ch, [ch]);
+
+  const v5Variants = useMemo(() => [
+    { label: "VTV5 Quốc gia", target: v5National },
+    { label: "VTV5 Tây Nam Bộ", target: v5TNB },
+    { label: "VTV5 Tây Nguyên", target: v5TN }
+  ], [v5National, v5TNB, v5TN]);
+
+  const isVTV5Card = ch.name === "VTV5";
+  const isActuallyActive = isActive || (isVTV5Card && (
+    activeChannelName === "VTV5" ||
+    activeChannelName === "VTV5 Tây Nam Bộ" ||
+    activeChannelName === "VTV5 Tây Nguyên"
+  ));
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (isVTV5Card) {
+      e.stopPropagation();
+      e.preventDefault();
+      setShowVTV5Dropdown(prev => !prev);
+    } else {
+      onClick();
+    }
+  };
 
   const getVTV6Days = () => {
     const target = new Date('2026-06-08T00:00:00').getTime();
@@ -656,16 +686,65 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
       {/* Background glow when hover (no glow for active) */}
       <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-none z-0 ${isDark ? "bg-white/2" : "bg-slate-500/5"}`} />
       
+      {showVTV5Dropdown && (
+        <div 
+          className="fixed inset-0 z-[190]" 
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowVTV5Dropdown(false);
+          }}
+        />
+      )}
+
+      <AnimatePresence>
+        {showVTV5Dropdown && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className={`absolute left-1/2 -translate-x-1/2 bottom-[110%] w-[184px] rounded-2xl border p-1 border-slate-200/85 shadow-2xl z-[200] flex flex-col gap-1 backdrop-blur-md ${
+              isDark 
+                ? "bg-[#18181b]/95 border-white/5 text-white" 
+                : "bg-white/95 border-slate-200 text-slate-800"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {v5Variants.map((item, index) => {
+              const isSelected = activeChannelName === item.target.name;
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => {
+                    onClick(item.target);
+                    setShowVTV5Dropdown(false);
+                  }}
+                  className={`w-full text-left px-3.5 py-3 text-[10px] font-black tracking-[0.05em] uppercase rounded-xl transition-all flex items-center justify-between ${
+                    isSelected
+                      ? "bg-[#4AC4FE]/15 text-[#4AC4FE]"
+                      : isDark ? "hover:bg-white/5 text-slate-305" : "hover:bg-slate-100 text-slate-700"
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {isSelected && <Check size={13} strokeWidth={3} className="text-[#4AC4FE]" />}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.button
         whileTap={{ scale: 0.98 }}
-        onClick={onClick}
+        onClick={handleCardClick}
         style={useNewDesign ? {
           backgroundImage: `url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDgwIDQwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48cGF0aCBkPSJNMCAyMCBDIDIwIDAsIDIwIDQwLCA0MCAyMCBDIDYwIDAsIDYwIDQwLCA4MCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJlOGYwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0wIDMwIEMgMjAgMTAsIDIwIDUwLCA0MCAzMCBDIDYwIDEwLCA2MCA1MCwgODAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48cGF0aCBkPSJNMCAxMCBDIDIwIC0xMCwgMjAgMzAsIDQwIDEwIEMgNjAgLTEwLCA2MCAzMCwgODAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48L3N2Zz4=")`,
           backgroundSize: "60px 30px",
           backgroundRepeat: "repeat"
         } : undefined}
         className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-none z-10 rounded-2xl border-[3px] ${
-          isActive
+          isActuallyActive
             ? `border-[#4AC4FE] ${useNewDesign ? "" : (isDark ? "bg-[#202023]" : "bg-white")}`
             : useNewDesign
               ? `border-slate-200/50 hover:border-[#4AC4FE]/40 hover:brightness-105`
@@ -697,7 +776,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
           </div>
         )}
 
-        {isActive && (
+        {isActuallyActive && (
           <div className="absolute bottom-2 right-2 bg-[#FF453A] text-white py-0.5 px-1.5 rounded-lg z-[25] shadow-lg flex items-center gap-1 border border-red-500/20 select-none">
             <div className="flex items-end gap-[1.5px] h-2.5 w-2.5">
               <motion.span 
@@ -742,7 +821,9 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
 
 
 const AnimatedTimeBox = ({ value, label, isDark, textClassName }: { value: number, label: string, isDark: boolean, textClassName?: string }) => {
-  const formattedValue = String(value).padStart(2, '0');
+  const formattedValue = value < 0 
+    ? `-${Math.abs(value).toString().padStart(2, '0')}` 
+    : value.toString().padStart(2, '0');
   return (
     <div className="flex flex-col items-center select-none px-1">
       <div className="relative w-12 h-10 md:w-16 md:h-14 flex items-center justify-center overflow-hidden font-mono text-2xl md:text-3xl font-black">
@@ -773,7 +854,20 @@ const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean
       const target = new Date(targetDate).getTime();
       const now = new Date().getTime();
       const diff = target - now;
-      if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      if (diff <= 0) {
+        const absDiff = Math.abs(diff);
+        const rawDays = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+        const rawHours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const rawMinutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+
+        return {
+          days: rawDays > 0 ? -rawDays : 0,
+          hours: rawHours > 0 ? -rawHours : 0,
+          minutes: rawMinutes > 0 ? -rawMinutes : 0,
+          seconds: seconds > 0 ? -seconds : 0
+        };
+      }
       return {
         days: Math.floor(diff / (1000 * 60 * 60 * 24)),
         hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
@@ -799,7 +893,9 @@ const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean
       ].map((item) => (
         <div key={item.unit} className="flex flex-col items-center">
           <div className={`text-4xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}>
-            {item.val.toString().padStart(2, '0')}
+            {item.val < 0 
+              ? `-${Math.abs(item.val).toString().padStart(2, '0')}` 
+              : item.val.toString().padStart(2, '0')}
           </div>
           <div className="text-[10px] font-bold uppercase tracking-widest opacity-40">
             {item.unit}
@@ -868,7 +964,8 @@ function HomeContent({
   slides, 
   bypassed,
   onChannelContextMenu,
-  useNewDesign
+  useNewDesign,
+  activeChannelName
 }: {
   setActiveTab: (tab: string) => void,
   setActiveChannel: (ch: typeof channels[0]) => void,
@@ -884,7 +981,8 @@ function HomeContent({
   slides: any[],
   bypassed?: boolean,
   onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
-  useNewDesign?: boolean
+  useNewDesign?: boolean,
+  activeChannelName?: string
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
   
@@ -983,7 +1081,18 @@ function HomeContent({
       const diff = targetDate - now;
 
       if (diff <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        const absDiff = Math.abs(diff);
+        const rawDays = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+        const rawHours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const rawMinutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+
+        setTimeLeft({
+          days: rawDays > 0 ? -rawDays : 0,
+          hours: rawHours > 0 ? -rawHours : 0,
+          minutes: rawMinutes > 0 ? -rawMinutes : 0,
+          seconds: seconds > 0 ? -seconds : 0
+        });
         return;
       }
 
@@ -1322,8 +1431,8 @@ function HomeContent({
                     <ChannelCard 
                       ch={ch} 
                       className="hover:scale-105"
-                      onClick={() => {
-                        setActiveChannel(ch);
+                      onClick={(targetCh) => {
+                        setActiveChannel(targetCh || ch);
                         setActiveTab("Live");
                       }} 
                       isDark={isDark} 
@@ -1332,6 +1441,7 @@ function HomeContent({
                       liquidGlass={liquidGlass}
                       onContextMenu={onChannelContextMenu}
                       useNewDesign={useNewDesign}
+                      activeChannelName={activeChannelName}
                     />
                     <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-350" : "text-slate-600"}`}>
                       {ch.name}
@@ -1357,8 +1467,8 @@ function HomeContent({
                   <ChannelCard 
                     ch={ch} 
                     className="hover:scale-105"
-                    onClick={() => {
-                      setActiveChannel(ch);
+                    onClick={(targetCh) => {
+                      setActiveChannel(targetCh || ch);
                       setActiveTab("Live");
                     }} 
                     isDark={isDark} 
@@ -1367,6 +1477,7 @@ function HomeContent({
                     liquidGlass={liquidGlass}
                     onContextMenu={onChannelContextMenu}
                     useNewDesign={useNewDesign}
+                    activeChannelName={activeChannelName}
                   />
                   <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                     {ch.name}
@@ -1436,8 +1547,8 @@ function HomeContent({
                 key={`${ch.name}-${ch.stream}`} 
                 ch={ch} 
                 className="hover:scale-105"
-                onClick={() => {
-                  setActiveChannel(ch);
+                onClick={(targetCh) => {
+                  setActiveChannel(targetCh || ch);
                   setActiveTab("Live");
                 }} 
                 isDark={isDark} 
@@ -1446,6 +1557,7 @@ function HomeContent({
                 liquidGlass={liquidGlass}
                 onContextMenu={onChannelContextMenu}
                 useNewDesign={useNewDesign}
+                activeChannelName={activeChannelName}
               />
             ))}
           </div>
@@ -2075,6 +2187,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   const filteredChannels = useMemo(() => {
     return displayChannelsList
       .filter(ch => {
+        if (ch.name === "VTV5 Tây Nam Bộ" || ch.name === "VTV5 Tây Nguyên") {
+          return false;
+        }
         const matchesSearch = ch.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesType = filterType === "Tất cả" 
           || (filterType === "Hoạt động" && ch.status !== "maintenance")
@@ -4073,7 +4188,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           <ChannelCard 
                             key={`tv-${cat}-${ch.name}-${ch.stream}`} 
                             ch={ch} 
-                            onClick={() => playChannelAndEnterFullscreen(ch)} 
+                            onClick={(targetCh) => playChannelAndEnterFullscreen(targetCh || ch)} 
                             isDark={isDark} 
                             isActive={active.name === ch.name} 
                             favorites={favorites} 
@@ -4082,6 +4197,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             isLiveTab={true}
                             onContextMenu={onChannelContextMenu}
                             useNewDesign={useNewDesign}
+                            activeChannelName={active?.name}
                           />
                         ))
                       )}
@@ -12772,6 +12888,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   bypassed={bypassed}
                   onChannelContextMenu={onChannelContextMenu}
                   useNewDesign={useNewDesign}
+                  activeChannelName={activeChannel?.name}
                 />
               )}
               {displayTab === "Tìm kiếm" && (
