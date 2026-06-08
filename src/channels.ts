@@ -9,7 +9,34 @@ export type Channel = {
   desc?: string;
 };
 
-export const channels: Channel[] = [
+function formatLocalChannelName(name: string): string {
+  // Clean trailing HD
+  const cleanName = name.replace(/\s+HD$/i, "").trim();
+
+  // Custom maps for shorthand or special case local names
+  if (cleanName === "H1") return "TRUYỀN HÌNH HÀ NỘI 1 (H1 HD)";
+  if (cleanName === "H2") return "TRUYỀN HÌNH HÀ NỘI 2 (H2 HD)";
+  if (cleanName === "ĐNNRTV1") return "TRUYỀN HÌNH ĐỒNG NAI 1 (ĐN1 HD)";
+  if (cleanName === "ĐNNRTV2") return "TRUYỀN HÌNH ĐỒNG NAI 2 (ĐN2 HD)";
+
+  // Match: MAIN (SUB) or just MAIN
+  const match = cleanName.match(/^([^()]+?)\s*(?:\(([^()]+)\))?$/);
+  if (match) {
+    const main = match[1].trim().toUpperCase();
+    const sub = match[2] ? match[2].trim().toUpperCase() : "";
+
+    if (sub) {
+      const subClean = sub.endsWith(" HD") ? sub : `${sub} HD`;
+      return `TRUYỀN HÌNH ${main} (${subClean})`;
+    } else {
+      return `TRUYỀN HÌNH ${main} (HD)`;
+    }
+  }
+
+  return `TRUYỀN HÌNH ${cleanName.toUpperCase()} (HD)`;
+}
+
+const rawChannels: Channel[] = [
   // VTV
   { category: "VTV", name: "VTV1", logo: "https://static.wikia.nocookie.net/ftv/images/a/ac/1vv.png/revision/latest/scale-to-width-down/1000?cb=20260604052331&path-prefix=vi", stream: "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist.m3u8", desc: "KÊNH TRUYỀN HÌNH THỜI SỰ - CHÍNH TRỊ" },
   { category: "VTV", name: "VTV2", logo: "https://static.wikia.nocookie.net/ftv/images/5/5b/2f.png/revision/latest/scale-to-width-down/1000?cb=20260604052625&path-prefix=vi", stream: "https://live.fptplay53.net/fnxch2/vtv2hd_abr.smil/chunklist.m3u8", desc: "KÊNH TRUYỀN HÌNH KHOA HỌC - GIÁO DỤC" },
@@ -113,3 +140,13 @@ export const channels: Channel[] = [
   { category: "Thiết yếu", name: "Truyền hình Quốc phòng Việt Nam (QPVN)", logo: "https://static.wikia.nocookie.net/logos/images/5/5d/QPVN.png/revision/latest/scale-to-width-down/1000?cb=20220827083916&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd2/quocphongvnhd_vhls.smil/chunklist.m3u8" },
 
 ];
+
+export const channels: Channel[] = rawChannels.map(ch => {
+  if (ch.category === "Địa phương") {
+    return {
+      ...ch,
+      name: formatLocalChannelName(ch.name)
+    };
+  }
+  return ch;
+});
