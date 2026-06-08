@@ -729,18 +729,11 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         whileTap={{ scale: 0.98 }}
         onClick={handleCardClick}
         style={{
-          ...(useNewDesign ? {
-            backgroundImage: `url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDgwIDQwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48cGF0aCBkPSJNMCAyMCBDIDIwIDAsIDIwIDQwLCA0MCAyMCBDIDYwIDAsIDYwIDQwLCA4MCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJlOGYwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0wIDMwIEMgMjAgMTAsIDIwIDUwLCA0MCAzMCBDIDYwIDEwLCA2MCA1MCwgODAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48cGF0aCBkPSJNMCAxMCBDIDIwIC0xMCwgMjAgMzAsIDQwIDEwIEMgNjAgLTEwLCA2MCAzMCwgODAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48L3N2Zz4=")`,
-            backgroundSize: "60px 30px",
-            backgroundRepeat: "repeat"
-          } : {
-            backgroundImage: isDark
+          backgroundImage: isLargeLayout
+            ? "repeating-linear-gradient(45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px)"
+            : isDark
               ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px)"
               : "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 1px, transparent 11px)"
-          }),
-          ...(isLargeLayout ? {
-            backgroundImage: "repeating-linear-gradient(45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px)"
-          } : {})
         }}
         className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[3px] ${
           isLargeLayout
