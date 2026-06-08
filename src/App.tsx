@@ -761,7 +761,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         )}
 
         {isActuallyActive && (
-          <div className="absolute bottom-1.5 right-1.5 bg-[#FF453A] text-white py-[2px] px-1.5 rounded-[5px] z-[25] shadow-md flex items-center gap-1 border border-red-500/20 select-none">
+          <div className="absolute bottom-1 right-1 bg-[#FF453A] text-white py-[2px] px-1.5 rounded-[5px] z-[25] shadow-md flex items-center gap-1 border border-red-500/20 select-none">
             <div className="flex items-end gap-[1px] h-2 w-2 justify-center">
               <motion.span 
                 animate={{ height: ["30%", "100%", "30%"] }}
