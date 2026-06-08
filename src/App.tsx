@@ -733,7 +733,11 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             backgroundImage: `url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDgwIDQwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48cGF0aCBkPSJNMCAyMCBDIDIwIDAsIDIwIDQwLCA0MCAyMCBDIDYwIDAsIDYwIDQwLCA4MCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJlOGYwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0wIDMwIEMgMjAgMTAsIDIwIDUwLCA0MCAzMCBDIDYwIDEwLCA2MCA1MCwgODAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48cGF0aCBkPSJNMCAxMCBDIDIwIC0xMCwgMjAgMzAsIDQwIDEwIEMgNjAgLTEwLCA2MCAzMCwgODAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YxZjVmOSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz48L3N2Zz4=")`,
             backgroundSize: "60px 30px",
             backgroundRepeat: "repeat"
-          } : {}),
+          } : {
+            backgroundImage: isDark
+              ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px)"
+              : "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 1px, transparent 11px)"
+          }),
           ...(isLargeLayout ? {
             backgroundImage: "repeating-linear-gradient(45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px)"
           } : {})
@@ -776,30 +780,30 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         {isActuallyActive && (
           <div className={`absolute select-none z-[25] shadow-md flex items-center justify-center bg-[#FF453A] text-white border border-red-500/20 ${
             isLargeLayout 
-              ? "bottom-2.5 right-3 py-1.5 px-3 rounded-lg gap-2" 
+              ? "bottom-2 right-2.5 py-[3.5px] px-[8px] rounded-md gap-1.5" 
               : "bottom-1 right-1 py-[2px] px-1.5 rounded-[5px] gap-1"
           }`}>
             <div className={`flex items-end justify-center ${
-              isLargeLayout ? "gap-[1.5px] h-3.5 w-3.5" : "gap-[1px] h-2 w-2"
+              isLargeLayout ? "gap-[1.2px] h-2.5 w-2.5" : "gap-[1px] h-2 w-2"
             }`}>
               <motion.span 
                 animate={{ height: ["30%", "100%", "30%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0 }}
-                className={`${isLargeLayout ? "w-[1.5px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
+                className={`${isLargeLayout ? "w-[1.2px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
               />
               <motion.span 
                 animate={{ height: ["100%", "30%", "100%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0.15 }}
-                className={`${isLargeLayout ? "w-[1.5px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
+                className={`${isLargeLayout ? "w-[1.2px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
               />
               <motion.span 
                 animate={{ height: ["50%", "100%", "50%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0.3 }}
-                className={`${isLargeLayout ? "w-[1.5px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
+                className={`${isLargeLayout ? "w-[1.2px]" : "w-[1px]"} bg-white rounded-full block animate-none`} 
               />
             </div>
             <span className={`${
-              isLargeLayout ? "text-[10px] font-black tracking-widest" : "text-[6.5px] font-black tracking-wider"
+              isLargeLayout ? "text-[8px] font-black tracking-wider" : "text-[6.5px] font-black tracking-wider"
             } uppercase leading-none`}>LIVE</span>
           </div>
         )}
