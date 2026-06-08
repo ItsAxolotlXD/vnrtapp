@@ -582,7 +582,12 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
     );
   }
 
-  const isHTV = category === "HTV" || alt.toLowerCase().includes("htv");
+  const shouldAddOutline = category === "HTV" || 
+                           category === "Địa phương" || 
+                           category === "VTVcab" || 
+                           alt.toLowerCase().includes("htv") ||
+                           alt.toLowerCase().includes("vtvcab") ||
+                           alt.toLowerCase().includes("atv");
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">
@@ -592,7 +597,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         referrerPolicy="no-referrer"
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-        style={isHTV ? { filter: "drop-shadow(1.5px 0px 0px #000) drop-shadow(-1.5px 0px 0px #000) drop-shadow(0px 1.5px 0px #000) drop-shadow(0px -1.5px 0px #000)" } : undefined}
+        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px #000) drop-shadow(-1.5px 0px 0px #000) drop-shadow(0px 1.5px 0px #000) drop-shadow(0px -1.5px 0px #000)" } : undefined}
       />
       {/* Reflection under the channel logos */}
       <div 
@@ -607,7 +612,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
           alt="" 
           referrerPolicy="no-referrer"
           className={`${className} object-contain p-0 scale-y-[-1] blur-[4px] opacity-80 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
-          style={isHTV ? { filter: "drop-shadow(1.5px 0px 0px #000) drop-shadow(-1.5px 0px 0px #000) drop-shadow(0px 1.5px 0px #000) drop-shadow(0px -1.5px 0px #000)" } : undefined}
+          style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px #000) drop-shadow(-1.5px 0px 0px #000) drop-shadow(0px 1.5px 0px #000) drop-shadow(0px -1.5px 0px #000)" } : undefined}
         />
       </div>
     </div>
@@ -663,7 +668,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
           isActive
             ? `border-[#4AC4FE] ${useNewDesign ? "" : (isDark ? "bg-[#202023]" : "bg-white")}`
             : useNewDesign
-              ? `border-slate-200/80 hover:border-[#4AC4FE]/40 hover:brightness-105`
+              ? `border-slate-200/50 hover:border-[#4AC4FE]/40 hover:brightness-105`
               : isDark
                 ? `border-white/5 bg-[#202023] hover:brightness-110 group-hover:border-white`
                 : `border-[#e2e8f0] bg-white hover:brightness-105 group-hover:border-white`
