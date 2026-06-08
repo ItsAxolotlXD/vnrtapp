@@ -597,24 +597,8 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         referrerPolicy="no-referrer"
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.25)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.25)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.25)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.25))" } : undefined}
+        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.45)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.45)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.45)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.45))" } : undefined}
       />
-      {/* Reflection under the channel logos */}
-      <div 
-        className="absolute top-[85%] left-0 right-0 h-1/2 pointer-events-none select-none opacity-30 flex items-start justify-center overflow-hidden z-0"
-        style={{
-          maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 65%)",
-          WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 65%)",
-        }}
-      >
-        <img 
-          src={finalSrc} 
-          alt="" 
-          referrerPolicy="no-referrer"
-          className={`${className} object-contain p-0 scale-y-[-1] blur-[4px] opacity-80 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
-          style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.25)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.25)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.25)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.25))" } : undefined}
-        />
-      </div>
     </div>
   );
 }
@@ -777,24 +761,25 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         )}
 
         {isActuallyActive && (
-          <div className="absolute bottom-2 right-2 h-5 w-5 bg-[#FF453A] text-white rounded-full z-[25] shadow-lg flex items-center justify-center border border-red-500/20 select-none">
-            <div className="flex items-end gap-[1.2px] h-2.5 w-2.5 justify-center">
+          <div className="absolute bottom-1.5 right-1.5 bg-[#FF453A] text-white py-[2px] px-1.5 rounded-[5px] z-[25] shadow-md flex items-center gap-1 border border-red-500/20 select-none">
+            <div className="flex items-end gap-[1px] h-2 w-2 justify-center">
               <motion.span 
                 animate={{ height: ["30%", "100%", "30%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0 }}
-                className="w-[1.5px] bg-white rounded-full block animate-none" 
+                className="w-[1px] bg-white rounded-full block animate-none" 
               />
               <motion.span 
                 animate={{ height: ["100%", "30%", "100%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0.15 }}
-                className="w-[1.5px] bg-white rounded-full block animate-none" 
+                className="w-[1px] bg-white rounded-full block animate-none" 
               />
               <motion.span 
                 animate={{ height: ["50%", "100%", "50%"] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut", delay: 0.3 }}
-                className="w-[1.5px] bg-white rounded-full block animate-none" 
+                className="w-[1px] bg-white rounded-full block animate-none" 
               />
             </div>
+            <span className="text-[6.5px] font-black tracking-wider uppercase leading-none">LIVE</span>
           </div>
         )}
         
