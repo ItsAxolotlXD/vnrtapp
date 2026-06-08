@@ -603,6 +603,11 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   );
 }
 
+const getProvinceName = (fullName: string) => {
+  let name = fullName.replace(/^TRUYỀN HÌNH\s+/i, "");
+  return name.split("(")[0].trim();
+};
+
 const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign, activeChannelName, isLargeLayout }: {
   ch: Channel,
   onClick: (targetCh?: Channel) => void,
@@ -730,7 +735,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             backgroundRepeat: "repeat"
           } : {}),
           ...(isLargeLayout ? {
-            backgroundImage: "repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 10px, transparent 10px, transparent 20px)"
+            backgroundImage: "repeating-linear-gradient(45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px)"
           } : {})
         }}
         className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[3px] ${
@@ -771,7 +776,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         {isActuallyActive && (
           <div className={`absolute select-none z-[25] shadow-md flex items-center justify-center bg-[#FF453A] text-white border border-red-500/20 ${
             isLargeLayout 
-              ? "bottom-2 right-2 py-1.5 px-3 rounded-lg gap-2" 
+              ? "bottom-2.5 right-3 py-1.5 px-3 rounded-lg gap-2" 
               : "bottom-1 right-1 py-[2px] px-1.5 rounded-[5px] gap-1"
           }`}>
             <div className={`flex items-end justify-center ${
@@ -798,13 +803,19 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             } uppercase leading-none`}>LIVE</span>
           </div>
         )}
+
+        {isLargeLayout && (ch.category === "Địa phương" || ch.category === "Các kênh địa phương") && (
+          <div className="absolute bottom-2.5 left-3 text-[11px] font-extrabold uppercase tracking-widest text-[#4AC4FE] pointer-events-none select-none z-[15] filter drop-shadow-sm">
+            {getProvinceName(ch.name)}
+          </div>
+        )}
         
         {/* Logo parent perfectly centered vertically and horizontally inside the tile with scale transition on hover */}
         <div className={`absolute inset-0 flex items-center justify-center z-10 transition-all duration-300 ${
           ch.category === "VTVcab" 
             ? (isLargeLayout ? "p-[22px]" : "p-[14px] sm:p-[18px]") 
             : (isLargeLayout ? "p-[15px]" : "p-[5px] sm:p-[8px]")
-        } ${isLargeLayout ? "scale-[0.55]" : "scale-100"}`}>
+        } ${isLargeLayout ? "scale-[0.78]" : "scale-100"}`}>
           <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out group-hover:scale-120">
             {/* Main Centered Logo */}
             <ChannelLogo 
