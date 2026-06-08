@@ -730,40 +730,40 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             backgroundRepeat: "repeat"
           } : {}),
           ...(isLargeLayout ? {
-            backgroundImage: isDark 
-              ? "repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 10px, transparent 10px, transparent 20px)"
-              : "repeating-linear-gradient(135deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 10px, transparent 10px, transparent 20px)"
+            backgroundImage: "repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 10px, transparent 10px, transparent 20px)"
           } : {})
         }}
         className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[3px] ${
-          isActuallyActive
-            ? `border-[#4AC4FE] ${useNewDesign ? "" : (isDark ? "bg-[#202023]" : "bg-white")}`
-            : useNewDesign
-              ? `border-slate-200/50 hover:border-[#4AC4FE]/40 hover:brightness-105`
-              : isDark
-                ? `border-white/5 bg-[#202023] hover:brightness-110 group-hover:border-white`
-                : `border-[#e2e8f0] bg-white hover:brightness-105 group-hover:border-white`
-        } ${isLargeLayout ? "-skew-x-12 transform origin-center shadow-lg" : ""}`}
+          isLargeLayout
+            ? (isActuallyActive ? "border-[#4AC4FE] bg-white shadow-lg" : "border-[#e2e8f0]/80 bg-white hover:border-[#4AC4FE]/40 shadow-md")
+            : (isActuallyActive
+                ? `border-[#4AC4FE] ${useNewDesign ? "" : (isDark ? "bg-[#202023]" : "bg-white")}`
+                : useNewDesign
+                  ? `border-slate-200/50 hover:border-[#4AC4FE]/40 hover:brightness-105`
+                  : isDark
+                    ? `border-white/5 bg-[#202023] hover:brightness-110 group-hover:border-white`
+                    : `border-[#e2e8f0] bg-white hover:brightness-105 group-hover:border-white`)
+        }`}
       >
 
         {isMaintenance && (
-          <div className={`absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md ${isLargeLayout ? "skew-x-12 transform" : ""}`}>
+          <div className="absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
             BẢO TRÌ
           </div>
         )}
         {isComingSoon && isVTV6 && (
-          <div className={`absolute top-2 left-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md ${isLargeLayout ? "skew-x-12 transform" : ""}`}>
+          <div className="absolute top-2 left-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
             {getVTV6Days()}d
           </div>
         )}
         {isComingSoon && !isVTV6 && (
-          <div className={`absolute top-2 left-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase ${isLargeLayout ? "skew-x-12 transform" : ""}`}>
+          <div className="absolute top-2 left-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase">
             SẮP RA MẮT
           </div>
         )}
 
         {ch.qualityBadge && (
-          <div className={`absolute bottom-2 left-2 bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md z-20 shadow-md ${isLargeLayout ? "skew-x-12 transform" : ""}`}>
+          <div className="absolute bottom-2 left-2 bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md z-20 shadow-md">
             {ch.qualityBadge}
           </div>
         )}
@@ -771,7 +771,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         {isActuallyActive && (
           <div className={`absolute select-none z-[25] shadow-md flex items-center justify-center bg-[#FF453A] text-white border border-red-500/20 ${
             isLargeLayout 
-              ? "bottom-2 right-2 py-1 px-3 rounded-lg gap-1.5 skew-x-12 transform" 
+              ? "bottom-2 right-2 py-1.5 px-3 rounded-lg gap-2" 
               : "bottom-1 right-1 py-[2px] px-1.5 rounded-[5px] gap-1"
           }`}>
             <div className={`flex items-end justify-center ${
@@ -804,7 +804,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
           ch.category === "VTVcab" 
             ? (isLargeLayout ? "p-[22px]" : "p-[14px] sm:p-[18px]") 
             : (isLargeLayout ? "p-[15px]" : "p-[5px] sm:p-[8px]")
-        } ${isLargeLayout ? "skew-x-12 transform scale-[0.65]" : "scale-100"}`}>
+        } ${isLargeLayout ? "scale-[0.55]" : "scale-100"}`}>
           <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out group-hover:scale-120">
             {/* Main Centered Logo */}
             <ChannelLogo 
