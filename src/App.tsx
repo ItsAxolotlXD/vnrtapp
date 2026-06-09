@@ -729,7 +729,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         whileTap={{ scale: 0.98 }}
         onClick={handleCardClick}
         style={{
-          backgroundImage: "repeating-linear-gradient(45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 11px)"
+          backgroundImage: "repeating-linear-gradient(45deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 11px)"
         }}
         className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[3px] bg-white ${
           isLargeLayout
@@ -1311,7 +1311,7 @@ function HomeContent({
         </AnimatePresence>
       </div>
 
-      {/* VTV6 Return Countdown Banner */}
+      {/* VTV6 Return Banner */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -1335,23 +1335,13 @@ function HomeContent({
               VTV6 - Kênh Truyền hình Thể thao chính thức trở lại!
             </h2>
             <p className={`text-xs md:text-[13px] font-medium leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-              Kênh VTV6 dự kiến trở lại vào lúc 10h00 sáng ngày 08/06/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao (trước kia là Ban thể thao) quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!
+              VTV6 - Kênh truyền hình thể thao của Đài Truyền hình Việt Nam đã chính thức lên sóng vào 09h40 - 08/06/2026. Kênh phát sóng các bản tin, chuyên mục và chương trình tường thuật về thể thao trong nước và quốc tế, với mục tiêu thúc đẩy phong trào thể thao quần chúng, thể thao học đường, thể thao chuyên nghiệp phát triển tại Việt Nam cũng như hướng đến rèn luyện, nâng cao sức khỏe cộng đồng và xây dựng con người phát triển toàn diện
             </p>
           </div>
         </div>
 
-        {/* Beautiful Animated Countdown Timer & Watch Now Button */}
-        <div className="flex flex-col items-center gap-4 shrink-0 w-full sm:w-auto">
-          <div className="flex items-center gap-1.5 xs:gap-3 w-full sm:w-auto bg-white/5 border border-white/10 p-3.5 md:p-5 rounded-2xl md:rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md justify-center">
-            <AnimatedTimeBox value={timeLeft.days} label="Ngày" isDark={isDark} />
-            <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-            <AnimatedTimeBox value={timeLeft.hours} label="Giờ" isDark={isDark} />
-            <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-            <AnimatedTimeBox value={timeLeft.minutes} label="Phút" isDark={isDark} />
-            <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-            <AnimatedTimeBox value={timeLeft.seconds} label="Giây" isDark={isDark} textClassName="text-red-500" />
-          </div>
-
+        {/* Watch Now & Learn More buttons */}
+        <div className="flex flex-col gap-3 shrink-0 w-full sm:w-auto sm:min-w-[180px]">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
@@ -1367,6 +1357,17 @@ function HomeContent({
             <Play size={14} fill="currentColor" />
             Xem ngay
           </motion.button>
+
+          <motion.a
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            href="https://vi.wikipedia.org/wiki/VTV6"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-6 border ${isDark ? "border-white/10 hover:bg-white/5 text-white/80" : "border-slate-200 hover:bg-slate-50 text-slate-700"} font-bold text-xs rounded-xl md:rounded-2xl transition-all cursor-pointer select-none text-center`}
+          >
+            Tìm hiểu thêm
+          </motion.a>
         </div>
       </motion.div>
 
@@ -5559,8 +5560,8 @@ function RejuvenatedSettings(props: any) {
                   <span className="text-sm md:text-base font-bold text-emerald-500">Dev</span>
                 </div>
                 <div className="flex justify-between items-center py-2.5 border-b border-white/5">
-                  <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Build</span>
-                  <span className="text-sm md:text-base font-bold text-[#4AC4FE]">26614</span>
+                  <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Version</span>
+                  <span className="text-sm md:text-base font-bold text-[#4AC4FE]">26.7.0</span>
                 </div>
                 <div className="flex justify-between items-center py-2.5">
                   <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Compiled</span>
@@ -6237,8 +6238,8 @@ function RejuvenatedSettings(props: any) {
                         <span className="text-blue-500 font-bold">Dev</span>
                       </div>
                       <div className="flex justify-between items-center text-sm">
-                        <span className={`${isDark ? "text-white/60" : "text-slate-400"} font-medium`}>Build:</span>
-                        <span className={`${isDark ? "text-white" : "text-slate-800"} font-bold`}>26614</span>
+                        <span className={`${isDark ? "text-white/60" : "text-slate-400"} font-medium`}>Version:</span>
+                        <span className={`${isDark ? "text-white" : "text-slate-800"} font-bold`}>26.7.0</span>
                       </div>
                       <div className="flex justify-between items-center text-sm col-span-1">
                         <span className={`${isDark ? "text-white/60" : "text-slate-400"} font-medium whitespace-nowrap mr-2`}>Compiled:</span>
@@ -6636,7 +6637,7 @@ function SettingsContent({
                   <span className={`text-[9px] md:text-[10px] font-bold tracking-[0.4em] ${isDark ? "text-white/40" : "text-slate-400"}`}>June 2026 Update</span>
                   <div className="flex items-center gap-1.5 md:gap-2">
                     <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">26M6</span>
-                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Build 26614</span>
+                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Version 26.7.0</span>
                   </div>
                 </div>
               </div>
@@ -6654,7 +6655,7 @@ function SettingsContent({
                    <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>June 2026 Update</p>
                  </div>
                </div>
-               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Build 26614</span>
+               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Version 26.7.0</span>
              </div>
 
              <div className="grid grid-cols-2 gap-3 md:gap-4">
@@ -7714,7 +7715,7 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
                 What's new <span className="text-[#4AC4FE] block sm:inline">in Vplay Dev</span>
               </h2>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] text-[9px] md:text-[10px] font-bold tracking-widest uppercase border border-[#4AC4FE]/20">Build 26614</span>
+                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] text-[9px] md:text-[10px] font-bold tracking-widest uppercase border border-[#4AC4FE]/20">Version 26.7.0</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stable Beta</span>
               </div>
@@ -10154,7 +10155,7 @@ function WidgetsDashboard({
                                                                   <div className="text-4xl font-black text-slate-900 tracking-tighter bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent my-1">
                                                                     {formatTime(currentTime)}
                                                                   </div>
-                                                                  <span className="text-[9px] text-slate-400 font-semibold">Công nghệ đồng bộ tần số VNRT - 26614</span>
+                                                                  <span className="text-[9px] text-slate-400 font-semibold">Công nghệ đồng bộ tần số VNRT - 26.7.0</span>
                                                                 </div>
 
                                                                 {/* Custom formatted calendar row showing we have full grid style calendar view */}
@@ -10214,8 +10215,8 @@ function WidgetsDashboard({
                                                             <span className={`font-bold ${isDev ? (colorWidgets ? "text-sky-300" : "text-[#4AC4FE]") : (colorWidgets ? "text-green-300" : "text-green-600")}`}>{isDev ? "Developer" : "Production"}</span>
                                                           </div>
                                                           <div className="flex justify-between items-center text-[10px]">
-                                                            <span className="opacity-50">Build</span>
-                                                             <span className="font-bold text-[#4AC4FE]">26614</span>
+                                                            <span className="opacity-50">Version</span>
+                                                            <span className="font-bold text-[#4AC4FE]">26.7.0</span>
                                                           </div>
                                                           <div className="flex justify-between items-center text-[10px]">
                                                             <span className="opacity-50">Compiled</span>
@@ -12213,10 +12214,10 @@ const [headingBar, setHeadingBar] = useState(() => {
   useEffect(() => {
     const handleWhatsNew = async () => {
       const lastVersion = localStorage.getItem("vplay_version");
-      const currentVersion = "26614";
+      const currentVersion = "26.7.0";
       
       if (lastVersion !== currentVersion) {
-        if (currentVersion !== "26614" && currentVersion !== "26603") {
+        if (currentVersion !== "26.7.0" && currentVersion !== "26603") {
           setShowWhatsNew(true);
         }
         localStorage.setItem("vplay_version", currentVersion);
@@ -12940,8 +12941,12 @@ const [headingBar, setHeadingBar] = useState(() => {
           }}
           className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Live") ? "pb-0" : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
         >
-          <div
+          <motion.div
             key={displayTab}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className={`h-full flex flex-col ${(displayTab === "Cài đặt" || displayTab === "Live") ? "pt-0" : "pt-4 md:pt-8"}`}
           >
               {displayTab === "Trang chủ" && (
@@ -13169,7 +13174,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 <UpdateLogsContent isDark={isDark} onBack={() => handleOpenSettings()} featureFlags={featureFlags} loadingTreatment={loadingTreatment} handleOpenSettings={handleOpenSettings} />
               )}
               {displayTab === "Quản trị" && isAdmin && <AdminContent isDark={isDark} liquidGlass={liquidGlass} />}
-          </div>
+          </motion.div>
         </div>
       </div>
       
@@ -13647,8 +13652,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   <span className="font-bold text-green-500">Dev</span>
                                 </div>
                                 <div className="flex justify-between items-center text-[11px]">
-                                  <span className="opacity-50">Build</span>
-                                  <span className="font-bold text-[#4AC4FE]">26614</span>
+                                  <span className="opacity-50">Version</span>
+                                  <span className="font-bold text-[#4AC4FE]">26.7.0</span>
                                 </div>
                                 <div className="flex justify-between items-center text-[11px]">
                                   <span className="opacity-50">Compiled</span>
