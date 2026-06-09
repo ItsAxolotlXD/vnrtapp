@@ -794,7 +794,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         )}
 
         {isLargeLayout && (ch.category === "Địa phương" || ch.category === "Các kênh địa phương") && (
-          <div className="absolute bottom-2.5 left-3 text-[11px] font-extrabold uppercase tracking-widest text-[#4AC4FE] pointer-events-none select-none z-[15] filter drop-shadow-sm">
+          <div className="absolute bottom-1.5 left-0 right-0 text-center text-[10.5px] font-extrabold uppercase tracking-widest text-black pointer-events-none select-none z-[15] px-2 truncate">
             {getProvinceName(ch.name)}
           </div>
         )}
@@ -803,7 +803,9 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         <div className={`absolute inset-0 flex items-center justify-center z-10 transition-all duration-300 ${
           ch.category === "VTVcab" 
             ? (isLargeLayout ? "p-[22px]" : "p-[14px] sm:p-[18px]") 
-            : (isLargeLayout ? "p-[15px]" : "p-[5px] sm:p-[8px]")
+            : (isLargeLayout 
+                ? (ch.category === "Địa phương" || ch.category === "Các kênh địa phương" ? "pb-[28px] pt-[6px] px-[15px]" : "p-[15px]") 
+                : "p-[5px] sm:p-[8px]")
         } ${isLargeLayout ? "scale-[0.78]" : "scale-100"}`}>
           <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out group-hover:scale-120">
             {/* Main Centered Logo */}
@@ -2106,18 +2108,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      const isFs = !!(
-        document.fullscreenElement ||
-        (document as any).webkitFullscreenElement ||
-        (document as any).mozFullScreenElement ||
-        (document as any).msFullscreenElement
-      );
-      if (!isFs) {
-        if (videoRef.current && !videoRef.current.paused) {
-          videoRef.current.pause();
-          setIsPlaying(false);
-        }
-      }
+      // Keep playing, do not pause video on exit fullscreen
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -2138,8 +2129,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     if (!video) return;
 
     const handleWebkitEndFullscreen = () => {
-      video.pause();
-      setIsPlaying(false);
+      // Keep playing, do not pause video on iOS exit fullscreen
     };
 
     video.addEventListener("webkitendfullscreen", handleWebkitEndFullscreen);
@@ -2534,15 +2524,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
 
   const playChannelAndEnterFullscreen = (ch: Channel) => {
     setActive(ch);
-    enterFullscreen();
   };
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      enterFullscreen();
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [active]);
 
   const toggleMute = () => {
     const video = videoRef.current;
@@ -4199,7 +4181,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           ) : liveSubTab === "vplay" || liveSubTab === "custom" ? (
             <>
               {filteredCategories.map((cat, catIdx) => {
-                const playlistChannels = liveSubTab === "custom"
+                let playlistChannels = liveSubTab === "custom"
                   ? filteredChannels.filter(c => c.category === cat || (!c.category && cat === "Kênh tự thêm"))
                   : (cat === "Thử nghiệm"
                       ? filteredChannels.filter(c => c.name === "VTV6")
@@ -4218,6 +4200,13 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                                 const isHTV = c.name.startsWith("HTV");
                                 return !isThietYeu && !isVTV && !isVTVcab && !isHTV;
                               }));
+
+                if (cat === "Các kênh địa phương" && liveSubTab === "vplay") {
+                  const thvlChannels = playlistChannels.filter(c => c.name.toUpperCase().includes("VĨNH LONG") || c.name.toUpperCase().includes("THVL"));
+                  const nonThvlChannels = playlistChannels.filter(c => !(c.name.toUpperCase().includes("VĨNH LONG") || c.name.toUpperCase().includes("THVL")));
+                  playlistChannels = [...nonThvlChannels, ...thvlChannels];
+                }
+
                 const displaySubset = liveSubTab === "custom"
                   ? playlistChannels.slice(customPage * 24, (customPage + 1) * 24)
                   : playlistChannels;
@@ -13723,6 +13712,9 @@ const [headingBar, setHeadingBar] = useState(() => {
             ? "bottom-0 left-0 w-full flex justify-center pb-2 md:pb-4"
             : "bottom-[-140px] left-0 w-full flex justify-center opacity-0 pointer-events-none pb-2 md:pb-4"
       }`}
+      style={isNavVisible && !useSidebar ? {
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)"
+      } : undefined}
       onContextMenu={handleGlobalContextMenu}
       >
         <motion.div 
