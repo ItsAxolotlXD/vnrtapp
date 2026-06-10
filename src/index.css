@@ -7,7 +7,7 @@
   --font-google: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --color-primary: var(--vplay-primary, #4AC4FE);
   --color-vplay-sidebar: var(--vplay-sidebar, #181818);
-  --color-vplay-background: var(--vplay-background, #181818);
+  --color-vplay-background: var(--vplay-background, #16161a);
   --color-vplay-topbar: var(--vplay-topbar, #181818);
 }
 

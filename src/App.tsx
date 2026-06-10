@@ -13905,7 +13905,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 setActiveTab(tabId);
                               }}
-                              className={`relative flex flex-col items-center justify-center px-1 py-1 transition-all duration-300 group z-10 w-full ${
+                              className={`relative flex flex-col items-center justify-center px-1 py-0 h-full transition-all duration-300 group z-10 w-full ${
                                 isActive 
                                   ? activeColorClass
                                   : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black hover:opacity-100"
@@ -13914,7 +13914,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                {isActive && (
                                 <motion.div
                                   layoutId="activeTabUnderline"
-                                  className={`absolute bottom-[2px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-full z-10 ${
+                                  className={`absolute bottom-[0px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-b-none rounded-t-full z-10 ${
                                     activeUnderlineClass
                                   }`}
                                   transition={{ type: "spring", stiffness: 650, damping: 32 }}

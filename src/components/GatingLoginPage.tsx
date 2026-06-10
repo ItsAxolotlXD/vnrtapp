@@ -151,64 +151,39 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 180 }}
-        className={`relative w-full max-w-5xl h-auto min-h-[520px] md:min-h-[600px] overflow-hidden shadow-2xl flex flex-col md:flex-row rounded-[32px] md:rounded-[48px] ${
+        className={`relative w-full max-w-3xl h-auto min-h-[440px] md:min-h-[480px] overflow-hidden shadow-2xl flex flex-col md:flex-row rounded-[24px] md:rounded-[36px] ${
           isDark
             ? "bg-[#12131a]/95 border-white/5 text-white shadow-black/80"
             : "bg-white border-slate-200 text-slate-900 shadow-slate-200"
         } border`}
       >
         {/* Left pane: Visual / Brand representation */}
-        <div className="w-full md:w-[45%] bg-gradient-to-br from-[#1d1f2f] to-[#0d0e14] p-8 md:p-12 relative flex flex-col justify-between overflow-hidden shrink-0 border-b md:border-b-0 md:border-r border-white/5">
+        <div className="w-full md:w-[45%] bg-gradient-to-br from-[#1d1f2f] to-[#0d0e14] p-6 md:p-8 relative flex flex-col justify-center overflow-hidden shrink-0 border-b md:border-b-0 md:border-r border-white/5">
           <div className="absolute top-0 right-0 w-80 h-80 bg-[#4AC4FE]/10 blur-[80px] -mr-20 -mt-20" />
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 blur-[80px] -ml-20 -mb-20" />
 
-          <div className="relative z-10 space-y-6">
-            <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/5 backdrop-blur-xl flex items-center justify-center border border-white/10 shadow-lg">
+          <div className="relative z-10 space-y-5">
+            <div className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-xl flex items-center justify-center border border-white/10 shadow-lg">
               <img
                 src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
-                className="w-10 h-10 object-contain"
+                className="w-8 h-8 object-contain"
                 alt="Vplay"
                 referrerPolicy="no-referrer"
               />
             </div>
             <div className="space-y-3">
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight uppercase font-google">
-                VPLAY TV_
+              <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight uppercase font-google">
+                Chào mừng đến với <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent font-black">Vplay</span>
               </h1>
-              <p className="text-white/60 text-xs md:text-sm font-medium leading-relaxed max-w-xs">
-                Ứng dụng truyền hình giải trí thế hệ mới. Đăng nhập để thưởng thức hàng trăm kênh chất lượng cao chuẩn 4K siêu mượt.
+              <p className="text-white/60 text-xs md:text-sm font-medium leading-relaxed">
+                Nền tảng ứng dụng truyền hình thế hệ mới. Vui lòng đăng nhập vào tài khoản Vplay để thưởng thức hàng trăm kênh chất lượng cao chuẩn HD siêu nét và siêu mượt
               </p>
-            </div>
-          </div>
-
-          <div className="relative z-10 mt-8 md:mt-0">
-            <div className="p-5 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md space-y-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-500">
-                  <Sparkles size={16} />
-                </div>
-                <h4 className="text-white font-bold text-xs uppercase tracking-wider">Tài khoản Vplay Live</h4>
-              </div>
-              <p className="text-white/50 text-[11px] leading-relaxed font-medium">
-                Mở tài khoản Vplay miễn phí để lưu danh sách kênh yêu thích, cá nhân hóa hồ sơ và xem luồng trực tiếp không giới hạn.
-              </p>
-              
-              <div className="flex flex-col gap-2 p-2.5 rounded-xl bg-black/40 border border-white/5">
-                <div className="flex justify-between items-center text-[11px]">
-                  <span className="text-white/40 font-semibold uppercase">Email dùng thử</span>
-                  <span className="text-amber-400 font-bold font-mono">guest@vplay.vn</span>
-                </div>
-                <div className="flex justify-between items-center text-[11px]">
-                  <span className="text-white/40 font-semibold uppercase">Mật khẩu</span>
-                  <span className="text-amber-400 font-bold font-mono">123456</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Right pane: Actual Sign-In & Sign-Up Form */}
-        <div className="flex-1 p-6 sm:p-10 md:p-14 overflow-y-auto flex items-center">
+        <div className="flex-1 p-5 sm:p-6 md:p-8 overflow-y-auto flex items-center">
           <div className="w-full max-w-md mx-auto space-y-6">
             
             {/* Mode Switcher */}
