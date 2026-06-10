@@ -151,14 +151,14 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 180 }}
-        className={`relative w-full max-w-3xl h-auto min-h-[440px] md:min-h-[480px] overflow-hidden shadow-2xl flex flex-col md:flex-row rounded-[24px] md:rounded-[36px] ${
+        className={`relative w-full max-w-3xl h-auto min-h-[440px] md:min-h-[480px] overflow-hidden flex flex-col md:flex-row rounded-[24px] md:rounded-[36px] ${
           isDark
-            ? "bg-[#12131a]/95 border-white/5 text-white shadow-black/80"
-            : "bg-white border-slate-200 text-slate-900 shadow-slate-200"
+            ? "bg-[#12131a]/95 border-white/20 text-white shadow-[0_24px_50px_-12px_rgba(0,0,0,0.8),_inset_0_1.5px_0_0_rgba(255,255,255,0.4),_inset_0_0_0_1px_rgba(255,255,255,0.12)]"
+            : "bg-white/95 border-slate-300 text-slate-900 shadow-[0_24px_50px_-12px_rgba(15,23,42,0.12),_inset_0_1.5px_0_0_rgba(255,255,255,0.9),_inset_0_0_0_1px_rgba(255,255,255,0.5)]"
         } border`}
       >
-        {/* Left pane: Visual / Brand representation */}
-        <div className="w-full md:w-[45%] bg-gradient-to-br from-[#1d1f2f] to-[#0d0e14] p-6 md:p-8 relative flex flex-col justify-center overflow-hidden shrink-0 border-b md:border-b-0 md:border-r border-white/5">
+        {/* Left pane: Visual / Brand representation - hidden on mobile to fit modern phone heights */}
+        <div className="hidden md:flex md:w-[42%] bg-gradient-to-br from-[#1d1f2f] to-[#0d0e14] p-6 md:p-8 relative flex-col justify-center overflow-hidden shrink-0 border-r border-white/5">
           <div className="absolute top-0 right-0 w-80 h-80 bg-[#4AC4FE]/10 blur-[80px] -mr-20 -mt-20" />
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 blur-[80px] -ml-20 -mb-20" />
 
@@ -186,15 +186,32 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
         <div className="flex-1 p-5 sm:p-6 md:p-8 overflow-y-auto flex items-center">
           <div className="w-full max-w-md mx-auto space-y-6">
             
+            {/* Mobile Header: only visible on screens < md */}
+            <div className="flex flex-col items-center text-center space-y-2 md:hidden mb-2 animate-fadeIn">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-md ${
+                isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-slate-100"
+              }`}>
+                <img
+                  src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
+                  className="w-6 h-6 object-contain"
+                  alt="Vplay Logo"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <h1 className={`text-lg font-bold tracking-tight uppercase ${isDark ? "text-white" : "text-slate-900"}`}>
+                Chào mừng đến với <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent font-black">Vplay</span>
+              </h1>
+            </div>
+
             {/* Mode Switcher */}
-            <div className={`p-1 flex rounded-xl border ${isDark ? "bg-black/30 border-white/5" : "bg-slate-100 border-slate-200"}`}>
+            <div className="p-1 flex rounded-xl border bg-white/5 border-white/10 backdrop-blur-md">
               <button
                 type="button"
                 onClick={() => { setMode("signIn"); setError(""); }}
                 className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   mode === "signIn"
-                    ? (isDark ? "bg-white/10 text-[#4AC4FE] shadow-sm" : "bg-white text-slate-900 shadow-sm")
-                    : (isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-800")
+                    ? "bg-white/20 text-white border border-white/20 shadow-inner"
+                    : "text-white/60 hover:text-white"
                 }`}
               >
                 <LogIn size={14} />
@@ -205,8 +222,8 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
                 onClick={() => { setMode("signUp"); setError(""); }}
                 className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   mode === "signUp"
-                    ? (isDark ? "bg-white/10 text-[#4AC4FE] shadow-sm" : "bg-white text-slate-900 shadow-sm")
-                    : (isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-800")
+                    ? "bg-white/20 text-white border border-white/20 shadow-inner"
+                    : "text-white/60 hover:text-white"
                 }`}
               >
                 <UserPlus size={14} />
@@ -279,7 +296,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 text-slate-400 hover:text-[#4AC4FE] transition-colors"
+                    className="absolute right-4 text-slate-400 hover:text-white transition-colors"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -312,7 +329,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#4AC4FE] hover:bg-[#39ade8] text-black font-extrabold text-xs tracking-widest py-4 rounded-xl mt-4 cursor-pointer transition-all active:scale-[0.98] disabled:opacity-50 uppercase shadow-lg shadow-[#4AC4FE]/10 flex items-center justify-center gap-2"
+                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold text-[11px] tracking-widest py-4 rounded-xl mt-4 cursor-pointer transition-all disabled:opacity-50 uppercase shadow-lg flex items-center justify-center gap-2 backdrop-blur-md"
               >
                 {loading ? (
                   <>
@@ -331,11 +348,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
                 <button
                   type="button"
                   onClick={onEnterGuestMode}
-                  className={`inline-flex items-center gap-1.5 text-xs font-bold transition-colors py-2 px-4 rounded-xl border ${
-                    isDark
-                      ? "bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/15"
-                      : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
-                  }`}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold transition-all py-2 px-4 rounded-xl border bg-white/5 border-white/10 text-white hover:bg-white/10 backdrop-blur-md"
                 >
                   <HelpCircle size={14} />
                   Sử dụng tài khoản đăng xuất (Xem giới hạn)
@@ -356,11 +369,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className={`w-full h-12 flex items-center justify-center gap-3 text-xs font-bold transition-all border rounded-xl active:scale-[0.98] cursor-pointer ${
-                isDark
-                  ? "bg-[#111111] border-white/5 text-white hover:bg-[#161616]"
-                  : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
-              }`}
+              className="w-full h-12 flex items-center justify-center gap-3 text-xs font-bold transition-all bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md rounded-xl cursor-pointer"
             >
               <img
                 src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/icon_google.svg"

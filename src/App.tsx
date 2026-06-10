@@ -8438,16 +8438,12 @@ function TopBar({
                   : (isDark ? "hover:bg-white/5" : "hover:bg-black/5")
               }`}
             >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 border-white/10 overflow-hidden ${
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 overflow-hidden ${
                 user 
-                  ? (isDark ? "bg-white/10" : "bg-black/5")
-                  : "bg-amber-400/10 text-amber-500"
+                  ? (isDark ? "bg-[#4AC4FE]/10 border-[#4AC4FE]/25 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 border-[#4AC4FE]/30 text-[#0284c7]")
+                  : "bg-amber-400/10 border-white/10 text-amber-500"
               }`}>
-                {user && (avatar || user.photoURL) ? (
-                  <img src={avatar || user.photoURL} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                ) : (
-                  <User size={18} />
-                )}
+                <User size={18} />
               </div>
             </button>
           </Tooltip>
@@ -8466,12 +8462,12 @@ function TopBar({
                  <div className="p-6 pb-4 flex flex-col items-center text-center">
                   {!showVersionInfo ? (
                     <>
-                      <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 border ${isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-slate-100"}`}>
-                        {user && (avatar || user.photoURL) ? (
-                          <img src={avatar || user.photoURL} className="w-full h-full rounded-full object-cover" alt="avatar" referrerPolicy="no-referrer" />
-                        ) : (
-                          <User size={24} className="opacity-40" />
-                        )}
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 border ${
+                        isDark 
+                          ? "bg-[#4AC4FE]/10 border-[#4AC4FE]/25 text-[#4AC4FE]" 
+                          : "bg-[#4AC4FE]/10 border-[#4AC4FE]/35 text-[#0284c7]"
+                      }`}>
+                        <User size={26} />
                       </div>
                       <h3 className="text-base font-bold mb-0.5 tracking-tight">{user ? (name || user.displayName || "Thành viên") : "Khách"}</h3>
                       <p className="text-[10px] opacity-40 mb-4 font-medium tracking-tight">
@@ -8489,7 +8485,7 @@ function TopBar({
                             onClick={() => { handleLogout(); setIsUserMenuOpen(false); }}
                             className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-[18px] font-bold text-sm transition-all active:scale-[0.98] mb-1 cursor-pointer"
                           >
-                            Thoát định danh
+                            Đăng xuất
                           </button>
                         )}
                     </>
@@ -9947,12 +9943,8 @@ function WidgetsDashboard({
                       className="absolute left-[105px] bottom-6 z-[1002] w-64 rounded-[28px] shadow-2xl border border-slate-200 bg-white/95 text-slate-900 backdrop-blur-3xl overflow-hidden"
                     >
                        <div className="p-6 pb-4 flex flex-col items-center text-center">
-                          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-3 bg-black/5 overflow-hidden">
-                            {user?.photoURL ? (
-                              <img src={user.photoURL} className="w-full h-full object-cover rounded-full animate-fade-in" referrerPolicy="no-referrer" alt="avatar" />
-                            ) : (
-                              <User size={24} className="opacity-40" />
-                            )}
+                          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-3 bg-[#4AC4FE]/10 border border-[#4AC4FE]/30 text-[#0284c7] overflow-hidden">
+                            <User size={26} />
                           </div>
                           <h3 className="text-sm font-bold text-slate-900 mb-0.5 tracking-tight">{user ? (user.displayName || "Thành viên") : "Khách"}</h3>
                           <p className="text-[10px] text-slate-400 font-medium mb-4 tracking-tight">
@@ -9970,7 +9962,7 @@ function WidgetsDashboard({
                               onClick={() => { handleLogout(); setIsUserMenuOpen(false); }}
                               className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-[18px] font-bold text-[#e11d48] transition-all active:scale-[0.98] mb-1 border-none outline-none"
                             >
-                              Thoát định danh
+                              Đăng xuất
                             </button>
                           )}
                        </div>
@@ -13563,7 +13555,13 @@ const [headingBar, setHeadingBar] = useState(() => {
               {isSidebarExpanded && !isCompactMode && user && (
                 <div className={`mx-4 mb-6 p-4 rounded-2xl flex items-center gap-3 transition-all ${isDark ? "bg-white/5 border border-white/5" : "bg-white border border-slate-200"}`}>
                    <div className="relative">
-                      <img src={user.photoURL || avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop"} className="w-10 h-10 rounded-full object-cover border border-white/20" />
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${
+                         isDark 
+                           ? "bg-[#4AC4FE]/10 border-[#4AC4FE]/25 text-[#4AC4FE]" 
+                           : "bg-[#4AC4FE]/10 border-[#4AC4FE]/35 text-[#0284c7]"
+                       }`}>
+                          <User size={18} />
+                       </div>
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0a0118]" />
                    </div>
                    <div className="flex-1 overflow-hidden">

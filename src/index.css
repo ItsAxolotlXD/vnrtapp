@@ -134,6 +134,22 @@
   }
 }
 
+/* Bouncy scale hover effect globally for buttons and interactive elements */
+button,
+[role="button"] {
+  transition: transform 0.55s cubic-bezier(0.175, 0.885, 0.4, 1.4), background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+button:hover,
+[role="button"]:hover {
+  transform: scale(1.11);
+}
+
+button:active,
+[role="button"]:active {
+  transform: scale(0.88);
+}
+
 @utility no-scrollbar {
   &::-webkit-scrollbar {
     display: none;
