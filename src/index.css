@@ -3,8 +3,8 @@
 
 @theme {
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-google: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-google: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --color-primary: var(--vplay-primary, #4AC4FE);
   --color-vplay-sidebar: var(--vplay-sidebar, #181818);
   --color-vplay-background: var(--vplay-background, #121214);
@@ -151,7 +151,7 @@ button:active,
 }
 
 .bg-vplay-background {
-  background: linear-gradient(135deg, #1d0933 0%, #0d1225 50%, #051c2e 100%) !important;
+  background: linear-gradient(135deg, #24083f 0%, #0d0a28 45%, #04142d 100%) !important;
 }
 
 @utility no-scrollbar {

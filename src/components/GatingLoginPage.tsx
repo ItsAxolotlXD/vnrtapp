@@ -175,7 +175,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight uppercase font-google">
                 Chào mừng đến với <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent font-black">Vplay</span>
               </h1>
-              <p className="text-white/60 text-xs md:text-sm font-medium leading-relaxed">
+              <p className="text-white/60 text-xs md:text-sm font-semibold leading-relaxed">
                 Nền tảng ứng dụng truyền hình thế hệ mới. Vui lòng đăng nhập vào tài khoản Vplay để thưởng thức hàng trăm kênh chất lượng cao chuẩn HD siêu nét và siêu mượt
               </p>
             </div>
@@ -208,7 +208,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               <button
                 type="button"
                 onClick={() => { setMode("signIn"); setError(""); }}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
                   mode === "signIn"
                     ? "bg-white/20 text-white border border-white/20 shadow-inner"
                     : "text-white/60 hover:text-white"
@@ -220,7 +220,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               <button
                 type="button"
                 onClick={() => { setMode("signUp"); setError(""); }}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
                   mode === "signUp"
                     ? "bg-white/20 text-white border border-white/20 shadow-inner"
                     : "text-white/60 hover:text-white"
@@ -235,7 +235,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               <h2 className="text-2xl font-black tracking-tight uppercase">
                 {mode === "signIn" ? "Đăng nhập tài khoản" : "Tạo tài khoản mới"}
               </h2>
-              <p className={`text-xs font-semibold ${isDark ? "text-slate-400" : "text-slate-500"} mt-1.5`}>
+              <p className={`text-xs font-bold ${isDark ? "text-slate-300" : "text-slate-700"} mt-1.5`}>
                 {mode === "signIn" 
                   ? "Vui lòng nhập thông tin để truy cập hệ thống truyền hình Vplay."
                   : "Đăng ký nhanh bằng email để có trải nghiệm xem TV 4K tốt nhất."}
@@ -246,7 +246,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-xs font-bold flex items-center gap-2.5"
+                className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-xs font-black flex items-center gap-2.5"
               >
                 <AlertCircle size={16} className="shrink-0" />
                 <span className="leading-snug">{error}</span>
@@ -255,7 +255,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className={`text-[10px] font-bold uppercase tracking-wider opacity-60 ml-1 ${
+                <label className={`text-[10px] font-black uppercase tracking-widest opacity-80 ml-1 ${
                   isDark ? "text-white" : "text-slate-900"
                 }`}>
                   Tên đăng nhập / Email
@@ -270,13 +270,13 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Nhập tài khoản hoặc email của bạn..."
-                    className="w-full pl-11 pr-4 py-3.5 bg-transparent outline-none text-sm font-medium placeholder-slate-500 focus:placeholder-slate-400"
+                    className="w-full pl-11 pr-4 py-3.5 bg-transparent outline-none text-sm font-bold placeholder-slate-500 focus:placeholder-slate-400"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className={`text-[10px] font-bold uppercase tracking-wider opacity-60 ml-1 ${
+                <label className={`text-[10px] font-black uppercase tracking-widest opacity-80 ml-1 ${
                   isDark ? "text-white" : "text-slate-900"
                 }`}>
                   Mật khẩu
@@ -291,7 +291,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Nhập mật khẩu truy cập..."
-                    className="w-full pl-11 pr-12 py-3.5 bg-transparent outline-none text-sm font-medium placeholder-slate-500 focus:placeholder-slate-400"
+                    className="w-full pl-11 pr-12 py-3.5 bg-transparent outline-none text-sm font-bold placeholder-slate-500 focus:placeholder-slate-400"
                   />
                   <button
                     type="button"
@@ -305,7 +305,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
 
               {mode === "signUp" && (
                 <div className="space-y-2 animate-fadeIn">
-                  <label className={`text-[10px] font-bold uppercase tracking-wider opacity-60 ml-1 ${
+                  <label className={`text-[10px] font-black uppercase tracking-widest opacity-80 ml-1 ${
                     isDark ? "text-white" : "text-slate-900"
                   }`}>
                     Xác nhận mật khẩu
@@ -320,7 +320,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Nhập lại mật khẩu để xác thực..."
-                      className="w-full pl-11 pr-4 py-3.5 bg-transparent outline-none text-sm font-medium placeholder-slate-500 focus:placeholder-slate-400"
+                      className="w-full pl-11 pr-4 py-3.5 bg-transparent outline-none text-sm font-bold placeholder-slate-500 focus:placeholder-slate-400"
                     />
                   </div>
                 </div>
@@ -329,7 +329,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold text-[11px] tracking-widest py-4 rounded-xl mt-4 cursor-pointer transition-all disabled:opacity-50 uppercase shadow-lg flex items-center justify-center gap-2 backdrop-blur-md"
+                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-black text-xs tracking-widest py-4 rounded-xl mt-4 cursor-pointer transition-all disabled:opacity-50 uppercase shadow-lg flex items-center justify-center gap-2 backdrop-blur-md"
               >
                 {loading ? (
                   <>
@@ -348,12 +348,12 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
                 <button
                   type="button"
                   onClick={onEnterGuestMode}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold transition-all py-2 px-4 rounded-xl border bg-white/5 border-white/10 text-white hover:bg-white/10 backdrop-blur-md"
+                  className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider transition-all py-2 px-4 rounded-xl border bg-white/5 border-white/10 text-white hover:bg-white/10 backdrop-blur-md"
                 >
                   <HelpCircle size={14} />
                   Sử dụng tài khoản đăng xuất (Xem giới hạn)
                 </button>
-                <p className="text-[10px] opacity-40 mt-1">
+                <p className="text-[10px] font-bold opacity-45 mt-1 text-slate-400">
                   * Trực tiếp truyền hình yêu cầu đăng nhập. Bạn có thể duyệt ứng dụng.
                 </p>
               </div>
@@ -361,7 +361,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
 
             <div className="flex items-center gap-4 py-1">
               <div className={`flex-1 h-[1px] ${isDark ? "bg-white/5" : "bg-slate-200"}`} />
-              <span className="text-[9px] font-bold uppercase opacity-30 tracking-[0.2em] whitespace-nowrap">Hoặc tiếp tục với</span>
+              <span className="text-[9px] font-black uppercase opacity-55 tracking-[0.2em] whitespace-nowrap">Hoặc tiếp tục với</span>
               <div className={`flex-1 h-[1px] ${isDark ? "bg-white/5" : "bg-slate-200"}`} />
             </div>
 
@@ -369,7 +369,7 @@ export default function GatingLoginPage({ isDark, onEnterGuestMode }: GatingLogi
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full h-12 flex items-center justify-center gap-3 text-xs font-bold transition-all bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md rounded-xl cursor-pointer"
+              className="w-full h-12 flex items-center justify-center gap-3 text-xs font-black uppercase tracking-wider transition-all bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md rounded-xl cursor-pointer"
             >
               <img
                 src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/icon_google.svg"

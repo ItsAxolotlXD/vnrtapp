@@ -738,14 +738,22 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         whileTap={{ scale: 0.98 }}
         onClick={handleCardClick}
         style={{
-          backgroundImage: "repeating-linear-gradient(45deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 11px)"
+          backgroundImage: isDark 
+            ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px)"
+            : "repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px)"
         }}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[3px] bg-white ${
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[1.5px] backdrop-blur-md ${
+          isDark 
+            ? "bg-white/[0.07] text-white" 
+            : "bg-white/65 text-slate-900"
+        } ${
           isLargeLayout
-            ? (isActuallyActive ? "border-[#4AC4FE] shadow-lg" : "border-[#e2e8f0]/80 hover:border-[#4AC4FE]/40 shadow-md")
+            ? (isActuallyActive 
+                ? "border-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.35)]" 
+                : (isDark ? "border-white/10 hover:border-[#4AC4FE]/40 hover:bg-white/[0.12] shadow-md" : "border-slate-200/40 hover:border-[#4AC4FE]/40 hover:bg-white/80 shadow-md"))
             : (isActuallyActive
-                ? "border-[#4AC4FE] shadow-md"
-                : "border-[#e2e8f0]/70 hover:border-[#4AC4FE]/40 hover:brightness-105")
+                ? "border-[#4AC4FE] shadow-[0_0_10px_rgba(74,196,254,0.35)]"
+                : (isDark ? "border-white/10 hover:border-[#4AC4FE]/40 hover:bg-white/[0.12] hover:brightness-105" : "border-slate-200/40 hover:border-[#4AC4FE]/40 hover:bg-white/80 hover:brightness-105"))
         }`}
       >
 
@@ -5329,7 +5337,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
             </div>
 
             <div className={`relative group min-w-[280px] transition-all`}>
-              <div className={`flex items-center ${isDark ? "btn-3d-dark" : "btn-3d-slate"} px-4 py-3 h-14`}>
+              <div className={`flex items-center ${isDark ? "btn-3d-dark" : "btn-3d-slate"} px-4 py-3 h-14 !rounded-full`}>
                 <SearchIcon className={`mr-3 transition-colors ${isDark ? "text-white/20 group-focus-within:text-[#4AC4FE]" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} size={16} />
                 <input 
                   value={logSearchQuery}
@@ -6486,7 +6494,7 @@ function RejuvenatedSettings(props: any) {
               placeholder="Tìm cài đặt..."
               value={activeSearchQuery}
               onChange={(e) => activeSetSearchQuery(e.target.value)}
-              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-[16px] lg:rounded-[24px] text-xs lg:text-sm font-bold outline-none transition-all border-2 ${
+              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 ${
                 frostedGlassWidgets
                   ? "bg-white/10 border-white/10 focus:border-white/25 text-white placeholder:text-white/45"
                   : (isDark 
@@ -6686,27 +6694,27 @@ function SettingsNew(props: any) {
             <button
               key={`page-${p.num}`}
               onClick={() => setActivePage(p.num)}
-              className={`flex items-center gap-3.5 px-5 py-3 rounded-full text-sm font-normal transition-all shrink-0 select-none ${
+              className={`flex items-center gap-3.5 px-5 py-3 rounded-full text-sm font-bold transition-all shrink-0 select-none ${
                 isActive
                   ? (isDark 
-                      ? "bg-sky-500 text-white border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]" 
-                      : "bg-[#4AC4FE] text-white border border-transparent shadow-lg shadow-sky-500/10")
+                      ? "bg-sky-400 text-black border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]" 
+                      : "bg-[#4AC4FE] text-black border border-transparent shadow-lg shadow-sky-500/10")
                   : (isDark 
                       ? "hover:bg-white/5 border border-transparent text-slate-300" 
                       : "hover:bg-slate-100 border border-transparent text-slate-600")
               }`}
             >
-              <div className={`p-1.5 rounded-full shrink-0 ${isActive ? "bg-white/20" : "bg-transparent"}`}>
+              <div className={`p-1.5 rounded-full shrink-0 ${isActive ? "bg-black/10 text-black" : "bg-transparent"}`}>
                 <PageIcon size={18} />
               </div>
-              <span>{p.label}</span>
+              <span className="text-inherit">{p.label}</span>
             </button>
           );
         })}
       </div>
 
       {/* Main Content Pane */}
-      <div className={`flex-1 p-6 md:p-10 rounded-[32px] overflow-y-auto custom-scrollbar h-full ${useSidebar ? "pb-20" : "pb-40"} ${cardBg}`}>
+      <div className={`flex-1 p-6 md:p-10 rounded-[32px] overflow-y-auto custom-scrollbar h-full pb-28 ${cardBg}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={`page-content-${activePage}`}
@@ -6718,7 +6726,7 @@ function SettingsNew(props: any) {
           >
             {/* Title block */}
             <div>
-              <h2 className="text-xl md:text-2xl font-normal mt-1 tracking-tight text-left text-inherit">
+              <h2 className="text-xl md:text-2xl font-bold mt-1 tracking-tight text-left text-inherit">
                 {pages.find(p => p.num === activePage)?.label}
               </h2>
             </div>
@@ -6727,17 +6735,17 @@ function SettingsNew(props: any) {
             {activePage === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Tài khoản</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Tài khoản</h4>
                   <div className="space-y-3.5 pl-3">
                     {renderBullet(
                       <div className="flex items-center justify-between flex-wrap gap-2">
-                        <span className="opacity-70 font-normal">username:</span>
+                        <span className="opacity-70 font-semibold">username:</span>
                         <span className="font-mono text-xs font-normal">{user?.displayName || user?.email || guestName}</span>
                       </div>
                     )}
                     {renderBullet(
                       <div className="flex items-center justify-between flex-wrap gap-2">
-                        <span className="opacity-70 font-normal">user ID:</span>
+                        <span className="opacity-70 font-semibold">user ID:</span>
                         <span className="font-mono text-xs font-normal select-all bg-sky-500/5 px-2 py-0.5 rounded-full border border-sky-500/10">
                           {user?.uid || "Guest-VPlay"}
                         </span>
@@ -6747,7 +6755,7 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Thao tác</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Thao tác</h4>
                   <div className="flex flex-wrap gap-3 pl-3 pt-2">
                     <button
                       onClick={() => setIsEditingDisplayName(!isEditingDisplayName)}
@@ -6776,7 +6784,7 @@ function SettingsNew(props: any) {
                       animate={{ opacity: 1, height: "auto" }}
                       className="mt-4 pl-3 p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3 text-left"
                     >
-                      <label className="text-xs opacity-60 font-normal">Nhập tên hiển thị mới:</label>
+                      <label className="text-xs opacity-60 font-semibold">Nhập tên hiển thị mới:</label>
                       <div className="flex gap-2">
                         <input
                           type="text"
@@ -6794,12 +6802,12 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div className="pt-4 border-t border-white/5">
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Thông tin ứng dụng</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Thông tin phiên bản</h4>
                   <div className="space-y-3.5 pl-3">
                     {renderBullet(
                       <div className="flex items-center justify-between">
-                        <span className="opacity-70 font-normal">Thông tin phiên bản Vplay:</span>
-                        <span className="font-normal text-xs text-sky-400">v3.4.1 Liquid Glass Edition</span>
+                        <span className="opacity-70 font-semibold">Thông tin phiên bản Vplay:</span>
+                        <span className="font-semibold text-xs text-sky-400">v26.7_03 Liquid Glass Edition</span>
                       </div>
                     )}
                   </div>
@@ -6811,13 +6819,13 @@ function SettingsNew(props: any) {
             {activePage === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Hiệu năng</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Hiệu năng</h4>
                   <div className="pl-3">
                     {renderBullet(
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-normal text-sm text-left">Low Latency Mode</p>
-                          <p className="text-xs opacity-50 text-left font-normal">Tối ưu hóa độ trễ luồng phát trực tiếp</p>
+                           <p className="font-semibold text-sm text-left">Low Latency Mode</p>
+                           <p className="text-xs opacity-50 text-left font-normal animate-none">Tối ưu hóa độ trễ luồng phát trực tiếp</p>
                         </div>
                         <GlassToggle
                           active={!!featureFlags.low_latency_profile}
@@ -6830,13 +6838,13 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Giao diện</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Giao diện</h4>
                   <div className="pl-3">
                     {renderBullet(
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-normal text-sm text-left">Reduce Animation</p>
-                          <p className="text-xs opacity-50 text-left font-normal">Giảm thiểu chuyển động mượt để tăng tốc độ</p>
+                           <p className="font-semibold text-sm text-left">Reduce Animation</p>
+                           <p className="text-xs opacity-50 text-left font-normal animate-none">Giảm thiểu chuyển động mượt để tăng tốc độ</p>
                         </div>
                         <GlassToggle
                           active={!!featureFlags.disable_animation}
@@ -6849,13 +6857,13 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Thông báo</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Thông báo</h4>
                   <div className="pl-3">
                     {renderBullet(
                       <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="text-left animate-none">
-                          <p className="font-normal text-sm text-left">Notification Toast Duration</p>
-                          <p className="text-xs opacity-50 text-left font-normal">Thời gian hiển thị dòng thông báo nổi</p>
+                           <p className="font-semibold text-sm text-left">Notification Toast Duration</p>
+                           <p className="text-xs opacity-50 text-left font-normal animate-none">Thời gian hiển thị dòng thông báo nổi</p>
                         </div>
                         <GlassSelect
                           value={toastDuration}
@@ -6878,13 +6886,13 @@ function SettingsNew(props: any) {
             {activePage === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Điều hướng</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Điều hướng</h4>
                   <div className="pl-3 space-y-4">
                     {renderBullet(
                       <div className="flex flex-col gap-3 text-left">
                         <div>
-                          <p className="font-normal text-sm">Chế độ điều hướng</p>
-                          <p className="text-xs opacity-50 font-normal">Desktop sử dụng sidebar và Touch sử dụng navigation bar</p>
+                           <p className="font-semibold text-sm">Chế độ điều hướng</p>
+                           <p className="text-xs opacity-50 font-normal">Desktop sử dụng sidebar và Touch sử dụng navigation bar</p>
                         </div>
                         <div className="flex gap-2.5 pt-1">
                           <button
@@ -6906,13 +6914,13 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Liquid Glass</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Liquid Glass</h4>
                   <div className="pl-3 space-y-4">
                     {renderBullet(
                       <div className="flex flex-col gap-3 text-left">
                         <div>
-                          <p className="font-normal text-sm">Liquid Glass</p>
-                          <p className="text-xs opacity-50 font-normal">Kiểu mờ đục hoặc trong sương mờ của kính phủ nền</p>
+                           <p className="font-semibold text-sm">Liquid Glass</p>
+                           <p className="text-xs opacity-50 font-normal">Kiểu mờ đục hoặc trong sương mờ của kính phủ nền</p>
                         </div>
                         <div className="flex gap-2.5 pt-1">
                           <button
@@ -6939,12 +6947,12 @@ function SettingsNew(props: any) {
             {activePage === 4 && (
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Cài đặt chung</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Cài đặt chung</h4>
                   <div className="pl-3 space-y-4">
                     {renderBullet(
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-normal text-sm text-left">Đồng hồ và lịch</p>
+                          <p className="font-semibold text-sm text-left">Đồng hồ và lịch</p>
                           <p className="text-xs opacity-50 text-left font-normal">Hiển thị đồng hồ số trên topbar</p>
                         </div>
                         <GlassToggle
@@ -6962,7 +6970,7 @@ function SettingsNew(props: any) {
                       <div className="pl-4 border-l-2 border-sky-500/20 py-2 space-y-4 mt-2">
                         {renderBullet(
                           <div className="flex items-center justify-between flex-wrap gap-2 text-left">
-                            <span className="opacity-75 text-xs font-normal">- Múi giờ</span>
+                            <span className="opacity-75 text-xs font-semibold">Múi giờ</span>
                             <GlassSelect
                               value={timeZone}
                               onChange={setTimeZone}
@@ -6980,7 +6988,7 @@ function SettingsNew(props: any) {
 
                         {renderBullet(
                           <div className="flex items-center justify-between flex-wrap gap-2 text-left">
-                            <span className="opacity-75 text-xs font-normal">- Định dạng giờ</span>
+                            <span className="opacity-75 text-xs font-semibold">Định dạng giờ</span>
                             <div className="flex gap-2">
                               <button onClick={() => setTimeFormat("24h")} className={buttonStyle(timeFormat === "24h")}>
                                 24 giờ
@@ -6994,7 +7002,7 @@ function SettingsNew(props: any) {
 
                         {renderBullet(
                           <div className="flex items-center justify-between flex-wrap gap-2 text-left">
-                            <span className="opacity-75 text-xs font-normal">- Định dạng lịch</span>
+                            <span className="opacity-75 text-xs font-semibold">Định dạng lịch</span>
                             <GlassSelect
                               value={dateFormat}
                               onChange={setDateFormat}
@@ -7013,7 +7021,7 @@ function SettingsNew(props: any) {
                     {renderBullet(
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-normal text-sm text-left">Dự báo thời tiết</p>
+                          <p className="font-semibold text-sm text-left">Dự báo thời tiết</p>
                           <p className="text-xs opacity-50 text-left font-normal">Hiển thị nhiệt độ của khu vực</p>
                         </div>
                         <GlassToggle
@@ -7029,7 +7037,7 @@ function SettingsNew(props: any) {
                         {renderBullet(
                           <div className="flex items-center justify-between flex-wrap gap-4 text-left">
                             <div>
-                              <p className="text-xs font-normal">- Vị trí</p>
+                              <p className="text-xs font-semibold">Vị trí</p>
                               <p className="text-[11px] opacity-60 font-mono font-normal">Vị trí hiện tại: {location || "Chưa xác định"}</p>
                             </div>
                             <div className="flex items-center gap-2">
@@ -7055,7 +7063,7 @@ function SettingsNew(props: any) {
 
                         {renderBullet(
                           <div className="flex items-center justify-between flex-wrap gap-2 text-left">
-                            <span className="opacity-75 text-xs font-normal font-mono">- Đơn vị nhiệt độ</span>
+                            <span className="opacity-75 text-xs font-semibold font-mono">Đơn vị nhiệt độ</span>
                             <div className="flex gap-2">
                               <button onClick={() => setTempUnit("C")} className={buttonStyle(tempUnit === "C")}>
                                 Độ C (°C)
@@ -7072,12 +7080,12 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Floatbar</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Floatbar</h4>
                   <div className="pl-3">
                     {renderBullet(
                       <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="text-left font-normal">
-                          <p className="font-normal text-sm text-left">Tab tối đa</p>
+                          <p className="font-semibold text-sm text-left">Tab tối đa</p>
                           <p className="text-xs opacity-50 text-left font-normal">Tùy chỉnh số lượng tab trong một trang trên Floatbar, tối đa 5 tab</p>
                         </div>
                         <GlassSelect
@@ -7096,12 +7104,12 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Sidebar</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Sidebar</h4>
                   <div className="pl-3 space-y-4">
                     {renderBullet(
                       <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="text-left font-normal">
-                          <p className="font-normal text-sm text-left">Vị trí sidebar</p>
+                          <p className="font-semibold text-sm text-left">Vị trí sidebar</p>
                           <p className="text-xs opacity-50 text-left font-normal">Vị trí hiển thị của thanh điều hướng sidebar</p>
                         </div>
                         <div className="flex gap-2">
@@ -7118,7 +7126,7 @@ function SettingsNew(props: any) {
                     {renderBullet(
                       <div className="flex items-center justify-between">
                         <div className="text-left font-normal">
-                          <p className="font-normal text-sm text-left">Truy cập nhanh</p>
+                          <p className="font-semibold text-sm text-left">Truy cập nhanh</p>
                           <p className="text-xs opacity-50 text-left font-normal">Hiển thị danh sách kênh yêu thích dạng icon tròn trên sidebar</p>
                         </div>
                         <GlassToggle
@@ -7137,13 +7145,13 @@ function SettingsNew(props: any) {
             {activePage === 5 && (
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Picture in Picture</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Picture in Picture</h4>
                   <div className="pl-3">
                     {renderBullet(
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-normal text-sm text-left">Picture in Picture</p>
-                          <p className="text-xs opacity-50 text-left font-normal">Bật cửa sổ phát mini khi điều hướng sang các phòng khác</p>
+                          <p className="font-semibold text-sm text-left">Picture in Picture</p>
+                          <p className="text-xs opacity-50 text-left font-normal animate-none">Bật cửa sổ phát mini khi điều hướng sang các phòng khác</p>
                         </div>
                         <GlassToggle
                           active={!!featureFlags.PiP_experimental}
@@ -7156,7 +7164,7 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div className="pt-4 border-t border-white/5 opacity-60">
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Các tính năng khác</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Các tính năng khác</h4>
                   <div className="pl-3 space-y-2">
                     {renderBullet(
                       <p className="text-sm font-normal text-left">Các tính năng thử nghiệm khác (Multiview, quay màn hình, v.v.) đã chính thức trở thành tính năng chính của hệ thống và được bật mặc định!</p>
@@ -8533,7 +8541,7 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMen
 
   return (
     <div 
-      className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-1.5 h-10 md:h-12 w-full max-w-2xl relative group rounded-2xl overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/60" : "bg-slate-200"}`}
+      className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-1.5 h-10 md:h-12 w-full max-w-2xl relative group rounded-full overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/60" : "bg-slate-200"}`}
       onContextMenu={onContextMenu}
     >
       <div className="flex items-center gap-2 flex-1 overflow-hidden">
@@ -10881,7 +10889,7 @@ function WidgetsDashboard({
                                                                   value={widgetSearchQuery}
                                                                   onChange={(e) => setWidgetSearchQuery(e.target.value)}
                                                                   placeholder="Tìm tiện ích, tab, cài đặt..."
-                                                                  className="w-full h-11 pl-4 pr-10 bg-white/15 hover:bg-white/20 focus:bg-white/25 text-white placeholder-white/50 text-xs font-bold rounded-xl border border-white/5 outline-none transition-all focus:ring-2 focus:ring-white/30"
+                                                                  className="w-full h-11 pl-4 pr-10 bg-white/15 hover:bg-white/20 focus:bg-white/25 text-white placeholder-white/50 text-xs font-bold rounded-full border border-white/5 outline-none transition-all focus:ring-2 focus:ring-white/30"
                                                                 />
                                                                 {widgetSearchQuery && (
                                                                   <button onClick={() => setWidgetSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/10 transition-all text-white/70 hover:text-white">
@@ -11650,7 +11658,7 @@ function WidgetsDashboard({
                                 value={pickerSearchQuery}
                                 onChange={(e) => setPickerSearchQuery(e.target.value)}
                                 placeholder="Tìm kiếm tiện ích..." 
-                                className="w-full h-8 pl-9 pr-6 bg-white/5 focus:bg-white/10 border-b border-white/5 focus:border-b-[#4AC4FE] outline-none text-xs rounded-lg text-white font-normal placeholder:text-white/30 transition-all"
+                                className="w-full h-8 pl-9 pr-6 bg-white/5 focus:bg-white/10 border-b border-white/5 focus:border-b-[#4AC4FE] outline-none text-xs rounded-full text-white font-normal placeholder:text-white/30 transition-all"
                               />
                               {pickerSearchQuery && (
                                 <button onClick={() => setPickerSearchQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-white">
@@ -13172,12 +13180,7 @@ const [headingBar, setHeadingBar] = useState(() => {
   };
 
   if (isAuthLoading) {
-    return (
-      <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center ${isDark ? "bg-[#090a0f] text-white" : "bg-slate-50 text-slate-900"}`}>
-        <LoadingSpinner isDark={isDark} className="w-12 h-12 border-[#4AC4FE]" />
-        <p className="mt-4 text-xs font-bold uppercase tracking-widest opacity-60">Vplay đang khởi động...</p>
-      </div>
-    );
+    return null;
   }
 
   if (!user && !isGuestMode) {
@@ -14302,7 +14305,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   if ((tab.id || tab.name) === "Tìm kiếm" && isSidebarExpanded && !isCompact) {
                     return (
                       <div key={`side-nav-${tab.id || tab.name}-${idx}`} className="px-1.5 py-1 relative">
-                        <div className={`relative flex items-center gap-2.5 px-3.5 py-1.5 h-10 w-full group rounded-2xl overflow-hidden transition-all ${
+                        <div className={`relative flex items-center gap-2.5 px-3.5 py-1.5 h-10 w-full group rounded-full overflow-hidden transition-all ${
                           liquidGlass === "glassy"
                             ? "bg-white/10 text-white" 
                             : isDark 
@@ -14538,16 +14541,13 @@ const [headingBar, setHeadingBar] = useState(() => {
         )}
       </AnimatePresence>
 
-      <div className={`fixed z-50 transition-all duration-500 ${
+      <div className={`fixed z-50 transition-all duration-500 pointer-events-none ${
         useSidebar 
-          ? "bottom-[-100%] opacity-0 pointer-events-none" 
+          ? "bottom-[-100%] opacity-0" 
           : isNavVisible 
-            ? "bottom-0 left-0 w-full flex justify-center pb-2 md:pb-4"
-            : "bottom-[-140px] left-0 w-full flex justify-center opacity-0 pointer-events-none pb-2 md:pb-4"
+            ? "bottom-3 left-0 w-full flex justify-center"
+            : "bottom-[-140px] left-0 w-full flex justify-center opacity-0"
       }`}
-      style={isNavVisible && !useSidebar ? {
-        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)"
-      } : undefined}
       onContextMenu={handleGlobalContextMenu}
       >
         <motion.div 
@@ -14643,7 +14643,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                {isActive && (
                                 <motion.div
                                   layoutId="activeTabUnderline"
-                                  className={`absolute bottom-[-8px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-b-none rounded-t-full z-10 ${
+                                  className={`absolute bottom-[-7px] left-1/2 -translate-x-1/2 h-[3.2px] w-7 rounded-full z-10 ${
                                     activeUnderlineClass
                                   }`}
                                   transition={{ type: "spring", stiffness: 650, damping: 32 }}
