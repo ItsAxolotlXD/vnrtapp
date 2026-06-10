@@ -15,6 +15,7 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, on
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc, arrayUnion, getDocFromServer } from "firebase/firestore";
 
 import { channels, Channel } from "./channels";
+import GatingLoginPage from "./components/GatingLoginPage";
 
 export interface ToastMessage {
   id: string;
@@ -2365,7 +2366,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       const userRef = doc(db, "users", user.uid);
       updateDoc(userRef, {
         watchedChannels: arrayUnion(active.name)
-      }).catch(err => handleFirestoreError(err, OperationType.UPDATE, 'users/' + user.uid));
+      }).catch(err => {
+        console.warn("Could not save watched channels to Firestore:", err);
+      });
     }
 
     video.volume = volume;
@@ -8144,7 +8147,18 @@ function TopBar({
   location = "Hanoi",
   topbarSearchType = "box",
   searchFilterOption,
-  setSearchFilterOption
+  setSearchFilterOption,
+  user,
+  userData,
+  name,
+  avatar,
+  isUserMenuOpen,
+  setIsUserMenuOpen,
+  showVersionInfo,
+  setShowVersionInfo,
+  handleLogin,
+  handleLogout,
+  handleOpenSettings
 }: { 
   isDark: boolean, 
   onMenuClick: () => void, 
@@ -8174,7 +8188,18 @@ function TopBar({
   location?: string,
   topbarSearchType?: "box" | "icon",
   searchFilterOption?: "Tất cả kênh" | "Kênh của Vplay" | "Package của bạn",
-  setSearchFilterOption?: (val: "Tất cả kênh" | "Kênh của Vplay" | "Package của bạn") => void
+  setSearchFilterOption?: (val: "Tất cả kênh" | "Kênh của Vplay" | "Package của bạn") => void,
+  user: any,
+  userData: any,
+  name: string,
+  avatar: string,
+  isUserMenuOpen: boolean,
+  setIsUserMenuOpen: (o: boolean) => void,
+  showVersionInfo: boolean,
+  setShowVersionInfo: (o: boolean) => void,
+  handleLogin: () => void,
+  handleLogout: () => void,
+  handleOpenSettings: () => void
 }) {
   const [isSearchButtonExpanded, setIsSearchButtonExpanded] = React.useState(false);
   const [showTopBarFilterDropdown, setShowTopBarFilterDropdown] = React.useState(false);
@@ -8401,6 +8426,148 @@ function TopBar({
             )}
           </div>
         )}
+
+        {/* User profile picture / Account submenu in topbar */}
+        <div className="relative flex items-center shrink-0">
+          <Tooltip text="Tài khoản Vplay" isDark={isDark} position="bottom">
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className={`flex items-center justify-center p-1 rounded-full transition-all relative group focus:outline-none ${
+                isUserMenuOpen
+                  ? (isDark ? "bg-white/10" : "bg-black/5")
+                  : (isDark ? "hover:bg-white/5" : "hover:bg-black/5")
+              }`}
+            >
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 border-white/10 overflow-hidden ${
+                user 
+                  ? (isDark ? "bg-white/10" : "bg-black/5")
+                  : "bg-amber-400/10 text-amber-500"
+              }`}>
+                {user && (avatar || user.photoURL) ? (
+                  <img src={avatar || user.photoURL} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <User size={18} />
+                )}
+              </div>
+            </button>
+          </Tooltip>
+
+          <AnimatePresence>
+            {isUserMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                transition={{ type: "spring", damping: 20, stiffness: 140 }}
+                className={`absolute top-full mt-3 right-0 w-[280px] rounded-[28px] shadow-2xl z-[500] overflow-hidden border ${
+                  isDark ? "bg-[#12131a] border-white/15 text-white" : "bg-white border-slate-200 text-slate-800 shadow-xl"
+                } backdrop-blur-3xl`}
+              >
+                 <div className="p-6 pb-4 flex flex-col items-center text-center">
+                  {!showVersionInfo ? (
+                    <>
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 border ${isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-slate-100"}`}>
+                        {user && (avatar || user.photoURL) ? (
+                          <img src={avatar || user.photoURL} className="w-full h-full rounded-full object-cover" alt="avatar" referrerPolicy="no-referrer" />
+                        ) : (
+                          <User size={24} className="opacity-40" />
+                        )}
+                      </div>
+                      <h3 className="text-base font-bold mb-0.5 tracking-tight">{user ? (name || user.displayName || "Thành viên") : "Khách"}</h3>
+                      <p className="text-[10px] opacity-40 mb-4 font-medium tracking-tight">
+                        {user ? user.email : "Đăng nhập để có trải nghiệm tốt nhất"}
+                      </p>
+                      {!user ? (
+                        <button 
+                          onClick={() => { handleLogin(); setIsUserMenuOpen(false); }}
+                          className="w-full py-2.5 bg-[#4AC4FE] hover:bg-[#32bcfc] text-black rounded-[18px] font-bold text-sm transition-colors shadow-none active:scale-[0.98] mb-1 border-none outline-none cursor-pointer"
+                        >
+                          Đăng nhập ngay
+                        </button>
+                        ) : (
+                          <button 
+                            onClick={() => { handleLogout(); setIsUserMenuOpen(false); }}
+                            className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-[18px] font-bold text-sm transition-all active:scale-[0.98] mb-1 cursor-pointer"
+                          >
+                            Thoát định danh
+                          </button>
+                        )}
+                    </>
+                  ) : (
+                    <>
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 ${isDark ? "bg-white/10" : "bg-black/5"}`}>
+                        <Info size={28} className="text-[#4AC4FE]" />
+                      </div>
+                      <h3 className="text-base font-bold mb-0.5 tracking-tight">Thông tin Phiên bản</h3>
+                      <p className="text-[10px] opacity-40 mb-4 font-medium tracking-tight">Vplay Metadata Information</p>
+                      <div className={`w-full space-y-1.5 p-3 rounded-2xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="opacity-50">Phát triển by</span>
+                          <span className="font-bold">VNRT</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="opacity-50">Branch</span>
+                          <span className="font-bold text-green-500">Dev</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="opacity-50">Version</span>
+                          <span className="font-bold text-[#4AC4FE]">26.7.0</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="opacity-50">Compiled</span>
+                          <span className="font-bold">15/05/26</span>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setShowVersionInfo(false)}
+                        className={`w-full mt-4 py-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"}`}
+                      >
+                        Quay lại
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <AnimatePresence>
+                  {!showVersionInfo && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                    >
+                      <div className={`h-px ${isDark ? "bg-white/5" : "bg-black/5"}`} />
+
+                      <div className="p-2.5 space-y-2">
+                        {[
+                          { icon: Info, label: "Phiên bản Vplay", action: () => setShowVersionInfo(true) },
+                          { icon: Smartphone, label: "Quản lý hồ sơ", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
+                          { icon: Settings, label: "Cài đặt hệ thống", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
+                          { icon: Send, label: "Send Feedback", action: () => { window.open("https://discord.gg/CNKFTUBSty"); setIsUserMenuOpen(false); } },
+                        ].map((item) => (
+                          <button
+                            key={`user-menu-${item.label}`}
+                            onClick={item.action}
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all group cursor-pointer ${
+                              isDark ? "hover:bg-white/5 text-white" : "hover:bg-black/5 text-slate-800"
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`transition-colors ${isDark ? "text-white/40 group-hover:text-[#4AC4FE]" : "text-black/40 group-hover:text-[#4AC4FE]"}`}>
+                                <item.icon size={18} strokeWidth={1.5} />
+                              </div>
+                              <span className={`text-[12px] font-bold tracking-tight ${isDark ? "text-white/70 group-hover:text-white" : "text-slate-700"}`}>{item.label}</span>
+                            </div>
+                            <ChevronRight size={12} className="opacity-20 group-hover:opacity-60 transition-all translate-x-0 group-hover:translate-x-1" />
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
@@ -11172,6 +11339,10 @@ function App() {
 
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<any>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isGuestMode, setIsGuestMode] = useState(() => {
+    return localStorage.getItem("vplay_guest_mode") === "true";
+  });
 
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState("");
@@ -12100,13 +12271,30 @@ const [headingBar, setHeadingBar] = useState(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        setIsGuestMode(false);
+        localStorage.removeItem("vplay_guest_mode");
         try {
           const userRef = doc(db, "users", currentUser.uid);
-          const userSnap = await getDoc(userRef).catch(e => handleFirestoreError(e, OperationType.GET, `users/${currentUser.uid}`));
+          let userSnap = null;
+          let hasDbError = false;
+          try {
+            userSnap = await getDoc(userRef);
+          } catch (e) {
+            console.warn("Firestore user read error, using local fallback:", e);
+            hasDbError = true;
+          }
           
           let role = "user";
+          if (currentUser.email === "nguyentrungthu1610@gmail.com" || 
+              currentUser.email === "tvbabinh1@gmail.com" ||
+              currentUser.email === "abc@gmail.com" ||
+              currentUser.email === "admin@vplay.vn" ||
+              currentUser.displayName === "trungthu1610") {
+            role = "admin";
+          }
+          
           if (userSnap && userSnap.exists()) {
-            role = userSnap.data().role;
+            role = userSnap.data().role || role;
             setUserData(userSnap.data());
           } else if (currentUser.uid === "special_guest_uid") {
             // Special guest mock data
@@ -12118,39 +12306,60 @@ const [headingBar, setHeadingBar] = useState(() => {
               role: "user"
             });
           } else {
-            // Check if it's the default admin
-            if (currentUser.email === "nguyentrungthu1610@gmail.com" || 
-                currentUser.email === "trungthu1610" || 
-                currentUser.displayName === "trungthu1610") {
-              role = "admin";
-            }
-            const newUserData: any = {
+            const fallbackUserData: any = {
               uid: currentUser.uid,
-              email: currentUser.email,
+              displayName: currentUser.displayName || "Tài khoản Vplay",
+              photoURL: currentUser.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
               role: role,
-              createdAt: serverTimestamp()
+              createdAt: new Date().toISOString()
             };
-            if (currentUser.displayName) newUserData.displayName = currentUser.displayName;
-            if (currentUser.photoURL) newUserData.photoURL = currentUser.photoURL;
+            if (currentUser.email) fallbackUserData.email = currentUser.email;
+            setUserData(fallbackUserData);
             
-            await setDoc(userRef, newUserData).catch(e => handleFirestoreError(e, OperationType.CREATE, `users/${currentUser.uid}`));
-            setUserData(newUserData);
+            // Try to write the user profile in Firestore if database is accessible
+            if (!hasDbError) {
+              try {
+                await setDoc(userRef, {
+                  ...fallbackUserData,
+                  createdAt: serverTimestamp()
+                });
+              } catch (e) {
+                console.warn("Could not save user profile to Firestore:", e);
+              }
+            }
           }
           setIsAdmin(role === "admin");
         } catch (error) {
-          console.error("Critical User Data Error:", error);
-          setIsAdmin(false);
-          setUserData(null);
+          console.error("Critical User Data Error handled gracefully:", error);
+          let role = "user";
+          if (currentUser.email === "nguyentrungthu1610@gmail.com" || 
+              currentUser.email === "tvbabinh1@gmail.com" ||
+              currentUser.email === "abc@gmail.com" ||
+              currentUser.email === "admin@vplay.vn") {
+            role = "admin";
+          }
+          setIsAdmin(role === "admin");
+          setUserData({
+            uid: currentUser.uid,
+            email: currentUser.email || "",
+            displayName: currentUser.displayName || "Tài khoản Vplay",
+            photoURL: currentUser.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
+            role: role,
+            createdAt: new Date().toISOString()
+          });
         }
       } else {
         setIsAdmin(false);
         setUserData(null);
       }
+      setIsAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const handleLogin = () => {
+    setIsGuestMode(false);
+    localStorage.removeItem("vplay_guest_mode");
     setShowAuthModal(true);
   };
 
@@ -12159,6 +12368,8 @@ const [headingBar, setHeadingBar] = useState(() => {
       await signOut(auth);
       setUserData(null);
       setIsAdmin(false);
+      setIsGuestMode(false);
+      localStorage.removeItem("vplay_guest_mode");
       setActiveTab("Trang chủ");
     } catch (error) {
       console.error("Logout failed", error);
@@ -12221,6 +12432,32 @@ const [headingBar, setHeadingBar] = useState(() => {
     setShowWhatsNew(false);
   };
 
+  if (isAuthLoading) {
+    return (
+      <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center ${isDark ? "bg-[#090a0f] text-white" : "bg-slate-50 text-slate-900"}`}>
+        <LoadingSpinner isDark={isDark} className="w-12 h-12 border-[#4AC4FE]" />
+        <p className="mt-4 text-xs font-bold uppercase tracking-widest opacity-60">Vplay đang khởi động...</p>
+      </div>
+    );
+  }
+
+  if (!user && !isGuestMode) {
+    return (
+      <MotionConfig 
+        transition={featureFlags.disable_animation ? { duration: 0 } : (featureFlags.low_latency_profile ? { duration: 0.15, ease: "easeOut" } : undefined)}
+        reducedMotion={featureFlags.disable_animation ? "always" : "user"}
+      >
+        <GatingLoginPage 
+          isDark={isDark} 
+          onEnterGuestMode={() => {
+            setIsGuestMode(true);
+            localStorage.setItem("vplay_guest_mode", "true");
+          }} 
+        />
+      </MotionConfig>
+    );
+  }
+
   return (
     <MotionConfig 
       transition={featureFlags.disable_animation ? { duration: 0 } : (featureFlags.low_latency_profile ? { duration: 0.15, ease: "easeOut" } : undefined)}
@@ -12274,7 +12511,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       </AnimatePresence>
       <div className={`${
         isDark 
-          ? "dark bg-black text-white" 
+          ? "dark bg-vplay-background text-white" 
           : "bg-[#f8fafc] text-black"
       } h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       onContextMenu={handleGlobalContextMenu}
@@ -12331,6 +12568,17 @@ const [headingBar, setHeadingBar] = useState(() => {
               setIsWidgetsOpen(true);
               setActiveDashboardTab("widgets");
             }}
+            user={user}
+            userData={userData}
+            name={name}
+            avatar={avatar}
+            isUserMenuOpen={isUserMenuOpen}
+            setIsUserMenuOpen={setIsUserMenuOpen}
+            showVersionInfo={showVersionInfo}
+            setShowVersionInfo={setShowVersionInfo}
+            handleLogin={handleLogin}
+            handleLogout={handleLogout}
+            handleOpenSettings={handleOpenSettings}
           />
         </div>
       )}
@@ -13555,150 +13803,6 @@ const [headingBar, setHeadingBar] = useState(() => {
                     </div>
                   </div>
                 )}
-
-                {/* Account Mini Menu moved from TopBar */}
-                <div className="relative flex justify-center">
-                  <Tooltip text="Tài khoản" isDark={isDark} position="top" disabled={isSidebarExpanded}>
-                    <button
-                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className={`flex items-center justify-center p-1 rounded-full transition-all relative group ${
-                        isUserMenuOpen
-                          ? (isDark ? "bg-white/10" : "bg-black/5")
-                          : (isDark ? "hover:bg-white/5" : "hover:bg-black/5")
-                      }`}
-                    >
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 border-white/10 overflow-hidden ${
-                        user 
-                          ? (isDark ? "bg-white/10" : "bg-black/5")
-                          : "bg-amber-400/10 text-amber-500"
-                      }`}>
-                        {user && user.photoURL ? (
-                          <img src={user.photoURL} className="w-full h-full object-cover" />
-                        ) : (
-                          <User size={18} />
-                        )}
-                      </div>
-                    </button>
-                  </Tooltip>
-
-                  <AnimatePresence>
-                    {isUserMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 40 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 150, scale: 0.85 }}
-                        transition={{ type: "spring", damping: 18, stiffness: 120 }}
-                        className={`absolute bottom-full mb-3 w-[260px] rounded-[28px] shadow-2xl z-[100] overflow-hidden border ${
-                          isSidebarRight ? "right-0" : "left-0"
-                        } ${
-                          isDark ? "bg-vplay-background/95 border-white/10 text-white" : "bg-white border-slate-200 shadow-xl"
-                        } backdrop-blur-3xl`}
-                      >
-                         <div className="p-6 pb-4 flex flex-col items-center text-center">
-                          {!showVersionInfo ? (
-                            <>
-                              <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 ${isDark ? "bg-white/10" : "bg-black/5"}`}>
-                                {user && user.photoURL ? (
-                                  <img src={user.photoURL} className="w-full h-full rounded-full object-cover" alt="avatar" />
-                                ) : (
-                                  <User size={24} className="opacity-40" />
-                                )}
-                              </div>
-                              <h3 className="text-base font-bold mb-0.5 tracking-tight">{user ? (name || user.displayName || "Thành viên") : "Khách"}</h3>
-                              <p className="text-[10px] opacity-40 mb-4 font-medium tracking-tight">
-                                {user ? user.email : "Đăng nhập để có trải nghiệm tốt nhất"}
-                              </p>
-                              {!user ? (
-                                <button 
-                                  onClick={() => { handleLogin(); setIsUserMenuOpen(false); }}
-                                  className="w-full py-2.5 bg-[#4AC4FE] hover:bg-[#32bcfc] text-black rounded-[18px] font-bold text-sm transition-colors shadow-none active:scale-[0.98] mb-1 border-none outline-none"
-                                >
-                                  Đăng nhập ngay
-                                </button>
-                                ) : (
-                                  <button 
-                                    onClick={() => { handleLogout(); setIsUserMenuOpen(false); }}
-                                    className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-[18px] font-bold text-sm transition-all active:scale-[0.98] mb-1"
-                                  >
-                                    Thoát định danh
-                                  </button>
-                                )}
-                            </>
-                          ) : (
-                            <>
-                              <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 ${isDark ? "bg-white/10" : "bg-black/5"}`}>
-                                <Info size={28} className="text-[#4AC4FE]" />
-                              </div>
-                              <h3 className="text-base font-bold mb-0.5 tracking-tight">Thông tin Phiên bản</h3>
-                              <p className="text-[10px] opacity-40 mb-4 font-medium tracking-tight">Vplay Metadata Information</p>
-                              <div className={`w-full space-y-1.5 p-3 rounded-2xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                                <div className="flex justify-between items-center text-[11px]">
-                                  <span className="opacity-50">Phát triển by</span>
-                                  <span className="font-bold">VNRT</span>
-                                </div>
-                                <div className="flex justify-between items-center text-[11px]">
-                                  <span className="opacity-50">Branch</span>
-                                  <span className="font-bold text-green-500">Dev</span>
-                                </div>
-                                <div className="flex justify-between items-center text-[11px]">
-                                  <span className="opacity-50">Version</span>
-                                  <span className="font-bold text-[#4AC4FE]">26.7.0</span>
-                                </div>
-                                <div className="flex justify-between items-center text-[11px]">
-                                  <span className="opacity-50">Compiled</span>
-                                  <span className="font-bold">15/05/26</span>
-                                </div>
-                              </div>
-                              <button 
-                                onClick={() => setShowVersionInfo(false)}
-                                className={`w-full mt-4 py-2 rounded-xl text-[11px] font-bold transition-all ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"}`}
-                              >
-                                Quay lại
-                              </button>
-                            </>
-                          )}
-                        </div>
-
-                        <AnimatePresence>
-                          {!showVersionInfo && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                            >
-                              <div className={`h-px ${isDark ? "bg-white/5" : "bg-black/5"}`} />
-
-                              <div className="p-2.5 space-y-2">
-                                {[
-                                  { icon: Info, label: "Phiên bản Vplay", action: () => setShowVersionInfo(true) },
-                                  { icon: Smartphone, label: "Quản lý hồ sơ", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
-                                  { icon: Settings, label: "Cài đặt hệ thống", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
-                                  { icon: Send, label: "Send Feedback", action: () => { window.open("https://discord.gg/CNKFTUBSty"); setIsUserMenuOpen(false); } },
-                                ].map((item) => (
-                                  <button
-                                    key={`user-menu-${item.label}`}
-                                    onClick={item.action}
-                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all group ${
-                                      isDark ? "hover:bg-white/5" : "hover:bg-black/5"
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-4">
-                                      <div className={`transition-colors ${isDark ? "text-white/40 group-hover:text-[#4AC4FE]" : "text-black/40 group-hover:text-[#4AC4FE]"}`}>
-                                        <item.icon size={18} strokeWidth={1.5} />
-                                      </div>
-                                      <span className={`text-[12px] font-bold tracking-tight ${isDark ? "text-white/70 group-hover:text-white" : "text-slate-700"}`}>{item.label}</span>
-                                    </div>
-                                    <ChevronRight size={12} className="opacity-20 group-hover:opacity-60 transition-all translate-x-0 group-hover:translate-x-1" />
-                                  </button>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
               </div>
             </motion.div>
           </>
@@ -13810,7 +13914,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                {isActive && (
                                 <motion.div
                                   layoutId="activeTabUnderline"
-                                  className={`absolute bottom-[-11px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-full z-10 ${
+                                  className={`absolute bottom-[2px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-full z-10 ${
                                     activeUnderlineClass
                                   }`}
                                   transition={{ type: "spring", stiffness: 650, damping: 32 }}

@@ -1,10 +1,11 @@
 {
-  "projectId": "remixed-project-id",
-  "appId": "remixed-app-id",
-  "apiKey": "remixed-api-key",
-  "authDomain": "remixed-auth-domain",
-  "firestoreDatabaseId": "remixed-firestore-database-id",
-  "storageBucket": "remixed-storage-bucket",
-  "messagingSenderId": "remixed-messaging-sender-id",
-  "measurementId": "remixed-measurement-id"
+  "projectId": "vplay-user",
+  "appId": "1:147392722912:web:75ed1b5802a0663b311d85",
+  "apiKey": "AIzaSyDuJ0FKrs7pd7iQZxIO9IGpznSLyXYHWjs",
+  "authDomain": "vplay-user.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "databaseId": "(default)",
+  "storageBucket": "vplay-user.firebasestorage.app",
+  "messagingSenderId": "147392722912",
+  "measurementId": "G-JS4HRFLKL9"
 }
