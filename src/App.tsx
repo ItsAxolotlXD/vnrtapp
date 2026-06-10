@@ -435,7 +435,7 @@ const baseTabs = [
   { name: "Tìm kiếm", icon: SearchIcon, id: "Tìm kiếm" },
   { name: "Live", icon: TvIcon, id: "Live" },
   { name: "Package", icon: PackageIcon, id: "Package" },
-  { name: "Cài đặt", icon: SettingsIcon, id: "Cài đặt" },
+  { name: "Settings (new)", icon: SettingsIcon, id: "Settings (new)" },
   { name: "Quản trị", icon: AdminIcon, id: "Quản trị" },
 ];
 
@@ -6452,6 +6452,634 @@ function RejuvenatedSettings(props: any) {
   );
 }
 
+function SettingsNew(props: any) {
+  const {
+    isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
+    useSidebar, setUseSidebar, isSidebarRight, setIsSidebarRight, isSidebarLocked, setIsSidebarLocked,
+    isPinningEnabled, setIsPinningEnabled, user, userData, setUserData, onAlert, onLogin, onLogout,
+    favorites, tempUnit, setTempUnit, location, setLocation, timeFormat, setTimeFormat, clockFormat, setClockFormat,
+    dateFormat, setDateFormat, showClock, setShowClock, showDate, setShowDate, showTempInClock, setShowTempInClock,
+    isTouchInterface, setIsTouchInterface, sidebarQuickAccess, setSidebarQuickAccess, timeZone, setTimeZone,
+    maxToolbarTabs, setMaxToolbarTabs, toastDuration, setToastDuration, locationDetection, setLocationDetection,
+    setActiveTab
+  } = props;
+
+  const GlassToggle = ({ active, onToggle }: { active: boolean, onToggle: () => void }) => {
+    return (
+      <button
+        onClick={onToggle}
+        className={`w-11 h-6 rounded-full p-1 transition-colors duration-300 flex items-center relative focus:outline-none border ${
+          active 
+            ? "bg-sky-500 border-sky-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]" 
+            : (isDark ? "bg-white/10 border-white/5" : "bg-slate-200 border-slate-300")
+        }`}
+      >
+        <motion.div
+          animate={{ x: active ? 20 : 0 }}
+          transition={{ type: "spring", stiffness: 400, damping: 28 }}
+          className="w-4 h-4 bg-white rounded-full shadow-md"
+        />
+      </button>
+    );
+  };
+
+  const GlassSelect = ({ value, onChange, options }: { value: any, onChange: (val: any) => void, options: { value: any, label: string }[] }) => {
+    const selectBorder = isDark 
+      ? "bg-[#161823] border border-white/10 text-white hover:border-white/20"
+      : "bg-white border border-slate-200 text-slate-800 hover:border-slate-300";
+
+    return (
+      <div className="relative inline-block text-left">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`appearance-none px-5 py-2 pr-10 rounded-full font-normal text-sm outline-none transition-all cursor-pointer shadow-sm ${selectBorder}`}
+        >
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value} className="bg-slate-900 text-white font-normal">
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+          <ChevronRight size={14} className="rotate-90 text-inherit" />
+        </div>
+      </div>
+    );
+  };
+
+  const [activePage, setActivePage] = useState<number>(1);
+  const [guestName, setGuestName] = useState(() => localStorage.getItem("vplay_guest_name") || "Khách");
+  const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState("");
+
+  useEffect(() => {
+    setNewDisplayName(user?.displayName || userData?.name || guestName);
+  }, [user, userData, guestName]);
+
+  const handleSaveProfile = async () => {
+    if (!newDisplayName.trim()) return;
+    if (user) {
+      try {
+        await updateProfile(user, { displayName: newDisplayName });
+        if (setUserData) {
+          setUserData((prev: any) => ({ ...prev, name: newDisplayName }));
+        }
+        showToast("đã cập nhật tên hồ sơ của bạn thành: " + newDisplayName, "success");
+        setIsEditingDisplayName(false);
+      } catch (err: any) {
+        showToast("lỗi cập nhật tên: " + err.message, "error");
+      }
+    } else {
+      localStorage.setItem("vplay_guest_name", newDisplayName);
+      setGuestName(newDisplayName);
+      if (setUserData) {
+        setUserData((prev: any) => ({ ...prev, name: newDisplayName }));
+      }
+      showToast("đã cập nhật tên khách thành: " + newDisplayName, "success");
+      setIsEditingDisplayName(false);
+    }
+  };
+
+  const handleFactoryReset = () => {
+    if (window.confirm("bạn có chắc chắn muốn khôi phục cài đặt gốc? toàn bộ tùy chỉnh của bạn sẽ bị xóa sạch!")) {
+      localStorage.clear();
+      showToast("đang đặt lại thiết lập ban đầu...", "info");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    }
+  };
+
+  const pages = [
+    { num: 1, label: "Hồ sơ", icon: User },
+    { num: 2, label: "Accessibility", icon: Accessibility },
+    { num: 3, label: "Chủ đề giao diện", icon: Palette },
+    { num: 4, label: "Toolbars", icon: LayoutGrid },
+    { num: 5, label: "Thử nghiệm", icon: Pizza }
+  ];
+
+  // Helper styles
+  const cardBg = isDark
+    ? "bg-[#161823]/80 border border-white/5 backdrop-blur-xl text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+    : "bg-white/80 border border-slate-200 backdrop-blur-md text-slate-800 shadow-[0_12px_32px_rgba(0,0,0,0.06)]";
+
+  const buttonStyle = (active: boolean, color: string = "sky") => {
+    const borderStyle = isDark
+      ? "border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),_0_2px_4px_rgba(0,0,0,0.2)]"
+      : "border border-slate-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),_0_2px_3px_rgba(0,0,0,0.05)]";
+
+    const baseStyle = "px-6 py-2.5 rounded-full font-normal text-sm transition-all focus:outline-none focus:ring-1 focus:ring-sky-500/50";
+    
+    if (active) {
+      if (color === "blue") return `${baseStyle} ${borderStyle} bg-blue-500 text-white`;
+      if (color === "yellow") return `${baseStyle} ${borderStyle} bg-amber-500 text-black`;
+      if (color === "red") return `${baseStyle} ${borderStyle} bg-red-500 text-white`;
+      return `${baseStyle} ${borderStyle} bg-sky-500 text-white`;
+    }
+
+    // Inactive state colors per type:
+    if (color === "blue") return `${baseStyle} ${borderStyle} bg-blue-500/10 text-blue-400 hover:bg-blue-500/15`;
+    if (color === "yellow") return `${baseStyle} ${borderStyle} bg-amber-500/10 text-amber-500 hover:bg-amber-500/15`;
+    if (color === "red") return `${baseStyle} ${borderStyle} bg-red-500/10 text-red-500 hover:bg-red-500/15`;
+
+    return `${baseStyle} ${borderStyle} ${isDark ? "bg-white/[0.04] text-white/70 hover:bg-white/[0.08]" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`;
+  };
+
+  const renderBullet = (text: React.ReactNode) => (
+    <div className="flex items-start gap-2.5 font-normal text-sm group transition-all mt-1">
+      <span className="text-sky-400 font-mono select-none mr-0.5 shrink-0 mt-0.5">-</span>
+      <div className="flex-1 text-left">{text}</div>
+    </div>
+  );
+
+  return (
+    <div className="w-full flex flex-col md:flex-row gap-6 p-4 md:p-8 animate-in fade-in duration-300">
+      {/* 5 Pages Tab bar - Desktop sidebar, Mobile floating segmented control */}
+      <div className="w-full md:w-64 flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-3 md:pb-0 shrink-0 no-scrollbar">
+        {pages.map((p) => {
+          const isActive = activePage === p.num;
+          const PageIcon = p.icon;
+          return (
+            <button
+              key={`page-${p.num}`}
+              onClick={() => setActivePage(p.num)}
+              className={`flex items-center gap-3.5 px-5 py-3 rounded-full text-sm font-normal transition-all shrink-0 select-none ${
+                isActive
+                  ? (isDark 
+                      ? "bg-sky-500 text-white border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]" 
+                      : "bg-[#4AC4FE] text-white border border-transparent shadow-lg shadow-sky-500/10")
+                  : (isDark 
+                      ? "hover:bg-white/5 border border-transparent text-slate-300" 
+                      : "hover:bg-slate-100 border border-transparent text-slate-600")
+              }`}
+            >
+              <div className={`p-1.5 rounded-full shrink-0 ${isActive ? "bg-white/20" : "bg-transparent"}`}>
+                <PageIcon size={18} />
+              </div>
+              <span>{p.num}. {p.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Main Content Pane */}
+      <div className={`flex-1 p-6 md:p-10 rounded-[32px] ${cardBg}`}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`page-content-${activePage}`}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-8"
+          >
+            {/* Title block */}
+            <div>
+              <span className="text-xs font-mono uppercase tracking-[0.2em] text-sky-400 font-normal">trang cài đặt</span>
+              <h2 className="text-xl md:text-2xl font-normal mt-1 tracking-tight text-left text-inherit">
+                {activePage}. {pages.find(p => p.num === activePage)?.label}
+              </h2>
+            </div>
+
+            {/* Page 1: Profile */}
+            {activePage === 1 && (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- tài khoản</h4>
+                  <div className="space-y-3.5 pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <span className="opacity-70 font-normal">username:</span>
+                        <span className="font-mono text-xs font-normal">{user?.displayName || user?.email || guestName}</span>
+                      </div>
+                    )}
+                    {renderBullet(
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <span className="opacity-70 font-normal">user ID:</span>
+                        <span className="font-mono text-xs font-normal select-all bg-sky-500/5 px-2 py-0.5 rounded-full border border-sky-500/10">
+                          {user?.uid || "Guest-VPlay"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- thao tác</h4>
+                  <div className="flex flex-wrap gap-3 pl-3 pt-2">
+                    <button
+                      onClick={() => setIsEditingDisplayName(!isEditingDisplayName)}
+                      className={buttonStyle(isEditingDisplayName, "blue")}
+                    >
+                      sửa hồ sơ
+                    </button>
+                    {user ? (
+                      <button onClick={() => { onLogout(); setActiveTab("Trang chủ"); }} className={buttonStyle(false, "yellow")}>
+                        đăng xuất
+                      </button>
+                    ) : (
+                      <button onClick={() => { onLogin(); }} className={buttonStyle(false, "sky")}>
+                        đăng nhập
+                      </button>
+                    )}
+                    <button onClick={handleFactoryReset} className={buttonStyle(false, "red")}>
+                      khôi phục cài đặt gốc
+                    </button>
+                  </div>
+
+                  {isEditingDisplayName && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      className="mt-4 pl-3 p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3 text-left"
+                    >
+                      <label className="text-xs opacity-60 font-normal">nhập tên hiển thị mới:</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newDisplayName}
+                          onChange={(e) => setNewDisplayName(e.target.value)}
+                          className={`flex-1 px-4 py-2 text-sm rounded-full bg-black/10 border text-left ${isDark ? "border-white/10 text-white" : "border-slate-200 text-slate-800"}`}
+                          placeholder="tên mới của bạn..."
+                        />
+                        <button onClick={handleSaveProfile} className={buttonStyle(true, "sky")}>
+                          lưu
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-white/5">
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- thông tin ứng dụng</h4>
+                  <div className="space-y-3.5 pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <span className="opacity-70 font-normal">thông tin phiên bản Vplay:</span>
+                        <span className="font-normal text-xs text-sky-400">v3.4.1 Liquid Glass Edition</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Page 2: Accessibility */}
+            {activePage === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- hiệu năng</h4>
+                  <div className="pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-normal text-sm text-left">low latency mode (tăng hiệu năng)</p>
+                          <p className="text-xs opacity-50 text-left font-normal">tối ưu hóa độ trễ luồng phát trực tiếp</p>
+                        </div>
+                        <GlassToggle
+                          active={!!featureFlags.low_latency_profile}
+                          onToggle={() => setFeatureFlags((prev: any) => ({ ...prev, low_latency_profile: !prev.low_latency_profile }))}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- giao diện</h4>
+                  <div className="pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-normal text-sm text-left">reduce animation (tắt animation app)</p>
+                          <p className="text-xs opacity-50 text-left font-normal">giảm thiểu chuyển động mượt để tăng tốc độ</p>
+                        </div>
+                        <GlassToggle
+                          active={!!featureFlags.disable_animation}
+                          onToggle={() => setFeatureFlags((prev: any) => ({ ...prev, disable_animation: !prev.disable_animation }))}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- thông báo</h4>
+                  <div className="pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="text-left animate-none">
+                          <p className="font-normal text-sm text-left">notification toast duration</p>
+                          <p className="text-xs opacity-50 text-left font-normal">thời gian hiển thị dòng thông báo nổi</p>
+                        </div>
+                        <GlassSelect
+                          value={toastDuration}
+                          onChange={(val) => setToastDuration(parseInt(val, 10))}
+                          options={[
+                            { value: 3000, label: "3 giây" },
+                            { value: 5000, label: "5 giây (mặc định)" },
+                            { value: 10000, label: "10 giây" }
+                          ]}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Page 3: UI Theme */}
+            {activePage === 3 && (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- điều hướng</h4>
+                  <div className="pl-3 space-y-4">
+                    {renderBullet(
+                      <div className="flex flex-col gap-3 text-left">
+                        <div>
+                          <p className="font-normal text-sm">chế độ điều hướng (desktop / touch)</p>
+                          <p className="text-xs opacity-50 font-normal">desktop sử dụng sidebar và touch sử dụng navigation bar</p>
+                        </div>
+                        <div className="flex gap-2.5 pt-1">
+                          <button
+                            onClick={() => setUseSidebar(true)}
+                            className={buttonStyle(useSidebar === true, "sky")}
+                          >
+                            desktop (sidebar)
+                          </button>
+                          <button
+                            onClick={() => setUseSidebar(false)}
+                            className={buttonStyle(useSidebar === false, "sky")}
+                          >
+                            touch (nav bar)
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- liquid glass</h4>
+                  <div className="pl-3 space-y-4">
+                    {renderBullet(
+                      <div className="flex flex-col gap-3 text-left">
+                        <div>
+                          <p className="font-normal text-sm">Liquid Glass (kính trong / kính mờ)</p>
+                          <p className="text-xs opacity-50 font-normal">kiểu mờ đục hoặc trong sương mờ của kính phủ nền</p>
+                        </div>
+                        <div className="flex gap-2.5 pt-1">
+                          <button
+                            onClick={() => setLiquidGlass("glassy")}
+                            className={buttonStyle(liquidGlass === "glassy", "sky")}
+                          >
+                            kính trong (glassy)
+                          </button>
+                          <button
+                            onClick={() => setLiquidGlass("tinted")}
+                            className={buttonStyle(liquidGlass === "tinted", "sky")}
+                          >
+                            kính mờ (tinted)
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Page 4: Toolbars */}
+            {activePage === 4 && (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- cài đặt chung</h4>
+                  <div className="pl-3 space-y-4">
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-normal text-sm text-left">đồng hồ và lịch (on/off)</p>
+                          <p className="text-xs opacity-50 text-left font-normal font-normal">hiển thị đồng hồ số trên topbar</p>
+                        </div>
+                        <GlassToggle
+                          active={showClock}
+                          onToggle={() => {
+                            setShowClock(!showClock);
+                            setShowDate(!showClock);
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {showClock && (
+                      <div className="pl-4 border-l-2 border-sky-500/20 py-2 space-y-4 mt-2">
+                        {renderBullet(
+                          <div className="flex items-center justify-between flex-wrap gap-2 text-left">
+                            <span className="opacity-75 text-xs font-normal">- múi giờ</span>
+                            <GlassSelect
+                              value={timeZone}
+                              onChange={setTimeZone}
+                              options={[
+                                { value: "Asia/Ho_Chi_Minh", label: "vietnam (GMT+7)" },
+                                { value: "Asia/Singapore", label: "singapore (GMT+8)" },
+                                { value: "Asia/Tokyo", label: "japan (GMT+9)" },
+                                { value: "Europe/London", label: "london (GMT)" },
+                                { value: "America/New_York", label: "new york (GMT-5)" }
+                              ]}
+                            />
+                          </div>
+                        )}
+
+                        {renderBullet(
+                          <div className="flex items-center justify-between flex-wrap gap-2 text-left">
+                            <span className="opacity-75 text-xs font-normal">- định dạng giờ</span>
+                            <div className="flex gap-2">
+                              <button onClick={() => setTimeFormat("24h")} className={buttonStyle(timeFormat === "24h")}>
+                                24 giờ
+                              </button>
+                              <button onClick={() => setTimeFormat("12h")} className={buttonStyle(timeFormat === "12h")}>
+                                12 giờ
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {renderBullet(
+                          <div className="flex items-center justify-between flex-wrap gap-2 text-left">
+                            <span className="opacity-75 text-xs font-normal font-mono">- định dạng lịch</span>
+                            <GlassSelect
+                              value={dateFormat}
+                              onChange={setDateFormat}
+                              options={[
+                                { value: "dd/mm/yyyy", label: "ngày/tháng/năm" },
+                                { value: "dd/mm/yy", label: "ngày/tháng/năm rút gọn" },
+                                { value: "dd/mm", label: "ngày/tháng" }
+                              ]}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-normal text-sm text-left">dự báo thời tiết (on/off)</p>
+                          <p className="text-xs opacity-50 text-left font-normal">hiển thị nhiệt độ của khu vực</p>
+                        </div>
+                        <GlassToggle
+                          active={showTempInClock}
+                          onToggle={() => setShowTempInClock(!showTempInClock)}
+                        />
+                      </div>
+                    )}
+
+                    {showTempInClock && (
+                      <div className="pl-4 border-l-2 border-sky-500/20 py-2 space-y-4 mt-2">
+                        {renderBullet(
+                          <div className="flex items-center justify-between flex-wrap gap-4 text-left">
+                            <div>
+                              <p className="text-xs font-normal">- vị trí</p>
+                              <p className="text-[11px] opacity-60 font-mono font-normal">vị trí hiện tại: {location || "chưa xác định"}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                className={`px-4 py-1.5 text-xs rounded-full bg-black/10 border text-left ${isDark ? "border-white/10 text-white" : "border-slate-200 text-slate-800"}`}
+                                placeholder="tên thành phố..."
+                              />
+                              <button
+                                onClick={() => {
+                                  setLocationDetection("auto");
+                                  showToast("đang tự động xác định vị trí của bạn...", "info");
+                                }}
+                                className={buttonStyle(locationDetection === "auto", "yellow")}
+                              >
+                                tự động định vị
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {renderBullet(
+                          <div className="flex items-center justify-between flex-wrap gap-2 text-left">
+                            <span className="opacity-75 text-xs font-normal">- đơn vị nhiệt độ</span>
+                            <div className="flex gap-2">
+                              <button onClick={() => setTempUnit("C")} className={buttonStyle(tempUnit === "C")}>
+                                độ C (°C)
+                              </button>
+                              <button onClick={() => setTempUnit("F")} className={buttonStyle(tempUnit === "F")}>
+                                độ F (°F)
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- floatbar</h4>
+                  <div className="pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="text-left font-normal">
+                          <p className="font-normal text-sm text-left">tab tối đa</p>
+                          <p className="text-xs opacity-50 text-left font-normal">tùy chỉnh số lượng tab trong một trang trên Floatbar, tối đa 5 tab</p>
+                        </div>
+                        <GlassSelect
+                          value={maxToolbarTabs}
+                          onChange={(val) => setMaxToolbarTabs(parseInt(val, 10))}
+                          options={[
+                            { value: 3, label: "3 tab" },
+                            { value: 4, label: "4 tab (mặc định)" },
+                            { value: 5, label: "5 tab" }
+                          ]}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- sidebar</h4>
+                  <div className="pl-3 space-y-4">
+                    {renderBullet(
+                      <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="text-left font-normal">
+                          <p className="font-normal text-sm text-left">vị trí sidebar</p>
+                          <p className="text-xs opacity-50 text-left font-normal">vị trí hiển thị của thanh điều hướng sidebar</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => setIsSidebarRight(false)} className={buttonStyle(isSidebarRight === false)}>
+                            bên trái
+                          </button>
+                          <button onClick={() => setIsSidebarRight(true)} className={buttonStyle(isSidebarRight === true)}>
+                            bên phải
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div className="text-left font-normal">
+                          <p className="font-normal text-sm text-left">truy cập nhanh</p>
+                          <p className="text-xs opacity-50 text-left font-normal">hiển thị danh sách kênh yêu thích dạng icon tròn trên sidebar</p>
+                        </div>
+                        <GlassToggle
+                          active={sidebarQuickAccess}
+                          onToggle={() => setSidebarQuickAccess(!sidebarQuickAccess)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Page 5: Experiments */}
+            {activePage === 5 && (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- Picture in Picture</h4>
+                  <div className="pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-normal text-sm text-left">Picture in Picture</p>
+                          <p className="text-xs opacity-50 text-left font-normal">bật cửa sổ phát mini khi điều hướng sang các phòng khác</p>
+                        </div>
+                        <GlassToggle
+                          active={!!featureFlags.PiP_experimental}
+                          onToggle={() => setFeatureFlags((prev: any) => ({ ...prev, PiP_experimental: !prev.PiP_experimental }))}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/5 opacity-60">
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-normal font-mono">- các tính năng khác</h4>
+                  <div className="pl-3 space-y-2">
+                    {renderBullet(
+                      <p className="text-sm font-normal text-left">các tính năng thử nghiệm khác (multiview, quay màn hình, v.v) đã chính thức trở thành tính năng chính của hệ thống và được bật mặc định!</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
 function SettingsContent({ 
   isDark, 
   setIsDark, 
@@ -11154,7 +11782,30 @@ function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
 }
 
 function App() {
+  const [maxToolbarTabs, setMaxToolbarTabs] = useState<number>(() => {
+    const saved = localStorage.getItem("vplay_max_toolbar_tabs");
+    return saved ? parseInt(saved, 10) : 4;
+  });
+
+  const [toastDuration, setToastDuration] = useState<number>(() => {
+    const saved = localStorage.getItem("vplay_toast_duration");
+    return saved ? parseInt(saved, 10) : 5000;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_max_toolbar_tabs", maxToolbarTabs.toString());
+  }, [maxToolbarTabs]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_toast_duration", toastDuration.toString());
+  }, [toastDuration]);
+
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const toastDurationRef = useRef(5000);
+
+  useEffect(() => {
+    toastDurationRef.current = toastDuration;
+  }, [toastDuration]);
 
   useEffect(() => {
     const handleToast = (e: Event) => {
@@ -11169,7 +11820,7 @@ function App() {
         setToasts(prev => [...prev, newToast]);
         setTimeout(() => {
           setToasts(prev => prev.filter(t => t.id !== id));
-        }, 4000);
+        }, toastDurationRef.current);
       }
     };
 
@@ -11248,7 +11899,7 @@ function App() {
     navTouchStartXRef.current = null;
     if (Math.abs(diff) > 40) {
       triggerNavBounce();
-      const addPages = Math.ceil(pinnedChannels.length / 4);
+      const addPages = Math.ceil(pinnedChannels.length / maxToolbarTabs);
       const totPages = 3 + addPages;
       if (diff > 0) {
         setSlideDirection(-1);
@@ -12392,7 +13043,7 @@ const [headingBar, setHeadingBar] = useState(() => {
     return true;
   });
 
-  const displayTab = activeTab;
+  const displayTab = activeTab === "Cài đặt" ? "Settings (new)" : activeTab;
 
   const handleEnterApp = useCallback(() => {
     setShowSplash(false);
@@ -13171,7 +13822,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             }
             lastScrollY.current = scrollTop;
           }}
-          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Live") ? "pb-0" : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
+          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live") ? "pb-0" : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
         >
           <motion.div
             key={displayTab}
@@ -13179,7 +13830,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className={`h-full flex flex-col ${(displayTab === "Cài đặt" || displayTab === "Live") ? "pt-0" : "pt-4 md:pt-8"}`}
+            className={`h-full flex flex-col ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live") ? "pt-0" : "pt-4 md:pt-8"}`}
           >
               {displayTab === "Trang chủ" && (
                 <HomeContent 
@@ -13306,100 +13957,64 @@ const [headingBar, setHeadingBar] = useState(() => {
                   setLoadingTreatment={setLoadingTreatment}
                 />
               )}
-              {displayTab === "Cài đặt" && (
-                <div className="flex-1 overflow-hidden h-full w-full">
-                   {isSettingsLoading ? (
-                  <div className="h-full flex flex-col items-center justify-center gap-6">
-                     <LoadingSpinner isDark={isDark} className="w-16 h-16" />
+              {displayTab === "Settings (new)" && (
+                <div id="settings-tab-container-main" className="flex-1 w-full h-full min-h-[500px] overflow-y-auto">
+                  <div className="w-full h-full max-w-6xl mx-auto">
+                    <SettingsNew
+                      isDark={isDark} 
+                      setIsDark={setIsDark} 
+                      isDev={isDev} 
+                      setIsDev={setIsDev} 
+                      featureFlags={featureFlags}
+                      setFeatureFlags={setFeatureFlags}
+                      liquidGlass={liquidGlass} 
+                      setLiquidGlass={setLiquidGlass}
+                      useSidebar={useSidebar}
+                      setUseSidebar={setUseSidebar}
+                      isSidebarRight={isSidebarRight}
+                      setIsSidebarRight={setIsSidebarRight}
+                      isSidebarLocked={isSidebarLocked}
+                      setIsSidebarLocked={setIsSidebarLocked}
+                      isPinningEnabled={isPinningEnabled}
+                      setIsPinningEnabled={setIsPinningEnabled}
+                      user={user}
+                      userData={userData}
+                      setUserData={setUserData}
+                      onAlert={onAlert}
+                      onLogin={handleLogin}
+                      onLogout={handleLogout}
+                      favorites={favorites}
+                      tempUnit={tempUnit}
+                      setTempUnit={setTempUnit}
+                      location={location}
+                      setLocation={setLocation}
+                      timeFormat={timeFormat}
+                      setTimeFormat={setTimeFormat}
+                      clockFormat={clockFormat}
+                      setClockFormat={setClockFormat}
+                      dateFormat={dateFormat}
+                      setDateFormat={setDateFormat}
+                      showClock={showClock}
+                      setShowClock={setShowClock}
+                      showDate={showDate}
+                      setShowDate={setShowDate}
+                      showTempInClock={showTempInClock}
+                      setShowTempInClock={setShowTempInClock}
+                      isTouchInterface={isTouchInterface}
+                      setIsTouchInterface={setIsTouchInterface}
+                      sidebarQuickAccess={sidebarQuickAccess}
+                      setSidebarQuickAccess={setSidebarQuickAccess}
+                      locationDetection={locationDetection}
+                      setLocationDetection={setLocationDetection}
+                      timeZone={timeZone}
+                      setTimeZone={setTimeZone}
+                      maxToolbarTabs={maxToolbarTabs}
+                      setMaxToolbarTabs={setMaxToolbarTabs}
+                      toastDuration={toastDuration}
+                      setToastDuration={setToastDuration}
+                      setActiveTab={setActiveTab}
+                    />
                   </div>
-               ) : (
-                    <div id="settings-tab-container-main" className="w-full h-full flex flex-col pt-0">
-                        <RejuvenatedSettings
-                          setSplashDuration={setSplashDuration}
-                          isDark={isDark} 
-                          setIsDark={setIsDark} 
-                          isDev={isDev} 
-                          setIsDev={setIsDev} 
-                          setIsReinstalling={setIsReinstalling}
-                          setShowSplash={setShowSplash}
-                          featureFlags={featureFlags}
-                          setFeatureFlags={setFeatureFlags}
-                          liquidGlass={liquidGlass} 
-                          setLiquidGlass={setLiquidGlass}
-                          useSidebar={useSidebar}
-                          setUseSidebar={setUseSidebar}
-                          isSidebarRight={isSidebarRight}
-                          setIsSidebarRight={setIsSidebarRight}
-                          isSidebarLocked={isSidebarLocked}
-                          setIsSidebarLocked={setIsSidebarLocked}
-                          sidebarDisplay={sidebarDisplay}
-                          setSidebarDisplay={setSidebarDisplay}
-                          isPinningEnabled={isPinningEnabled}
-                          setIsPinningEnabled={setIsPinningEnabled}
-                          user={user}
-                          userData={userData}
-                          setUserData={setUserData}
-                          onAlert={onAlert}
-                          onLogin={handleLogin}
-                          onUpdateLogsClick={() => setActiveTab("Update Logs")}
-                          onResetOnboarding={handleResetOnboarding}
-                          favorites={favorites}
-                          bypassed={bypassed}
-                          loadingTreatment={loadingTreatment}
-                          setLoadingTreatment={setLoadingTreatment}
-                          tempUnit={tempUnit}
-                          setTempUnit={setTempUnit}
-                          location={location}
-                          setLocation={setLocation}
-                          timeFormat={timeFormat}
-                          setTimeFormat={setTimeFormat}
-                          clockFormat={clockFormat}
-                          setClockFormat={setClockFormat}
-                          dateFormat={dateFormat}
-                          setDateFormat={setDateFormat}
-                          showClock={showClock}
-                          setShowClock={setShowClock}
-                          showDate={showDate}
-                          setShowDate={setShowDate}
-                          showTempInClock={showTempInClock}
-                          setShowTempInClock={setShowTempInClock}
-                          headingBar={headingBar}
-                          setHeadingBar={setHeadingBar}
-                          isSearchCompact={isSearchCompact}
-                          setIsSearchCompact={setIsSearchCompact}
-                          onLogout={handleLogout}
-                          customColors={customColors}
-                          setCustomColors={setCustomColors}
-                          setShowGeoPopup={setShowGeoPopup}
-                          handleGeolocation={handleGeolocation}
-                          externalSearchQuery={searchQuery}
-                          onExternalSearchClear={() => setSearchQuery("")}
-                          isCompactMode={isCompactMode}
-                          setIsCompactMode={setIsCompactMode}
-                          isTouchInterface={isTouchInterface}
-                          setIsTouchInterface={setIsTouchInterface}
-                          sidebarQuickAccess={sidebarQuickAccess}
-                          setSidebarQuickAccess={setSidebarQuickAccess}
-                          topbarSearchType={topbarSearchType}
-                          setTopbarSearchType={setTopbarSearchType}
-                          locationDetection={locationDetection}
-                          setLocationDetection={setLocationDetection}
-                          timeZone={timeZone}
-                          setTimeZone={setTimeZone}
-                          setActiveDashboardTab={setActiveDashboardTab}
-                          setIsWidgetsOpen={setIsWidgetsOpen}
-                          setActiveTab={setActiveTab}
-                          widgetsBoardPosition={widgetsBoardPosition}
-                          setWidgetsBoardPosition={setWidgetsBoardPosition}
-                          hideSidebarInWidgets={hideSidebarInWidgets}
-                          setHideSidebarInWidgets={setHideSidebarInWidgets}
-                          fullScreenWidgets={fullScreenWidgets}
-                          setFullScreenWidgets={setFullScreenWidgets}
-                          frostedGlassWidgets={frostedGlassWidgets}
-                          setFrostedGlassWidgets={setFrostedGlassWidgets}
-                        />
-                    </div>
-                   )}
                 </div>
               )}
               {displayTab === "Update Logs" && (
@@ -13846,7 +14461,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               <button 
                 onClick={() => {
                   triggerNavBounce();
-                  const addPages = Math.ceil(pinnedChannels.length / 4);
+                  const addPages = Math.ceil(pinnedChannels.length / maxToolbarTabs);
                   const totPages = 3 + addPages;
                   setSlideDirection(-1);
                   setNavPage((prev) => (prev - 1 + totPages) % totPages);
@@ -14106,7 +14721,7 @@ const [headingBar, setHeadingBar] = useState(() => {
 
                   {navPage >= 3 && (
                     <div className="flex w-full items-center justify-around h-full px-2">
-                      {pinnedChannels.slice((navPage - 3) * 4, (navPage - 3) * 4 + 4).map((channel, cIdx) => (
+                      {pinnedChannels.slice((navPage - 3) * maxToolbarTabs, (navPage - 3) * maxToolbarTabs + maxToolbarTabs).map((channel, cIdx) => (
                         <button
                           key={`nav-pinned-channel-${channel.name}-${cIdx}`}
                           onClick={() => {
@@ -14124,7 +14739,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           </span>
                         </button>
                       ))}
-                      {pinnedChannels.slice((navPage - 3) * 4, (navPage - 3) * 4 + 4).length === 0 && (
+                      {pinnedChannels.slice((navPage - 3) * maxToolbarTabs, (navPage - 3) * maxToolbarTabs + maxToolbarTabs).length === 0 && (
                         <span className="text-[10px] opacity-40 font-bold uppercase tracking-widest">Không có kênh ghim</span>
                       )}
                     </div>
@@ -14138,7 +14753,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               <button 
                 onClick={() => {
                   triggerNavBounce();
-                  const addPages = Math.ceil(pinnedChannels.length / 4);
+                  const addPages = Math.ceil(pinnedChannels.length / maxToolbarTabs);
                   const totPages = 3 + addPages;
                   setSlideDirection(1);
                   setNavPage((prev) => (prev + 1) % totPages);
