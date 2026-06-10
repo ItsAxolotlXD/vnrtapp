@@ -142,12 +142,16 @@ button,
 
 button:hover,
 [role="button"]:hover {
-  transform: scale(1.04);
+  transform: scale(1.12) !important;
 }
 
 button:active,
 [role="button"]:active {
-  transform: scale(0.96);
+  transform: scale(0.95) !important;
+}
+
+.bg-vplay-background {
+  background: linear-gradient(135deg, #1d0933 0%, #0d1225 50%, #051c2e 100%) !important;
 }
 
 @utility no-scrollbar {

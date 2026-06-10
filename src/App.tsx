@@ -430,6 +430,14 @@ const Sparkles2 = ({ className }: { className?: string }) => (
 
 const AdminIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <ShieldCheck className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 
+const TAB_ICON_URLS: Record<string, string> = {
+  "Trang chủ": "https://static.wikia.nocookie.net/ftv/images/b/bb/Vplay-liquid-home.png/revision/latest?cb=20260610090420&path-prefix=vi",
+  "Live": "https://static.wikia.nocookie.net/ftv/images/c/cf/Vplay-liquid-tv.png/revision/latest?cb=20260610090420&path-prefix=vi",
+  "Package": "https://static.wikia.nocookie.net/ftv/images/7/72/Vplay-liquid-package.png/revision/latest?cb=20260610090420&path-prefix=vi",
+  "Cài đặt": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi",
+  "Settings (new)": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi"
+};
+
 const baseTabs = [
   { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
   { name: "Tìm kiếm", icon: SearchIcon, id: "Tìm kiếm" },
@@ -6577,10 +6585,12 @@ function SettingsNew(props: any) {
     dateFormat, setDateFormat, showClock, setShowClock, showDate, setShowDate, showTempInClock, setShowTempInClock,
     isTouchInterface, setIsTouchInterface, sidebarQuickAccess, setSidebarQuickAccess, timeZone, setTimeZone,
     maxToolbarTabs, setMaxToolbarTabs, toastDuration, setToastDuration, locationDetection, setLocationDetection,
-    setActiveTab
+    setActiveTab, settingsActivePage, setSettingsActivePage
   } = props;
 
-  const [activePage, setActivePage] = useState<number>(1);
+  const [localActivePage, setLocalActivePage] = useState<number>(1);
+  const activePage = settingsActivePage !== undefined ? settingsActivePage : localActivePage;
+  const setActivePage = setSettingsActivePage !== undefined ? setSettingsActivePage : setLocalActivePage;
   const [guestName, setGuestName] = useState(() => localStorage.getItem("vplay_guest_name") || "Khách");
   const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState("");
@@ -6696,7 +6706,7 @@ function SettingsNew(props: any) {
       </div>
 
       {/* Main Content Pane */}
-      <div className={`flex-1 p-6 md:p-10 rounded-[32px] overflow-y-auto custom-scrollbar h-full pb-20 ${cardBg}`}>
+      <div className={`flex-1 p-6 md:p-10 rounded-[32px] overflow-y-auto custom-scrollbar h-full ${useSidebar ? "pb-20" : "pb-40"} ${cardBg}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={`page-content-${activePage}`}
@@ -9161,9 +9171,9 @@ function TopBar({
           <AnimatePresence>
             {isUserMenuOpen && (
               <motion.div
-                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                initial={{ opacity: 0, y: -40, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                exit={{ opacity: 0, y: -40, scale: 0.95 }}
                 transition={{ type: "spring", damping: 20, stiffness: 140 }}
                 className={`absolute top-full mt-3 right-0 w-[280px] rounded-[28px] shadow-2xl z-[500] overflow-hidden border ${
                   isDark ? "bg-[#12131a] border-white/15 text-white" : "bg-white border-slate-200 text-slate-800 shadow-xl"
@@ -11912,6 +11922,7 @@ function App() {
     };
   }, []);
 
+  const [settingsActivePage, setSettingsActivePage] = useState<number>(1);
   const [searchFilter, setSearchFilter] = useState<"all" | "channels" | "settings" | "experiments">("all");
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type: "search" | "unified" } | null>(null);
   const [isMobileContextMenuOpen, setIsMobileContextMenuOpen] = useState(false);
@@ -13258,7 +13269,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       >
       {!showSplash && headingBar && (
         <div 
-          className={`fixed left-0 right-0 z-[200] transition-all duration-300 ${
+          className={`fixed left-0 right-0 z-[9999] transition-all duration-300 ${
             isTopBarVisible ? "top-0" : "top-[-56px] opacity-0 pointer-events-none"
           }`}
         >
@@ -13906,7 +13917,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             }
             lastScrollY.current = scrollTop;
           }}
-          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live") ? "pb-0" : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
+          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live") ? (useSidebar ? "pb-0" : "pb-32") : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
         >
           <motion.div
             key={displayTab}
@@ -14099,6 +14110,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                       toastDuration={toastDuration}
                       setToastDuration={setToastDuration}
                       setActiveTab={setActiveTab}
+                      settingsActivePage={settingsActivePage}
+                      setSettingsActivePage={setSettingsActivePage}
                     />
                   </div>
                 </div>
@@ -14414,7 +14427,21 @@ const [headingBar, setHeadingBar] = useState(() => {
                           />
                         )}
                         <div className="relative">
-                          <Icon size={isCompact ? (isActive ? 30 : 24) : 20} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? activeColorClass : (isDark ? "text-white/70" : "text-slate-600")} group-hover:scale-110`} />
+                          {TAB_ICON_URLS[tab.id || tab.name] ? (
+                            <img 
+                              src={TAB_ICON_URLS[tab.id || tab.name]} 
+                              alt={tab.name} 
+                              className={`flex-shrink-0 transition-transform ${isCompact ? "h-7 w-7" : "h-5 w-5"} object-contain group-hover:scale-110`} 
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <Icon size={isCompact ? (isActive ? 30 : 24) : 20} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? activeColorClass : (isDark ? "text-white/70" : "text-slate-600")} group-hover:scale-110`} />
+                          )}
+                          {(tab.id === "Cài đặt" || tab.name === "Cài đặt" || tab.id === "Settings (new)" || tab.name === "Settings (new)") && (
+                            <div className="absolute -top-1.5 -right-3.5 px-1 py-0.2 bg-sky-400 text-[8px] text-slate-900 rounded font-black leading-none scale-[0.8]">
+                              NEW
+                            </div>
+                          )}
                           {(tab.id === "Cài đặt" || tab.name === "Cài đặt") && !user && (
                             <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[9px] font-black shadow-md border border-slate-900 animate-pulse">
                               !
@@ -14570,7 +14597,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 >
                   {navPage === 0 && (
                     <>
-                      {baseTabs.filter(t => ["Trang chủ", "Live", "Package", "Cài đặt"].includes(t.id || t.name)).map((tab) => {
+                      {baseTabs.filter(t => ["Trang chủ", "Live", "Package", "Cài đặt", "Settings (new)"].includes(t.id || t.name)).map((tab) => {
                         const Icon = tab.icon;
                         const tabId = tab.id || tab.name;
                         const isActive = activeTab === tabId;
@@ -14586,7 +14613,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                         } else if (tabId === "Package") {
                           activeColorClass = "text-[#FACC15]";
                           activeUnderlineClass = "bg-[#FACC15] shadow-[0_2px_8px_rgba(250,204,21,0.4)]";
-                        } else if (tabId === "Cài đặt") {
+                        } else if (tabId === "Cài đặt" || tabId === "Settings (new)") {
                           activeColorClass = isDark ? "text-white" : "text-slate-900";
                           activeUnderlineClass = isDark 
                             ? "bg-white shadow-[0_2px_8px_rgba(255,255,255,0.4)]" 
@@ -14602,7 +14629,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   setIsLockModalOpen(true);
                                   return;
                                 }
-                                if (tabId === "Cài đặt") {
+                                if (tabId === "Cài đặt" || tabId === "Settings (new)") {
                                   handleSettingsTabClick();
                                 }
                                 setActiveTab(tabId);
@@ -14616,7 +14643,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                {isActive && (
                                 <motion.div
                                   layoutId="activeTabUnderline"
-                                  className={`absolute bottom-[0px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-b-none rounded-t-full z-10 ${
+                                  className={`absolute bottom-[-8px] left-1/2 -translate-x-1/2 h-[5px] w-7 rounded-b-none rounded-t-full z-10 ${
                                     activeUnderlineClass
                                   }`}
                                   transition={{ type: "spring", stiffness: 650, damping: 32 }}
@@ -14641,7 +14668,21 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 className="z-10 relative"
                               >
-                                <Icon className="h-7 w-7 flex-shrink-0" />
+                                {TAB_ICON_URLS[tabId] ? (
+                                  <img 
+                                    src={TAB_ICON_URLS[tabId]} 
+                                    alt={tabId} 
+                                    className="h-7 w-7 flex-shrink-0 object-contain hover:scale-110 transition-transform" 
+                                    referrerPolicy="no-referrer"
+                                  />
+                                ) : (
+                                  <Icon className="h-7 w-7 flex-shrink-0" />
+                                )}
+                                {(tabId === "Cài đặt" || tabId === "Settings (new)") && (
+                                  <div className="absolute -top-1 -right-3.5 px-1 py-0.2 bg-sky-400 text-[8px] text-slate-900 rounded font-black leading-none scale-90">
+                                    NEW
+                                  </div>
+                                )}
                                 {tabId === "Cài đặt" && !user && (
                                   <div className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[9px] font-extrabold shadow-md border border-slate-900 animate-pulse">
                                     !
