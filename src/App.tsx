@@ -11739,13 +11739,16 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
         if (parsed.topbar === "#11131c" || parsed.topbar === "#0a0118" || parsed.topbar === "#090d16" || !parsed.topbar) {
           parsed.topbar = "#181818";
         }
+        if (!parsed.background || parsed.background === "var(--color-vplay-background)" || parsed.background.includes("var(")) {
+          parsed.background = "#121214";
+        }
         return parsed;
       } catch (e) {}
     }
     return {
       primary: "#4AC4FE",
       sidebar: "#181818",
-      background: "var(--color-vplay-background)",
+      background: "#121214",
       topbar: "#181818"
     };
   });
