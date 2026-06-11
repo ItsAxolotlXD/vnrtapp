@@ -447,8 +447,6 @@ const baseTabs = [
   { name: "Quản trị", icon: AdminIcon, id: "Quản trị" },
 ];
 
-// Channel type is imported from channels.ts
-
 function LiquidModal({ isOpen, onClose, children, isDark, title, description, liquidGlass }: { 
   isOpen: boolean, 
   onClose: () => void, 
@@ -459,6 +457,7 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
   liquidGlass: "glassy" | "tinted"
 }) {
   const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -479,35 +478,34 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className={`absolute inset-0 bg-black/40 ${liquidGlass ? "backdrop-blur-sm" : ""}`}
+            className={`absolute inset-0 bg-black/45 ${liquidGlass ? "backdrop-blur-sm" : ""}`}
           />
           <motion.div
             ref={containerRef}
             onMouseMove={handleMouseMove}
-            initial={{ scale: 1.2, opacity: 0, y: 0 }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            initial={{ scale: 1.12, opacity: 0, y: 0 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 1.2, opacity: 0, y: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`relative w-full max-w-md overflow-hidden p-[1px] rounded-[32px] ${
-              isDark 
-                ? "bg-slate-800" 
-                : "bg-slate-200"
-            }`}
+            exit={{ scale: 1.12, opacity: 0, y: 0 }}
+            transition={{ type: "spring", damping: 26, stiffness: 320 }}
+            className="relative w-full max-w-md overflow-hidden p-[1.5px] rounded-[32px] transition-all duration-300 ease-out"
+            style={{
+              background: isHovered 
+                ? `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.05) 75%, transparent 100%), linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%)`
+                : `linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.15) 100%)`,
+              boxShadow: isDark 
+                ? "0 30px 70px -15px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255,255,255,0.15)" 
+                : "0 30px 70px -15px rgba(15, 23, 42, 0.15), inset 0 1px 1px rgba(255,255,255,0.6)"
+            }}
           >
-            {/* Shiny mouse-following outline */}
-            <div 
-              className="absolute inset-0 rounded-[32px] pointer-events-none opacity-100 transition-opacity duration-300"
-              style={{
-                background: `radial-gradient(150px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.05) 50%, transparent 100%)`,
-              }}
-            />
-            <div className={`relative w-full h-full rounded-[31px] p-10 text-center ${
+            <div className={`relative w-full h-full rounded-[30.5px] p-10 text-center ${
               isDark 
-                ? "bg-[#121214]/95 text-white" 
-                : "bg-white/95 text-slate-850"
+                ? "bg-[#121214]/92 text-white" 
+                : "bg-white/92 text-slate-850"
             } ${
               liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"
-            }`}>
+            }`} style={{ borderRadius: "inherit" }}>
               {title && <h3 className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>}
               {description && <p className={`${isDark ? "text-white/60" : "text-black/60"} text-sm leading-relaxed mb-6 font-medium`}>{description}</p>}
               {children}
@@ -516,6 +514,62 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
         </div>
       )}
     </AnimatePresence>
+  );
+}
+
+function ShinyGlassWrapper({ 
+  children, 
+  isDark, 
+  liquidGlass,
+  className = "", 
+  roundedClass = "rounded-[32px]",
+  innerClass = ""
+}: { 
+  children: ReactNode, 
+  isDark: boolean, 
+  liquidGlass?: "glassy" | "tinted",
+  className?: string,
+  roundedClass?: string,
+  innerClass?: string
+}) {
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setCoords({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative p-[1.5px] overflow-hidden transition-all duration-300 ease-out ${roundedClass} ${className}`}
+      style={{
+        background: isHovered 
+          ? `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.05) 75%, transparent 100%), linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%)`
+          : `linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.15) 100%)`,
+        boxShadow: isDark 
+          ? "0 25px 60px -15px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255,255,255,0.15)" 
+          : "0 25px 60px -15px rgba(15, 23, 42, 0.15), inset 0 1px 1px rgba(255,255,255,0.6)"
+      }}
+    >
+      <div 
+        className={`relative w-full h-full overflow-hidden ${
+          innerClass || (isDark ? "bg-[#121214]/92 text-white" : "bg-white/92 text-slate-850")
+        } ${liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"}`}
+        style={{ borderRadius: "inherit" }}
+      >
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -4833,22 +4887,9 @@ function SearchPopup({
 
   const favoriteChannels = channels.filter(ch => favorites.includes(ch.name));
 
-  return (
-    <motion.div
-      initial={asContent ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
-      animate={asContent ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-      exit={asContent ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
-      transition={{ type: "spring", damping: 20, stiffness: 300 }}
-      className={`${
-        asContent 
-          ? "relative w-full overflow-visible" 
-          : `absolute bottom-full mb-8 w-[90vw] md:w-full max-w-[400px] overflow-hidden ${
-              isDark ? "popup-3d-dark" : "popup-3d-light"
-            } ${liquidGlass ? "backdrop-blur-xl" : "backdrop-blur-none"}`
-      }`}
-    >
-      <div className={`${asContent ? "space-y-12 pb-10" : "p-4 space-y-1 max-h-[60vh] overflow-y-auto"}`}>
-        {asContent && <div className={`h-[1px] w-full ${isDark ? "bg-white/10" : "bg-slate-200"}`} />}
+  const innerContent = (
+    <div className={`${asContent ? "space-y-12 pb-10" : "p-4 space-y-1 max-h-[60vh] overflow-y-auto custom-scrollbar"}`}>
+      {asContent && <div className={`h-[1px] w-full ${isDark ? "bg-white/10" : "bg-slate-200"}`} />}
         
         {searchQuery.trim() === "" ? (
           <div className="space-y-4">
@@ -4987,7 +5028,28 @@ function SearchPopup({
             </button>
           </div>
         )}
+    </div>
+  );
+
+  if (asContent) {
+    return (
+      <div className="relative w-full overflow-visible">
+        {innerContent}
       </div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
+      animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+      exit={{ opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
+      transition={{ type: "spring", damping: 20, stiffness: 300 }}
+      className="absolute bottom-full mb-8 w-[90vw] md:w-full max-w-[400px] z-[50]"
+    >
+      <ShinyGlassWrapper isDark={isDark} liquidGlass={liquidGlass} roundedClass="rounded-[30px]" className="w-full">
+        {innerContent}
+      </ShinyGlassWrapper>
     </motion.div>
   );
 }
@@ -6462,51 +6524,51 @@ function RejuvenatedSettings(props: any) {
                   initial={{ opacity: 0, scale: 0.9, y: 20 }} 
                   animate={{ opacity: 1, scale: 1, y: 0 }} 
                   exit={{ opacity: 0, scale: 0.9, y: 20 }} 
-                  className={`relative w-full max-w-md rounded-[32px] p-8 shadow-2xl ${
-                    isDark ? "bg-vplay-sidebar text-white border border-white/10" : "bg-white text-slate-800 border border-slate-250"
-                  }`}
+                  className="relative w-full max-w-md rounded-[32px]"
                 >
-                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-2xl font-bold tracking-tight">Tẩy xóa & Đặt lại</h3>
-                    <button 
-                      onClick={() => setShowResetPopup(false)} 
-                      className={`p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-black/5 text-slate-400"}`}
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
+                  <ShinyGlassWrapper isDark={isDark} roundedClass="rounded-[32px]" innerClass={`p-8 shadow-2xl relative w-full h-full flex flex-col ${isDark ? "bg-[#18181c]/92 text-white" : "bg-white/92 text-slate-800"}`}>
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-2xl font-bold tracking-tight">Tẩy xóa & Đặt lại</h3>
+                      <button 
+                        onClick={() => setShowResetPopup(false)} 
+                        className={`p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-black/5 text-slate-400"}`}
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
 
-                  <div className="mx-auto w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-6">
-                    <Trash2 size={32} />
-                  </div>
+                    <div className="mx-auto w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-6">
+                      <Trash2 size={32} />
+                    </div>
 
-                  <p className={`text-sm leading-relaxed mb-8 text-center opacity-80 ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                    Hành động này sẽ xóa sạch mọi dữ liệu, bao gồm các cài đặt, tùy chỉnh và thông tin tài khoản Vplay và cài đặt lại từ đầu toàn bộ thông số về mặc định. Bạn có muốn tẩy xóa và đặt lại Vplay không?
-                  </p>
+                    <p className={`text-sm leading-relaxed mb-8 text-center opacity-80 ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+                      Hành động này sẽ xóa sạch mọi dữ liệu, bao gồm các cài đặt, tùy chỉnh và thông tin tài khoản Vplay và cài đặt lại từ đầu toàn bộ thông số về mặc định. Bạn có muốn tẩy xóa và đặt lại Vplay không?
+                    </p>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <button 
-                      id="reset-cancel-btn" 
-                      onClick={() => setShowResetPopup(false)} 
-                      className={`py-3.5 rounded-2xl font-bold text-sm transition-all border ${
-                        isDark ? "bg-white/5 border-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-650 hover:bg-slate-200"
-                      }`}
-                    >
-                      Hủy
-                    </button>
-                    <button 
-                      id="reset-agree-btn" 
-                      onClick={() => { 
-                        setShowResetPopup(false); 
-                        setIsReinstalling(true); 
-                        setSplashDuration(60000);
-                        setShowSplash(true); 
-                      }} 
-                      className="py-3.5 rounded-2xl font-bold text-sm transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
-                    >
-                      Đồng ý
-                    </button>
-                  </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button 
+                        id="reset-cancel-btn" 
+                        onClick={() => setShowResetPopup(false)} 
+                        className={`py-3.5 rounded-2xl font-bold text-sm transition-all border ${
+                          isDark ? "bg-white/5 border-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-650 hover:bg-slate-200"
+                        }`}
+                      >
+                        Hủy
+                      </button>
+                      <button 
+                        id="reset-agree-btn" 
+                        onClick={() => { 
+                          setShowResetPopup(false); 
+                          setIsReinstalling(true); 
+                          setSplashDuration(60000);
+                          setShowSplash(true); 
+                        }} 
+                        className="py-3.5 rounded-2xl font-bold text-sm transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
+                      >
+                        Đồng ý
+                      </button>
+                    </div>
+                  </ShinyGlassWrapper>
                 </motion.div>
               </div>
             )}
@@ -8074,6 +8136,19 @@ function SettingsContent({
 
 
 function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData, featureFlags }: { isOpen: boolean, onClose: () => void, isDark: boolean, liquidGlass: "glassy" | "tinted", setIsDev: (v: boolean) => void, setUserData: (d: any) => void, featureFlags?: any }) {
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setCoords({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [username, setUsername] = useState("");
@@ -8216,17 +8291,33 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
               className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
             />
             <motion.div
+              ref={containerRef}
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
               layoutId="auth-modal"
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", damping: 30, stiffness: 400 }}
-              className={`relative w-full max-w-5xl max-h-[95vh] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.4)] flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] rounded-[40px] md:rounded-[56px] ${
-                isDark 
-                  ? "bg-[#181818]/95 border-white/10 text-white" 
-                  : "bg-white/95 border-white/40 text-slate-900"
-              } backdrop-blur-[100px] border`}
+              className="relative w-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] rounded-[40px] md:rounded-[56px] p-[1.5px] transition-all duration-300 ease-out"
+              style={{
+                background: isHovered 
+                  ? `radial-gradient(350px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.05) 75%, transparent 100%), linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%)`
+                  : `linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.15) 100%)`,
+                boxShadow: isDark 
+                  ? "0 40px 100px rgba(0,0,0,0.85), inset 0 1px 1px rgba(255,255,255,0.15)" 
+                  : "0 40px 100px rgba(15,23,42,0.15), inset 0 1px 1px rgba(255,255,255,0.6)"
+              }}
             >
+              <div 
+                className={`relative w-full h-full rounded-[inherit] overflow-hidden flex flex-col md:flex-row ${
+                  isDark 
+                    ? "bg-[#181818]/92 text-white" 
+                    : "bg-white/92 text-slate-900"
+                } ${liquidGlass === "glassy" ? "backdrop-blur-3xl" : "backdrop-blur-none"}`}
+                style={{ borderRadius: "inherit" }}
+              >
               {/* Image/Visual Side - Responsive hiding for very small screens if necessary, or just smaller height */}
               <div className="w-full md:w-[45%] h-48 md:h-auto bg-gradient-to-br from-primary to-indigo-900 p-6 md:p-12 relative flex flex-col justify-between overflow-hidden shrink-0">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-[#4AC4FE]/20 blur-[100px] -mr-32 -mt-32" />
@@ -8410,6 +8501,7 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
                   </div>
                 </div>
               </div>
+              </div>
             </motion.div>
           </>
         )}
@@ -8474,15 +8566,21 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.5, opacity: 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 400 }}
-        className={`relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[40px] md:rounded-[56px] shadow-[0_40px_100px_rgba(0,0,0,0.4)] flex flex-col transition-colors border ${
-          isDark 
-            ? "bg-[#130f26]/95 border-white/20" 
-            : "bg-white/95 border-white/40"
-        } backdrop-blur-[100px]`}
+        className="w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[40px] md:rounded-[56px]"
       >
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#4AC4FE] via-pink-500 to-amber-500" />
-        
-        <div className="p-6 md:p-12 flex flex-col flex-1 overflow-hidden space-y-6 md:space-y-8">
+        <ShinyGlassWrapper 
+          isDark={isDark} 
+          liquidGlass={liquidGlass} 
+          roundedClass="rounded-[40px] md:rounded-[56px]" 
+          innerClass={`relative w-full h-full flex flex-col overflow-hidden max-h-[92vh] ${
+            isDark 
+              ? "bg-[#130f26]/92 text-white" 
+              : "bg-white/92 text-slate-900"
+          }`}
+        >
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#4AC4FE] via-pink-500 to-amber-500" />
+          
+          <div className="p-6 md:p-12 flex flex-col flex-1 overflow-hidden space-y-6 md:space-y-8">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <h2 className={`text-2xl sm:text-3xl md:text-5xl font-bold tracking-tighter leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
@@ -8542,6 +8640,7 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
             </button>
           </div>
         </div>
+        </ShinyGlassWrapper>
       </motion.div>
     </motion.div>
   );
@@ -11913,30 +12012,32 @@ function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
       {isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className={`relative w-full max-w-md rounded-[32px] p-8 shadow-2xl ${isDark ? "bg-vplay-sidebar text-white border border-white/10" : "bg-white text-slate-800"}`}>
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-bold tracking-tight">Chọn vị trí</h3>
-              <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 transition-colors"><X size={20} /></button>
-            </div>
-            
-            <button onClick={() => { onAutoSelect(); onClose(); }} className={`w-full flex items-center gap-4 p-5 rounded-2xl mb-8 transition-all active:scale-95 ${isDark ? "bg-[#4AC4FE]/20 text-[#4AC4FE] hover:bg-[#4AC4FE]/30" : "bg-[#4AC4FE]/10 text-[#4AC4FE] hover:bg-[#4AC4FE]/10"}`}>
-              <div className={`p-3 rounded-xl ${isDark ? "bg-[#4AC4FE]/20" : "bg-[#4AC4FE] text-white"}`}>
-                <Navigation size={22} />
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-md rounded-[32px]">
+            <ShinyGlassWrapper isDark={isDark} roundedClass="rounded-[32px]" innerClass={`p-8 shadow-2xl relative w-full h-full flex flex-col ${isDark ? "bg-[#18181c]/92 text-white" : "bg-white/92 text-slate-800"}`}>
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl font-bold tracking-tight">Chọn vị trí</h3>
+                <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 transition-colors"><X size={20} /></button>
               </div>
-              <div className="text-left leading-tight">
-                <p className="font-bold text-sm">Tự động định vị</p>
-                <p className="text-[10px] opacity-60">Xác định vị trí hiện tại của bạn</p>
-              </div>
-            </button>
+              
+              <button onClick={() => { onAutoSelect(); onClose(); }} className={`w-full flex items-center gap-4 p-5 rounded-2xl mb-8 transition-all active:scale-95 ${isDark ? "bg-[#4AC4FE]/20 text-[#4AC4FE] hover:bg-[#4AC4FE]/30" : "bg-[#4AC4FE]/10 text-[#4AC4FE] hover:bg-[#4AC4FE]/10"}`}>
+                <div className={`p-3 rounded-xl ${isDark ? "bg-[#4AC4FE]/20" : "bg-[#4AC4FE] text-white"}`}>
+                  <Navigation size={22} />
+                </div>
+                <div className="text-left leading-tight">
+                  <p className="font-bold text-sm">Tự động định vị</p>
+                  <p className="text-[10px] opacity-60">Xác định vị trí hiện tại của bạn</p>
+                </div>
+              </button>
 
-            <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
-              <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-3 px-2">Hoặc chọn thủ công</p>
-              {cities.map(city => (
-                <button key={city} onClick={() => { onManualSelect(city); onClose(); }} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}>
-                  {city}
-                </button>
-              ))}
-            </div>
+              <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-3 px-2">Hoặc chọn thủ công</p>
+                {cities.map(city => (
+                  <button key={city} onClick={() => { onManualSelect(city); onClose(); }} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}>
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </ShinyGlassWrapper>
           </motion.div>
         </div>
       )}
@@ -13489,49 +13590,49 @@ const [headingBar, setHeadingBar] = useState(() => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.9, y: 20 }} 
-              className={`relative w-full max-w-sm rounded-[32px] p-6 shadow-2xl ${
-                isDark ? "bg-[#1c1c1e] text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
-              }`}
+              className="relative w-full max-w-sm rounded-[32px]"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold tracking-tight">Kích hoạt khẩn cấp</h3>
-                <button 
-                  onClick={() => setShowForceResetPopup(false)} 
-                  className={`p-1.5 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-black/5 text-slate-400"}`}
-                >
-                  <X size={18} />
-                </button>
-              </div>
+              <ShinyGlassWrapper isDark={isDark} roundedClass="rounded-[32px]" innerClass={`p-6 shadow-2xl relative w-full h-full flex flex-col ${isDark ? "bg-[#18181c]/92 text-white" : "bg-white/92 text-slate-800"}`}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold tracking-tight">Kích hoạt khẩn cấp</h3>
+                  <button 
+                    onClick={() => setShowForceResetPopup(false)} 
+                    className={`p-1.5 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-black/5 text-slate-400"}`}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
 
-              <div className="mx-auto w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-4">
-                <Trash2 size={24} />
-              </div>
+                <div className="mx-auto w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-4">
+                  <Trash2 size={24} />
+                </div>
 
-              <p className={`text-xs leading-relaxed mb-6 text-center opacity-85 ${isDark ? "text-slate-300" : "text-slate-600"}`} style={{ fontFamily: "Montserrat, sans-serif" }}>
-                Hệ thống chuẩn bị tẩy xóa sạch mọi tùy biến và khôi phục cài đặt gốc cấp tốc (Force Reinstall). Hệ thống sẽ tự động tải lại sau khi hoàn thành. Bạn có đồng ý tiếp tục không?
-              </p>
+                <p className={`text-xs leading-relaxed mb-6 text-center opacity-85 ${isDark ? "text-slate-300" : "text-slate-600"}`} style={{ fontFamily: "Montserrat, sans-serif" }}>
+                  Hệ thống chuẩn bị tẩy xóa sạch mọi tùy biến và khôi phục cài đặt gốc cấp tốc (Force Reinstall). Hệ thống sẽ tự động tải lại sau khi hoàn thành. Bạn có đồng ý tiếp tục không?
+                </p>
 
-              <div className="grid grid-cols-2 gap-3">
-                <button 
-                  onClick={() => setShowForceResetPopup(false)} 
-                  className={`py-2.5 rounded-xl font-bold text-xs transition-colors border ${
-                    isDark ? "bg-white/5 border-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  Bỏ qua
-                </button>
-                <button 
-                  onClick={() => { 
-                    setShowForceResetPopup(false); 
-                    setIsReinstalling(true); 
-                    setSplashDuration(60000); 
-                    setShowSplash(true); 
-                  }} 
-                  className="py-2.5 rounded-xl font-bold text-xs transition-colors bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
-                >
-                  Đồng ý
-                </button>
-              </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <button 
+                    onClick={() => setShowForceResetPopup(false)} 
+                    className={`py-2.5 rounded-xl font-bold text-xs transition-colors border ${
+                      isDark ? "bg-white/5 border-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    Bỏ qua
+                  </button>
+                  <button 
+                    onClick={() => { 
+                      setShowForceResetPopup(false); 
+                      setIsReinstalling(true); 
+                      setSplashDuration(60000); 
+                      setShowSplash(true); 
+                    }} 
+                    className="py-2.5 rounded-xl font-bold text-xs transition-colors bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
+                  >
+                    Đồng ý
+                  </button>
+                </div>
+              </ShinyGlassWrapper>
             </motion.div>
           </div>
         )}
