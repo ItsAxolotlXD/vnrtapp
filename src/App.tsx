@@ -6699,6 +6699,7 @@ function SettingsNew(props: any) {
   const [localActivePage, setLocalActivePage] = useState<number>(1);
   const activePage = settingsActivePage !== undefined ? settingsActivePage : localActivePage;
   const setActivePage = setSettingsActivePage !== undefined ? setSettingsActivePage : setLocalActivePage;
+  const [settingsSearchQuery, setSettingsSearchQuery] = useState("");
   const [guestName, setGuestName] = useState(() => localStorage.getItem("vplay_guest_name") || "Khách");
   const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState("");
@@ -6782,53 +6783,163 @@ function SettingsNew(props: any) {
     </div>
   );
 
+  const matchedSettings = settingsSearchQuery.trim() === "" 
+    ? [] 
+    : settingsSearchOptions.filter(item => 
+        item.name.toLowerCase().includes(settingsSearchQuery.toLowerCase()) || 
+        item.desc.toLowerCase().includes(settingsSearchQuery.toLowerCase()) ||
+        item.match.some(m => m.toLowerCase().includes(settingsSearchQuery.toLowerCase()))
+      );
+
   return (
     <div className="w-full h-full flex flex-col md:flex-row gap-6 p-4 md:p-8 animate-in fade-in duration-300 overflow-hidden">
       {/* 5 Pages Tab bar - Desktop sidebar, Mobile floating segmented control */}
-      <div className="w-full md:w-64 flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-3 md:pb-0 shrink-0 no-scrollbar">
-        {pages.map((p) => {
-          const isActive = activePage === p.num;
-          const PageIcon = p.icon;
-          return (
-            <button
-              key={`page-${p.num}`}
-              onClick={() => setActivePage(p.num)}
-              className={`flex items-center gap-3.5 px-5 py-3 rounded-full text-sm font-bold transition-all shrink-0 select-none ${
-                isActive
-                  ? (isDark 
-                      ? "bg-sky-400 text-black border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]" 
-                      : "bg-[#4AC4FE] text-black border border-transparent shadow-lg shadow-sky-500/10")
-                  : (isDark 
-                      ? "hover:bg-white/5 border border-transparent text-slate-300" 
-                      : "hover:bg-slate-100 border border-transparent text-slate-600")
-              }`}
-            >
-              <div className={`p-1.5 rounded-full shrink-0 ${isActive ? "bg-black/10 text-black" : "bg-transparent"}`}>
-                <PageIcon size={18} />
-              </div>
-              <span className="text-inherit">{p.label}</span>
+      <div className="w-full md:w-64 flex flex-col gap-4 shrink-0">
+        {/* Search settings input box styled as bubble */}
+        <div className={`relative flex items-center gap-2.5 px-4 py-2 w-full group rounded-full border transition-all duration-300 ${
+          isDark 
+            ? "bg-white/5 hover:bg-white/10 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
+            : "bg-slate-150 hover:bg-slate-200 border-slate-350 focus-within:border-[#4AC4FE] text-slate-800 shadow-sm"
+        }`}>
+          <Search size={14} className={`shrink-0 transition-colors ${
+            settingsSearchQuery ? "text-[#4AC4FE]" : "text-slate-400"
+          }`} />
+          <input
+            type="text"
+            value={settingsSearchQuery}
+            onChange={(e) => setSettingsSearchQuery(e.target.value)}
+            placeholder="Tìm cài đặt..."
+            className={`bg-transparent border-none outline-none text-xs w-full font-bold font-google ${
+              isDark ? "text-white placeholder-slate-500" : "text-slate-800 placeholder-black/35"
+            }`}
+          />
+          {settingsSearchQuery && (
+            <button onClick={() => setSettingsSearchQuery("")} className="p-1 hover:bg-black/10 rounded-full transition-all">
+              <X size={12} className={isDark ? "text-slate-300/60" : "text-slate-400"} />
             </button>
-          );
-        })}
+          )}
+        </div>
+
+        <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-3 md:pb-0 no-scrollbar">
+          {pages.map((p) => {
+            const isActive = activePage === p.num && settingsSearchQuery.trim() === "";
+            const PageIcon = p.icon;
+            return (
+              <button
+                key={`page-${p.num}`}
+                onClick={() => {
+                  setActivePage(p.num);
+                  setSettingsSearchQuery("");
+                }}
+                className={`flex items-center gap-3.5 px-5 py-3 rounded-full text-sm font-bold transition-all shrink-0 select-none ${
+                  isActive
+                    ? (isDark 
+                        ? "bg-sky-400 text-black border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]" 
+                        : "bg-[#4AC4FE] text-black border border-transparent shadow-lg shadow-sky-500/10")
+                    : (isDark 
+                        ? "hover:bg-white/5 border border-transparent text-slate-300" 
+                        : "hover:bg-slate-100 border border-transparent text-slate-600")
+                }`}
+              >
+                <div className={`p-1.5 rounded-full shrink-0 ${isActive ? "bg-black/10 text-black" : "bg-transparent"}`}>
+                  <PageIcon size={18} />
+                </div>
+                <span className="text-inherit">{p.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Main Content Pane */}
       <div className={`flex-1 p-6 md:p-10 rounded-[32px] overflow-y-auto custom-scrollbar h-full pb-28 ${cardBg}`}>
         <AnimatePresence mode="wait">
-          <motion.div
-            key={`page-content-${activePage}`}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-            className="space-y-8"
-          >
-            {/* Title block */}
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold mt-1 tracking-tight text-left text-inherit">
-                {pages.find(p => p.num === activePage)?.label}
-              </h2>
-            </div>
+          {settingsSearchQuery.trim() !== "" ? (
+            <motion.div
+              key="settings-search-results"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-8"
+            >
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold mt-1 tracking-tight text-left text-inherit">
+                  Kết quả tìm kiếm cài đặt
+                </h2>
+                <p className="text-xs opacity-50 text-left mt-1 font-normal">
+                  Tìm thấy {matchedSettings.length} cấu hình phù hợp với "{settingsSearchQuery}"
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {matchedSettings.length > 0 ? (
+                  matchedSettings.map((item, idx) => {
+                    const matchedPage = pages.find(p => p.num === item.page);
+                    const PageIcon = matchedPage?.icon || SettingsIcon;
+                    return (
+                      <div 
+                        key={`matched-setting-${idx}`}
+                        className={`p-5 rounded-3xl border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left ${
+                          isDark 
+                            ? "bg-white/[0.02] border-white/5 hover:bg-white/[0.04]" 
+                            : "bg-black/[0.01] border-black/5 hover:bg-black/[0.03]"
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-base text-inherit">{item.name}</span>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20">
+                              <PageIcon size={10} />
+                              {matchedPage?.label}
+                            </span>
+                          </div>
+                          <p className="text-xs opacity-60 font-medium leading-relaxed">{item.desc}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setActivePage(item.page);
+                            setSettingsSearchQuery("");
+                          }}
+                          className={`px-4 py-2 rounded-full font-bold text-xs shrink-0 select-none transition-all ${
+                            isDark 
+                              ? "bg-sky-400 text-black hover:bg-sky-300" 
+                              : "bg-[#4AC4FE] text-black hover:bg-[#4AC4FE]/80 shadow-md shadow-sky-500/10"
+                          }`}
+                        >
+                          Đi đến thiết lập
+                        </button>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="py-12 text-center space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto">
+                      <Search size={25} />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-bold text-sm">Không tìm thấy kết quả</p>
+                      <p className="text-xs opacity-50 max-w-xs mx-auto">Hãy thử nhập từ khóa khác như "hồ sơ", "hiệu ứng", "đồng hồ", "vị trí"...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={`page-content-${activePage}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-8"
+            >
+              {/* Title block */}
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold mt-1 tracking-tight text-left text-inherit">
+                  {pages.find(p => p.num === activePage)?.label}
+                </h2>
+              </div>
 
             {/* Page 1: Profile */}
             {activePage === 1 && (
@@ -7290,6 +7401,7 @@ function SettingsNew(props: any) {
               </div>
             )}
           </motion.div>
+        )}
         </AnimatePresence>
       </div>
     </div>
@@ -8694,7 +8806,13 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMen
 
   return (
     <div 
-      className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-1.5 h-10 md:h-12 w-full max-w-2xl relative group rounded-full overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/60" : "bg-slate-200"}`}
+      className={`flex items-center gap-2 md:gap-3 px-5 md:px-7 py-1.5 h-10 md:h-13 w-full max-w-2xl relative group rounded-full border transition-all duration-300 ${
+        isGlassy 
+          ? "bg-white/10 hover:bg-white/15 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
+          : isDark 
+            ? "bg-slate-800/50 hover:bg-slate-800/70 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-md" 
+            : "bg-slate-200/80 hover:bg-slate-200/90 border-slate-300/60 focus-within:border-[#4AC4FE] text-slate-900 shadow-sm"
+      }`}
       onContextMenu={onContextMenu}
     >
       <div className="flex items-center gap-2 flex-1 overflow-hidden">
@@ -8709,7 +8827,6 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMen
           className={`flex-1 bg-transparent border-none outline-none text-sm font-bold truncate font-google ${textColor} ${placeholderColor}`}
         />
       </div>
-      <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-[90%] transition-all duration-300 ${isGlassy ? "bg-white/20" : "bg-black/5"} group-focus-within:bg-[#4AC4FE]/60 group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.3)]`} />
       <div className="flex items-center gap-2 shrink-0">
         <button 
           onClick={startVoiceSearch}
@@ -9105,8 +9222,8 @@ function TopBar({
   return (
     <div 
       onContextMenu={onContextMenu}
-      className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 backdrop-blur-md ${
-        isDark ? "bg-[#181818]/60 border-b border-white/5" : "bg-[#f8fafc]/60 border-b border-black/5"
+      className={`h-14 flex items-center justify-between px-4 z-[130] transition-all duration-300 backdrop-blur-md rounded-2xl md:rounded-full border shadow-lg ${
+        isDark ? "bg-[#181818]/70 border-white/10" : "bg-white/70 border-black/10"
       }`}
     >
       <div className="flex items-center gap-2">
@@ -9149,23 +9266,19 @@ function TopBar({
         {topbarSearchType === "icon" ? (
           isSearchButtonExpanded ? (
             <div 
-              className={`group flex items-center gap-2.5 h-10 w-full transition-all relative rounded-xl border-b-[2px] transition-all duration-300 ${
+              className={`group flex items-center gap-2.5 h-10 w-full transition-all duration-300 relative rounded-full border transition-all ${
                 isDark 
                   ? (isListening 
-                      ? "bg-red-500/10 border-red-500 text-slate-100 shadow-xl shadow-red-500/10" 
-                      : `bg-white/10 focus-within:bg-white/20 border-white/20 text-slate-100 shadow-xl`
+                      ? "bg-red-500/15 border-red-500 text-slate-100 shadow-lg shadow-red-500/20" 
+                      : "bg-white/10 hover:bg-white/15 focus-within:bg-white/20 border-white/10 focus-within:border-[#4AC4FE] text-slate-100 shadow-md"
                     ) 
                   : (isListening
-                      ? "bg-red-500/5 border-red-500 text-slate-800"
-                      : "bg-black/5 focus-within:bg-black/10 border-black/10 text-slate-800"
+                      ? "bg-red-500/10 border-red-500 text-slate-800 shadow-lg shadow-red-500/10"
+                      : "bg-black/5 hover:bg-black/[0.07] focus-within:bg-white border-slate-200 focus-within:border-[#4AC4FE] text-slate-800 focus-within:shadow-md"
                     )
-              } ${
-                isListening 
-                  ? "border-red-500" 
-                  : "focus-within:border-[#4AC4FE] border-b-slate-300/30"
               }`}
             >
-              <Search size={18} className={`ml-3 ${isDark ? "text-slate-100/40 group-focus-within:text-slate-100" : "text-slate-400"}`} />
+              <Search size={18} className={`ml-3.5 ${isDark ? "text-slate-100/40 group-focus-within:text-[#4AC4FE]" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
               <input
                 autoFocus
                 type="text"
@@ -9185,7 +9298,7 @@ function TopBar({
               {/* Collapse/Close button */}
               <button 
                 onClick={() => setIsSearchButtonExpanded(false)}
-                className={`p-1 mr-1 rounded-full hover:bg-black/10 transition-all ${isDark ? "text-slate-300/60" : "text-slate-400 hover:text-slate-900"}`}
+                className={`p-1 mr-1.5 rounded-full hover:bg-black/10 transition-all ${isDark ? "text-slate-300/60" : "text-slate-400 hover:text-slate-900"}`}
                 title="Đóng tìm kiếm"
               >
                 <X size={16} />
@@ -9194,30 +9307,26 @@ function TopBar({
           ) : null
         ) : (
           <div 
-            className={`group flex items-center gap-2.5 h-10 w-full transition-all relative rounded-xl border-b-[2px] transition-all duration-300 ${
+            className={`group flex items-center gap-2.5 h-10 w-full transition-all duration-300 relative rounded-full border transition-all ${
               isDark 
                 ? (isListening 
-                    ? "bg-red-500/10 border-red-500 text-slate-100 shadow-xl shadow-red-500/10" 
-                    : `bg-white/10 focus-within:bg-white/20 border-white/20 text-slate-100 shadow-xl`
+                    ? "bg-red-500/15 border-red-500 text-slate-100 shadow-lg shadow-red-500/20" 
+                    : "bg-white/10 hover:bg-white/15 focus-within:bg-white/20 border-white/10 focus-within:border-[#4AC4FE] text-slate-100 shadow-md"
                   ) 
                 : (isListening
-                    ? "bg-red-500/5 border-red-500 text-slate-800"
-                    : "bg-black/2 focus-within:bg-black/5 border-black/10 text-slate-800"
+                    ? "bg-red-500/10 border-red-500 text-slate-800 shadow-lg shadow-red-500/10"
+                    : "bg-black/5 hover:bg-black/[0.07] focus-within:bg-white border-slate-200 focus-within:border-[#4AC4FE] text-slate-800 focus-within:shadow-md"
                   )
-            } ${
-              isListening 
-                ? "border-red-500" 
-                : "focus-within:border-[#4AC4FE] border-b-slate-300/30"
             }`}
           >
-            <Search size={18} className={`ml-3 ${isDark ? "text-slate-100/40 group-focus-within:text-slate-100" : "text-slate-400"}`} />
+            <Search size={18} className={`ml-3.5 ${isDark ? "text-slate-100/40 group-focus-within:text-[#4AC4FE]" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onContextMenu={handleSearchContextMenu}
               placeholder={getSearchPlaceholder()}
-              className={`flex-1 bg-transparent border-none outline-none text-sm font-medium ${isDark ? "placeholder:text-slate-100/30 text-slate-100" : "placeholder:text-slate-400"}`}
+              className={`flex-1 bg-transparent border-none outline-none text-sm font-medium ${isDark ? "placeholder:text-slate-100/30 text-slate-100" : "placeholder:text-slate-400 text-slate-800"}`}
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="p-1 hover:bg-black/10 rounded-full transition-all">
@@ -9227,7 +9336,7 @@ function TopBar({
             <Tooltip text="Use microphone" isDark={isDark} position="bottom">
               <button 
                 onClick={startListening}
-                className={`p-2 rounded-full transition-all mr-1 ${isListening ? "text-red-500 animate-pulse bg-red-500/10" : (isDark ? "text-slate-100/40 hover:text-slate-200 hover:bg-black/5" : "text-slate-400 hover:text-slate-900 hover:bg-black/5")}`}>
+                className={`p-2 rounded-full transition-all mr-1.5 ${isListening ? "text-red-500 animate-pulse bg-red-500/15" : (isDark ? "text-slate-100/40 hover:text-slate-200 hover:bg-black/5" : "text-slate-400 hover:text-slate-900 hover:bg-black/5")}`}>
                 <Mic size={18} className={isListening ? "fill-red-500" : ""} strokeWidth={isListening ? 2.5 : 2} />
               </button>
             </Tooltip>
@@ -12989,10 +13098,8 @@ const [headingBar, setHeadingBar] = useState(() => {
       
       if (scrollTop > lastScrollTop && scrollTop > 50) {
         setIsNavVisible(false);
-        setIsTopBarVisible(false);
       } else if (scrollTop < lastScrollTop) {
         setIsNavVisible(true);
-        setIsTopBarVisible(true);
       }
       lastScrollTop = scrollTop;
     };
@@ -13490,14 +13597,12 @@ const [headingBar, setHeadingBar] = useState(() => {
         paddingRight: useSidebar && !isMobile && isSidebarRight 
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) 
           : 0,
-        paddingTop: headingBar ? 56 : 0,
+        paddingTop: headingBar ? 80 : 0,
       }}
       >
       {!showSplash && headingBar && (
         <div 
-          className={`fixed left-0 right-0 z-[9999] transition-all duration-300 ${
-            isTopBarVisible ? "top-0" : "top-[-56px] opacity-0 pointer-events-none"
-          }`}
+          className="fixed top-3 left-3 right-3 md:left-4 md:right-4 max-w-7xl md:mx-auto z-[9999] transition-all duration-300"
         >
           <TopBar 
             isDark={isDark} 
@@ -14137,10 +14242,8 @@ const [headingBar, setHeadingBar] = useState(() => {
             // Auto hide/show bottom navigation bar on scroll down/up
             if (scrollTop > lastScrollY.current && scrollTop > 50) {
               setIsNavVisible(false);
-              setIsTopBarVisible(false);
             } else {
               setIsNavVisible(true);
-              setIsTopBarVisible(true);
             }
             lastScrollY.current = scrollTop;
           }}
@@ -14973,15 +15076,15 @@ const [headingBar, setHeadingBar] = useState(() => {
                       </AnimatePresence>
 
                       <div className="flex-1 flex items-center justify-center">
-                        <div className={`relative flex items-center gap-2 px-3 py-1.5 h-10 w-full group rounded-2xl overflow-hidden transition-all ${
+                        <div className={`relative flex items-center gap-2.5 px-4 py-1.5 h-10 w-full group rounded-full border transition-all duration-300 ${
                           liquidGlass === "glassy"
-                            ? "bg-white/10 text-white" 
+                            ? "bg-white/10 hover:bg-white/15 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
                             : isDark 
-                              ? "bg-slate-800/60 text-white" 
-                              : "bg-slate-200 text-slate-900"
+                              ? "bg-slate-800/60 hover:bg-slate-800/80 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
+                              : "bg-slate-200/80 hover:bg-slate-200/90 border-slate-300/60 focus-within:border-[#4AC4FE] text-slate-900"
                         }`}>
                           <SearchIcon size={14} className={`shrink-0 transition-colors ${
-                            isSearchFocused ? "text-[#4AC4FE]" : (liquidGlass === "glassy" ? "text-white/60" : "text-slate-400")
+                            isSearchFocused ? "text-[#4AC4FE]" : (liquidGlass === "glassy" ? "text-white/60" : "text-slate-450")
                           }`} />
                           <input
                             type="text"
@@ -15019,9 +15122,6 @@ const [headingBar, setHeadingBar] = useState(() => {
                           >
                             <Mic size={14} className={isListening ? "fill-red-500" : ""} />
                           </button>
-                          <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-[90%] transition-all duration-300 ${
-                            liquidGlass === "glassy" ? "bg-white/20" : isDark ? "bg-white/5" : "bg-black/5"
-                          } ${isSearchFocused ? "bg-[#4AC4FE]" : ""}`} />
                         </div>
                       </div>
 
