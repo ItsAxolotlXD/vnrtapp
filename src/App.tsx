@@ -458,6 +458,18 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
   description?: string,
   liquidGlass: "glassy" | "tinted"
 }) {
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setCoords({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -470,19 +482,32 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
             className={`absolute inset-0 bg-black/40 ${liquidGlass ? "backdrop-blur-sm" : ""}`}
           />
           <motion.div
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
             initial={{ scale: 1.2, opacity: 0, y: 0 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 1.2, opacity: 0, y: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`relative w-full max-w-md overflow-hidden ${
+            className={`relative w-full max-w-md overflow-hidden p-[1px] rounded-[32px] ${
               isDark 
-                ? "popup-3d-dark" 
-                : "popup-3d-light"
-            } ${
-              liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"
+                ? "bg-slate-800" 
+                : "bg-slate-200"
             }`}
           >
-            <div className="p-10 text-center">
+            {/* Shiny mouse-following outline */}
+            <div 
+              className="absolute inset-0 rounded-[32px] pointer-events-none opacity-100 transition-opacity duration-300"
+              style={{
+                background: `radial-gradient(150px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.05) 50%, transparent 100%)`,
+              }}
+            />
+            <div className={`relative w-full h-full rounded-[31px] p-10 text-center ${
+              isDark 
+                ? "bg-[#121214]/95 text-white" 
+                : "bg-white/95 text-slate-850"
+            } ${
+              liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"
+            }`}>
               {title && <h3 className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>}
               {description && <p className={`${isDark ? "text-white/60" : "text-black/60"} text-sm leading-relaxed mb-6 font-medium`}>{description}</p>}
               {children}
@@ -3085,8 +3110,20 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                                 ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
                                 : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
                             }`}
+                            title="Yêu thích"
                           >
                             <LikeIcon size={20} filled={favorites.includes(active.name)} forceWhite={true} />
+                          </button>
+                          <button 
+                            onClick={toggleMultiview}
+                            className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
+                              isMultiview
+                                ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
+                                : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+                            }`}
+                            title="Xếp lưới nhiều kênh (Multiview)"
+                          >
+                            <LayoutGrid size={18} className="md:w-5 md:h-5" />
                           </button>
                          <button onClick={toggleFullscreen} className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"}`}>
                             <Maximize size={18} className="md:w-5 md:h-5" />
@@ -6009,7 +6046,7 @@ function RejuvenatedSettings(props: any) {
                     <Search size={24} />
                   </div>
                   <div className="text-left">
-                    <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Thanh tìm kiếm Topbar</h4>
+                    <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Diện mạo tìm kiếm</h4>
                     <p className="text-sm opacity-50 font-medium tracking-tight">Chọn cách thức hiển thị thanh tìm kiếm trên Header</p>
                   </div>
                 </div>
@@ -6024,7 +6061,7 @@ function RejuvenatedSettings(props: any) {
                     onClick={() => setTopbarSearchType("icon")}
                     className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${topbarSearchType === "icon" ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
                   >
-                    Search button
+                    Search icon
                   </button>
                 </div>
               </div>
@@ -6487,7 +6524,7 @@ function RejuvenatedSettings(props: any) {
           : (isDark ? "bg-black/20 border-white/5" : "bg-slate-50/10 border-slate-200")
       }`}>
         <div className="space-y-4">
-          <div className="relative group">
+          <div className="relative group transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ease-out">
             <Search size={16} className={`absolute left-4 lg:left-5 top-1/2 -translate-y-1/2 transition-colors ${frostedGlassWidgets ? "text-white/40 group-focus-within:text-white" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
             <input 
               type="text" 
@@ -6593,6 +6630,7 @@ function SettingsNew(props: any) {
     dateFormat, setDateFormat, showClock, setShowClock, showDate, setShowDate, showTempInClock, setShowTempInClock,
     isTouchInterface, setIsTouchInterface, sidebarQuickAccess, setSidebarQuickAccess, timeZone, setTimeZone,
     maxToolbarTabs, setMaxToolbarTabs, toastDuration, setToastDuration, locationDetection, setLocationDetection,
+    toastMode, setToastMode,
     setActiveTab, settingsActivePage, setSettingsActivePage
   } = props;
 
@@ -6677,8 +6715,7 @@ function SettingsNew(props: any) {
   };
 
   const renderBullet = (text: React.ReactNode) => (
-    <div className="flex items-start gap-2.5 font-normal text-sm group transition-all mt-1">
-      <span className="text-sky-400 font-mono select-none mr-0.5 shrink-0 mt-0.5">-</span>
+    <div className="flex items-start font-normal text-sm group transition-all mt-1">
       <div className="flex-1 text-left">{text}</div>
     </div>
   );
@@ -6858,7 +6895,7 @@ function SettingsNew(props: any) {
 
                 <div>
                   <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Thông báo</h4>
-                  <div className="pl-3">
+                  <div className="pl-3 space-y-4">
                     {renderBullet(
                       <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="text-left animate-none">
@@ -6875,6 +6912,23 @@ function SettingsNew(props: any) {
                           ]}
                           isDark={isDark}
                         />
+                      </div>
+                    )}
+
+                    {renderBullet(
+                      <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-white/5">
+                        <div className="text-left animate-none">
+                           <p className="font-semibold text-sm text-left">Notification Toast Count</p>
+                           <p className="text-xs opacity-50 text-left font-normal animate-none">Số lượng thông báo hiển thị cùng lúc</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => setToastMode("single")} className={buttonStyle(toastMode === "single")}>
+                            1 thông báo/lần
+                          </button>
+                          <button onClick={() => setToastMode("stack")} className={buttonStyle(toastMode === "stack")}>
+                            Chồng chất
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -8886,7 +8940,8 @@ function TopBar({
   setShowVersionInfo,
   handleLogin,
   handleLogout,
-  handleOpenSettings
+  handleOpenSettings,
+  useSidebar = true
 }: { 
   isDark: boolean, 
   onMenuClick: () => void, 
@@ -8946,6 +9001,8 @@ function TopBar({
     return "Find and explore";
   };
 
+  const isSettingsTab = activeTab === "Cài đặt" || activeTab === "Settings (new)";
+
   return (
     <div 
       onContextMenu={onContextMenu}
@@ -8954,17 +9011,19 @@ function TopBar({
       }`}
     >
       <div className="flex items-center gap-2">
-        <Tooltip text="Thu gọn/Mở rộng sidebar" isDark={isDark} position="right">
-          <button 
-            onClick={onMenuClick}
-            className={`p-2 rounded-xl transition-all hover:bg-white/5 ${isDark ? "text-white/80 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
-          >
-            <Menu size={20} />
-          </button>
-        </Tooltip>
+        {useSidebar && (
+          <Tooltip text="Thu gọn/Mở rộng sidebar" isDark={isDark} position="right">
+            <button 
+              onClick={onMenuClick}
+              className={`p-2 rounded-xl transition-all hover:bg-white/5 ${isDark ? "text-white/80 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
+            >
+              <Menu size={20} />
+            </button>
+          </Tooltip>
+        )}
 
         {/* Search icon next to hamburger menu */}
-        {topbarSearchType === "icon" && !isSearchButtonExpanded && (
+        {!isSettingsTab && topbarSearchType === "icon" && !isSearchButtonExpanded && (
           <Tooltip text="Tìm kiếm" isDark={isDark} position="right">
             <button 
               onClick={() => setIsSearchButtonExpanded(true)}
@@ -8986,7 +9045,8 @@ function TopBar({
         </div>
       </div>
 
-      <div className="flex-1 flex justify-center mx-4 relative max-w-sm md:max-w-md lg:max-w-lg">
+      {!isSettingsTab ? (
+        <div className="flex-1 flex justify-center mx-4 relative max-w-sm md:max-w-md lg:max-w-lg">
         {topbarSearchType === "icon" ? (
           isSearchButtonExpanded ? (
             <div 
@@ -9124,6 +9184,9 @@ function TopBar({
           )}
         </AnimatePresence>
       </div>
+      ) : (
+        <div className="flex-1" />
+      )}
 
       <div className="flex items-center gap-4">
         {weather && showTempInClock && (
@@ -11892,6 +11955,11 @@ function App() {
     return saved ? parseInt(saved, 10) : 5000;
   });
 
+  const [toastMode, setToastMode] = useState<"single" | "stack">(() => {
+    const saved = localStorage.getItem("vplay_toast_mode");
+    return saved === "stack" ? "stack" : "single";
+  });
+
   useEffect(() => {
     localStorage.setItem("vplay_max_toolbar_tabs", maxToolbarTabs.toString());
   }, [maxToolbarTabs]);
@@ -11900,12 +11968,22 @@ function App() {
     localStorage.setItem("vplay_toast_duration", toastDuration.toString());
   }, [toastDuration]);
 
+  useEffect(() => {
+    localStorage.setItem("vplay_toast_mode", toastMode);
+  }, [toastMode]);
+
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [toastQueue, setToastQueue] = useState<ToastMessage[]>([]);
   const toastDurationRef = useRef(5000);
+  const toastModeRef = useRef<"single" | "stack">("single");
 
   useEffect(() => {
     toastDurationRef.current = toastDuration;
   }, [toastDuration]);
+
+  useEffect(() => {
+    toastModeRef.current = toastMode;
+  }, [toastMode]);
 
   useEffect(() => {
     const handleToast = (e: Event) => {
@@ -11917,10 +11995,15 @@ function App() {
           message: customEvent.detail.message,
           type: customEvent.detail.type || "success"
         };
-        setToasts(prev => [...prev, newToast]);
-        setTimeout(() => {
-          setToasts(prev => prev.filter(t => t.id !== id));
-        }, toastDurationRef.current);
+        
+        if (toastModeRef.current === "stack") {
+          setToasts(prev => [...prev, newToast]);
+          setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+          }, toastDurationRef.current);
+        } else {
+          setToastQueue(prev => [...prev, newToast]);
+        }
       }
     };
 
@@ -11929,6 +12012,21 @@ function App() {
       window.removeEventListener("vplay-toast", handleToast);
     };
   }, []);
+
+  useEffect(() => {
+    if (toastMode === "single" && toasts.length === 0 && toastQueue.length > 0) {
+      const nextToast = toastQueue[0];
+      setToastQueue(prev => prev.slice(1));
+      setToasts([nextToast]);
+      
+      const timer = setTimeout(() => {
+        setToasts([]);
+      }, toastDuration);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [toastMode, toasts, toastQueue, toastDuration]);
+
 
   const [settingsActivePage, setSettingsActivePage] = useState<number>(1);
   const [searchFilter, setSearchFilter] = useState<"all" | "channels" | "settings" | "experiments">("all");
@@ -12780,6 +12878,30 @@ const [headingBar, setHeadingBar] = useState(() => {
   const [isTopBarVisible, setIsTopBarVisible] = useState(true);
   const lastScrollY = useRef(0);
 
+  useEffect(() => {
+    let lastScrollTop = 0;
+    const handleCaptureScroll = (e: any) => {
+      if (activeTab !== "Live" && activeTab !== "Package") return;
+      const target = e.target;
+      if (!target || typeof target.scrollTop === "undefined") return;
+      const scrollTop = target.scrollTop;
+      
+      if (scrollTop > lastScrollTop && scrollTop > 50) {
+        setIsNavVisible(false);
+        setIsTopBarVisible(false);
+      } else if (scrollTop < lastScrollTop) {
+        setIsNavVisible(true);
+        setIsTopBarVisible(true);
+      }
+      lastScrollTop = scrollTop;
+    };
+
+    window.addEventListener("scroll", handleCaptureScroll, true);
+    return () => {
+      window.removeEventListener("scroll", handleCaptureScroll, true);
+    };
+  }, [activeTab]);
+
   const [navPage, setNavPage] = useState<number>(() => {
     return Number(localStorage.getItem("vplay_nav_page")) || 0;
   });
@@ -13278,6 +13400,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         >
           <TopBar 
             isDark={isDark} 
+            topbarSearchType={topbarSearchType}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             searchFilterOption={searchFilterOption}
@@ -14112,6 +14235,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setMaxToolbarTabs={setMaxToolbarTabs}
                       toastDuration={toastDuration}
                       setToastDuration={setToastDuration}
+                      toastMode={toastMode}
+                      setToastMode={setToastMode}
                       setActiveTab={setActiveTab}
                       settingsActivePage={settingsActivePage}
                       setSettingsActivePage={setSettingsActivePage}
@@ -14305,7 +14430,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   if ((tab.id || tab.name) === "Tìm kiếm" && isSidebarExpanded && !isCompact) {
                     return (
                       <div key={`side-nav-${tab.id || tab.name}-${idx}`} className="px-1.5 py-1 relative">
-                        <div className={`relative flex items-center gap-2.5 px-3.5 py-1.5 h-10 w-full group rounded-full overflow-hidden transition-all ${
+                        <div className={`relative flex items-center gap-2.5 px-3.5 py-1.5 h-10 w-full group rounded-full overflow-hidden hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 ease-out ${
                           liquidGlass === "glassy"
                             ? "bg-white/10 text-white" 
                             : isDark 
@@ -14905,7 +15030,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       )}
 
       {/* Floating Notification Toasts at the bottom of the screen */}
-      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 w-72 max-w-[calc(100vw-2rem)] pointer-events-none">
+      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 w-80 max-w-[calc(100vw-2rem)] pointer-events-none">
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div
@@ -14914,22 +15039,22 @@ const [headingBar, setHeadingBar] = useState(() => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.9, transition: { duration: 0.12 } }}
               layout
-              className="pointer-events-auto px-4 py-2 rounded-full border flex items-center justify-between gap-2.5 shadow-xl backdrop-blur-md bg-slate-900/90 border-white/10 text-white"
+              className="pointer-events-auto px-4 py-2.5 rounded-2xl border flex items-start justify-between gap-3 shadow-xl backdrop-blur-md bg-slate-900/95 border-white/10 text-white"
             >
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="shrink-0">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <div className="shrink-0 mt-0.5">
                   {toast.type === "success" && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                   {toast.type === "error" && <AlertCircle className="w-4 h-4 text-red-400" />}
                   {toast.type === "warning" && <Info className="w-4 h-4 text-amber-400" />}
                   {toast.type === "info" && <Info className="w-4 h-4 text-sky-400" />}
                 </div>
-                <div className="flex-1 text-[10px] font-black leading-snug tracking-wider uppercase truncate max-w-[180px]">
+                <div className="flex-1 text-xs font-normal leading-snug text-left break-words normal-case whitespace-normal">
                   {toast.message}
                 </div>
               </div>
               <button
                 onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-                className="shrink-0 p-1 hover:bg-white/10 rounded-full transition-colors"
+                className="shrink-0 p-1 hover:bg-white/10 rounded-full transition-colors mt-0.5"
               >
                 <X className="w-3.5 h-3.5 opacity-60 hover:opacity-100" />
               </button>
