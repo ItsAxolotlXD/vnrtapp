@@ -1546,7 +1546,7 @@ function HomeContent({
                       useNewDesign={useNewDesign}
                       activeChannelName={activeChannelName}
                     />
-                    <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-350" : "text-slate-600"}`}>
+                    <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-300" : "text-slate-400"}`}>
                       {ch.name}
                     </div>
                   </motion.div>
@@ -6811,12 +6811,12 @@ function SettingsNew(props: any) {
       {/* 5 Pages Tab bar - Desktop sidebar, Mobile floating segmented control */}
       <div className="w-full md:w-64 flex flex-col gap-4 shrink-0">
         {/* Search settings input box styled as bubble */}
-        <div className={`relative flex items-center gap-2.5 px-4 py-2 w-full group rounded-full border transition-all duration-300 ${
+        <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border transition-all duration-300 ${
           isDark 
             ? "bg-white/5 hover:bg-white/10 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
-            : "bg-slate-150 hover:bg-slate-200 border-slate-350 focus-within:border-[#4AC4FE] text-slate-800 shadow-sm"
+            : "bg-slate-100 hover:bg-slate-200/80 border-slate-200 focus-within:border-[#4AC4FE] text-slate-800 shadow-sm"
         }`}>
-          <Search size={14} className={`shrink-0 transition-colors ${
+          <Search size={16} className={`shrink-0 transition-colors ${
             settingsSearchQuery ? "text-[#4AC4FE]" : "text-slate-400"
           }`} />
           <input
@@ -6824,13 +6824,13 @@ function SettingsNew(props: any) {
             value={settingsSearchQuery}
             onChange={(e) => setSettingsSearchQuery(e.target.value)}
             placeholder="Tìm cài đặt..."
-            className={`bg-transparent border-none outline-none text-xs w-full font-bold font-google ${
+            className={`bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold font-google ${
               isDark ? "text-white placeholder-slate-500" : "text-slate-800 placeholder-black/35"
             }`}
           />
           {settingsSearchQuery && (
             <button onClick={() => setSettingsSearchQuery("")} className="p-1 hover:bg-black/10 rounded-full transition-all">
-              <X size={12} className={isDark ? "text-slate-300/60" : "text-slate-400"} />
+              <X size={14} className={isDark ? "text-slate-300/60" : "text-slate-400"} />
             </button>
           )}
         </div>
@@ -6846,18 +6846,25 @@ function SettingsNew(props: any) {
                   setActivePage(p.num);
                   setSettingsSearchQuery("");
                 }}
-                className={`flex items-center gap-3.5 px-5 py-3 rounded-full text-sm font-bold transition-all shrink-0 select-none ${
+                className={`relative flex items-center gap-3.5 pl-6 pr-5 py-3 rounded-full text-sm font-bold transition-all shrink-0 select-none ${
                   isActive
                     ? (isDark 
-                        ? "bg-sky-400 text-black border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]" 
-                        : "bg-[#4AC4FE] text-black border border-transparent shadow-lg shadow-sky-500/10")
+                        ? "bg-white/5 text-[#4AC4FE] border border-white/10 shadow-md" 
+                        : "bg-slate-100 text-sky-600 border border-slate-200/50 shadow-sm")
                     : (isDark 
-                        ? "hover:bg-white/5 border border-transparent text-slate-300" 
-                        : "hover:bg-slate-100 border border-transparent text-slate-600")
+                        ? "hover:bg-white/5 border border-transparent text-slate-400" 
+                        : "hover:bg-slate-100/50 border border-transparent text-slate-500")
                 }`}
               >
-                <div className={`p-1.5 rounded-full shrink-0 ${isActive ? "bg-black/10 text-black" : "bg-transparent"}`}>
-                  <PageIcon size={18} />
+                {isActive && (
+                  <motion.div 
+                    layoutId="activeVerticalPill" 
+                    className="absolute left-2.5 top-3.5 bottom-3.5 w-1 rounded-full bg-[#4AC4FE]"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <div className={`p-1.5 rounded-full shrink-0 ${isActive ? "bg-[#4AC4FE]/10 text-[#4AC4FE]" : "bg-transparent text-current"}`}>
+                   <PageIcon size={18} />
                 </div>
                 <span className="text-inherit">{p.label}</span>
               </button>
@@ -8066,10 +8073,10 @@ function SettingsContent({
                 setFeatureFlags(prev => ({ ...prev, disable_animation: false }));
                 onAlert("Khôi phục", "Đã khôi phục cài đặt gốc mục Giao diện & Trải nghiệm!");
               }}
-              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm active:translate-y-0.5 border ${
+              className={`flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all shadow-sm active:translate-y-0.5 border ${
                 isDark 
                   ? "bg-white/5 border-white/10 hover:bg-white/10 text-white/70 hover:text-white" 
-                  : "bg-slate-150 border-slate-200 hover:bg-slate-200 text-slate-600 hover:text-slate-800"
+                  : "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-600 hover:text-slate-800"
               }`}
             >
               <RotateCcw size={14} className="animate-spin-once" />
@@ -8132,10 +8139,10 @@ function SettingsContent({
                 setLocation("");
                 onAlert("Khôi phục", "Đã khôi phục cài đặt gốc mục Thời tiết!");
               }}
-              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm active:translate-y-0.5 border ${
+              className={`flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all shadow-sm active:translate-y-0.5 border ${
                 isDark 
                   ? "bg-white/5 border-white/10 hover:bg-white/10 text-white/70 hover:text-white" 
-                  : "bg-slate-150 border-slate-200 hover:bg-slate-200 text-slate-600 hover:text-slate-800"
+                  : "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-600 hover:text-slate-800"
               }`}
             >
               <RotateCcw size={14} className="animate-spin-once" />
@@ -8260,10 +8267,10 @@ function SettingsContent({
                 setShowTempInClock(false);
                 onAlert("Khôi phục", "Đã khôi phục cài đặt gốc mục Đồng hồ & Thời gian!");
               }}
-              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm active:translate-y-0.5 border ${
+              className={`flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all shadow-sm active:translate-y-0.5 border ${
                 isDark 
                   ? "bg-white/5 border-white/10 hover:bg-white/10 text-white/70 hover:text-white" 
-                  : "bg-slate-150 border-slate-200 hover:bg-slate-200 text-slate-600 hover:text-slate-800"
+                  : "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-600 hover:text-slate-800"
               }`}
             >
               <RotateCcw size={14} className="animate-spin-once" />
@@ -14565,10 +14572,14 @@ const [headingBar, setHeadingBar] = useState(() => {
                     : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 rounded-none shadow-2xl`
               } ${
                 isDark 
-                  ? "bg-vplay-sidebar border-white/5 text-white" 
-                  : "bg-slate-50 border-slate-200 text-slate-800 shadow-lg"
+                  ? "bg-[#181818]/70 border-white/10 text-white backdrop-blur-md" 
+                  : "bg-white/70 border-slate-200 text-slate-800 shadow-lg backdrop-blur-md"
               }`}
-              style={{ background: isDark ? "var(--vplay-sidebar)" : undefined }}
+              style={{ 
+                background: isDark ? "rgba(24, 24, 24, 0.72)" : "rgba(255, 255, 255, 0.72)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)"
+              }}
             >
               {/* Resize Handle */}
               {!isSidebarLocked && !isMobile && isSidebarExpanded && (
