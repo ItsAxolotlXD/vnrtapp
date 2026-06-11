@@ -6694,7 +6694,8 @@ function SettingsNew(props: any) {
     isTouchInterface, setIsTouchInterface, sidebarQuickAccess, setSidebarQuickAccess, timeZone, setTimeZone,
     maxToolbarTabs, setMaxToolbarTabs, toastDuration, setToastDuration, locationDetection, setLocationDetection,
     toastMode, setToastMode,
-    setActiveTab, settingsActivePage, setSettingsActivePage
+    setActiveTab, settingsActivePage, setSettingsActivePage,
+    floatyBars, setFloatyBars
   } = props;
 
   const [localActivePage, setLocalActivePage] = useState<number>(1);
@@ -6762,16 +6763,16 @@ function SettingsNew(props: any) {
 
     if (active) {
       if (color === "blue") {
-        return `${baseStyle} bg-gradient-to-b from-blue-400 to-blue-500 text-white border-t border-blue-300/40 shadow-[0_8px_16px_rgba(59,130,246,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.3)]`;
+        return `${baseStyle} bg-gradient-to-b from-blue-400 to-blue-500 text-white border-t border-blue-300/40 shadow-[0_6px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.35)]`;
       }
       if (color === "yellow") {
-        return `${baseStyle} bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 border-t border-amber-300/40 shadow-[0_8px_16px_rgba(245,158,11,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.4)]`;
+        return `${baseStyle} bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 border-t border-amber-300/40 shadow-[0_6px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]`;
       }
       if (color === "red") {
-        return `${baseStyle} bg-gradient-to-b from-red-400 to-red-500 text-white border-t border-red-300/40 shadow-[0_8px_16px_rgba(239,68,68,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.3)]`;
+        return `${baseStyle} bg-gradient-to-b from-red-400 to-red-500 text-white border-t border-red-300/40 shadow-[0_6px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.35)]`;
       }
       // Standard sky style
-      return `${baseStyle} bg-gradient-to-b from-sky-400 to-[#38bcfd] text-slate-950 border-t border-sky-300/40 shadow-[0_8px_16px_rgba(74,196,254,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.4)]`;
+      return `${baseStyle} bg-gradient-to-b from-sky-400 to-[#38bcfd] text-slate-950 border-t border-sky-300/40 shadow-[0_6px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]`;
     }
 
     // Inactive glassy bubble style
@@ -13657,7 +13658,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         <div 
           className={floatyBars 
             ? "fixed top-0 left-0 right-0 w-full z-[9999] transition-all duration-300"
-            : "fixed top-3 left-3 right-3 md:left-4 md:right-4 max-w-7xl md:mx-auto z-[9999] transition-all duration-300"
+            : "fixed top-3 left-3 right-3 md:left-4 md:right-4 z-[9999] transition-all duration-300"
           }
         >
           <TopBar 
@@ -14501,6 +14502,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setActiveTab={setActiveTab}
                       settingsActivePage={settingsActivePage}
                       setSettingsActivePage={setSettingsActivePage}
+                      floatyBars={floatyBars}
+                      setFloatyBars={setFloatyBars}
                     />
                   </div>
                 </div>
@@ -15048,7 +15051,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 />
                               )}
                               <motion.div
-                                animate={isActive ? { scale: [0.75, 1.25, 1.15] } : { scale: 1 }}
+                                animate={isActive ? { scale: 1.15 } : { scale: 1 }}
                                 whileTap={{ scale: 0.75 }}
                                 transition={
                                   isActive
