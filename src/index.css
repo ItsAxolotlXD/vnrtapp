@@ -35,78 +35,73 @@
 }
 
 .btn-purple-3d {
-  @apply bg-primary border-2 border-white/20 text-black font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
-  transform: translate(0, 0);
-  box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.3);
+  @apply bg-gradient-to-b from-primary to-[#38bcfd] border border-white/30 text-slate-950 font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-full transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_8px_24px_rgba(74,196,254,0.4),_inset_0_2px_4px_rgba(255,255,255,0.4),_inset_0_-2px_4px_rgba(0,0,0,0.15)] hover:shadow-[0_12px_32px_rgba(74,196,254,0.6),_inset_0_2px_4px_rgba(255,255,255,0.5)];
+  transform: translate(0, 0) !important;
 }
 .btn-purple-3d:hover {
-  @apply opacity-90;
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px rgba(0,0,0,0.3);
+  @apply opacity-95 scale-[1.05];
+  transform: translate(0, 0) !important;
 }
 .btn-purple-3d:active {
-  transform: translate(4px, 4px) !important;
-  box-shadow: 0px 0px 0px 0px transparent !important;
+  @apply scale-[0.95];
+  transform: translate(0, 0) !important;
+  box-shadow: 0 4px 8px rgba(74,196,254,0.2) !important;
 }
 
 .btn-white-3d {
-  @apply bg-white border-2 border-slate-200 text-slate-900 font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
-  transform: translate(0, 0);
-  box-shadow: 4px 4px 0px 0px #e2e8f0;
+  @apply bg-gradient-to-b from-white to-slate-100 border border-slate-200 text-slate-900 font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-full transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_8px_20px_rgba(0,0,0,0.06),_inset_0_2px_4px_rgba(255,255,255,0.9),_inset_0_-2px_4px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.1),_inset_0_2px_4px_rgba(255,255,255,1)];
+  transform: translate(0, 0) !important;
 }
 .btn-white-3d:hover {
-  @apply bg-slate-50;
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px #e2e8f0;
+  @apply bg-slate-50 scale-[1.05];
+  transform: translate(0, 0) !important;
 }
 .btn-white-3d:active {
-  transform: translate(4px, 4px) !important;
-  box-shadow: 0px 0px 0px 0px transparent !important;
+  @apply scale-[0.95];
+  transform: translate(0, 0) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.04) !important;
 }
 
 .btn-3d-slate {
-  @apply bg-slate-100 border-2 border-slate-200 text-slate-600 px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
-  transform: translate(0, 0);
-  box-shadow: 4px 4px 0px 0px #e2e8f0;
+  @apply bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300 text-slate-700 px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_8px_20px_rgba(0,0,0,0.06),_inset_0_2px_4px_rgba(255,255,255,0.8),_inset_0_-2px_4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.1)];
+  transform: translate(0, 0) !important;
 }
 .btn-3d-slate:hover {
-  @apply bg-slate-50;
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px #e2e8f0;
+  @apply bg-slate-50 scale-[1.05];
+  transform: translate(0, 0) !important;
 }
 .btn-3d-slate:active {
-  transform: translate(4px, 4px) !important;
-  box-shadow: 0px 0px 0px 0px transparent !important;
+  @apply scale-[0.95];
+  transform: translate(0, 0) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.03) !important;
 }
 
 .btn-vibrant-3d {
-  @apply bg-[#4AC4FE] border-2 border-[#6dd1ff] text-black px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
-  transform: translate(0, 0);
-  box-shadow: 4px 4px 0px 0px #1e8cbd;
+  @apply bg-gradient-to-b from-[#4AC4FE] to-[#38bcfd] border border-white/30 text-slate-950 px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_8px_24px_rgba(74,196,254,0.4),_inset_0_2px_4px_rgba(255,255,255,0.4),_inset_0_-2px_4px_rgba(0,0,0,0.15)] hover:shadow-[0_12px_32px_rgba(74,196,254,0.6)];
+  transform: translate(0, 0) !important;
 }
 .btn-vibrant-3d:hover {
-  @apply bg-[#32bcfc];
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px #1e8cbd;
+  @apply bg-gradient-to-b from-[#67ceff] to-[#0299dd] scale-[1.05];
+  transform: translate(0, 0) !important;
 }
 .btn-vibrant-3d:active {
-  transform: translate(4px, 4px) !important;
-  box-shadow: 0px 0px 0px 0px transparent !important;
+  @apply scale-[0.95];
+  transform: translate(0, 0) !important;
+  box-shadow: 0 4px 8px rgba(74,196,254,0.2) !important;
 }
 
 .btn-3d-dark {
-  @apply bg-slate-900 border-2 border-white/20 text-slate-200 px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
-  transform: translate(0, 0);
-  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+  @apply bg-gradient-to-b from-slate-800 to-slate-900 border border-white/10 text-slate-200 px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.5),_inset_0_2px_4px_rgba(255,255,255,0.1),_inset_0_-2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.7)];
+  transform: translate(0, 0) !important;
 }
 .btn-3d-dark:hover {
-  @apply bg-slate-800 border-white/30;
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px rgba(0, 0, 0, 0.5);
+  @apply bg-slate-800 scale-[1.05] border-white/20;
+  transform: translate(0, 0) !important;
 }
 .btn-3d-dark:active {
-  transform: translate(4px, 4px) !important;
-  box-shadow: 0px 0px 0px 0px transparent !important;
+  @apply scale-[0.95];
+  transform: translate(0, 0) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
 }
 
 .btn-3d-square {

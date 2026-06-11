@@ -4711,6 +4711,7 @@ const settingsSearchOptions = [
   { name: "Dự báo thời tiết và Vị trí địa lý", page: 4, desc: "Hiển thị thông tin nhiệt độ dựa theo vị trí định vị", match: ["thời tiết", "thoi tiet", "nhiệt độ", "nhiet do", "vị trí", "vi tri", "định vị", "dinh vi", "weather"] },
   { name: "Số lượng tab tối đa trên Floatbar", page: 4, desc: "Thiết lập hiển thị từ 3 đến 5 tab trên thanh công cụ", match: ["tab tối đa", "tab toi da", "floatbar", "toolbar", "số tab", "so tab"] },
   { name: "Vị trí và Truy cập nhanh trên Sidebar", page: 4, desc: "Đổi vị trí Sidebar trái/phải và hiển thị icon kênh yêu thích nhanh", match: ["vị trí sidebar", "vi tri sidebar", "truy cập nhanh", "truy cap nhanh", "sidebar"] },
+  { name: "Kiểu thiết kế Floaty bars", page: 4, desc: "Bật chế độ chạm góc màn hình cho thanh topbar và sidebar thay vì nổi lơ lửng", match: ["floaty bars", "thanh nổi", "thanh noi", "chạm góc", "cham goc", "topbar", "sidebar", "lơ lửng", "lo lung"] },
   { name: "Cửa sổ phát mini (Picture in Picture)", page: 5, desc: "Chế độ phát ngoài cửa sổ nổi khi chuyển phòng", match: ["picture in picture", "pip", "cửa sổ", "cua so", "phát nổi", "phat noi", "mini"] },
 ];
 
@@ -6756,25 +6757,39 @@ function SettingsNew(props: any) {
     : "bg-white/80 border border-slate-200 backdrop-blur-md text-slate-800 shadow-[0_12px_32px_rgba(0,0,0,0.06)]";
 
   const buttonStyle = (active: boolean, color: string = "sky") => {
-    const borderStyle = isDark
-      ? "border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),_0_2px_4px_rgba(0,0,0,0.2)]"
-      : "border border-slate-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),_0_2px_3px_rgba(0,0,0,0.05)]";
+    // True bubble style has soft shadows, subtle inner reflection gloss, and active:scale-95 bounce
+    const baseStyle = "px-6 py-2 rounded-full font-bold text-xs select-none uppercase tracking-wider transition-all duration-300 focus:outline-none transform hover:scale-[1.05] active:scale-92 cursor-pointer";
 
-    const baseStyle = "px-6 py-2.5 rounded-full font-normal text-sm transition-all focus:outline-none focus:ring-1 focus:ring-sky-500/50";
-    
     if (active) {
-      if (color === "blue") return `${baseStyle} ${borderStyle} bg-blue-500 text-white`;
-      if (color === "yellow") return `${baseStyle} ${borderStyle} bg-amber-500 text-black`;
-      if (color === "red") return `${baseStyle} ${borderStyle} bg-red-500 text-white`;
-      return `${baseStyle} ${borderStyle} bg-sky-500 text-white`;
+      if (color === "blue") {
+        return `${baseStyle} bg-gradient-to-b from-blue-400 to-blue-500 text-white border-t border-blue-300/40 shadow-[0_8px_16px_rgba(59,130,246,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.3)]`;
+      }
+      if (color === "yellow") {
+        return `${baseStyle} bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 border-t border-amber-300/40 shadow-[0_8px_16px_rgba(245,158,11,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.4)]`;
+      }
+      if (color === "red") {
+        return `${baseStyle} bg-gradient-to-b from-red-400 to-red-500 text-white border-t border-red-300/40 shadow-[0_8px_16px_rgba(239,68,68,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.3)]`;
+      }
+      // Standard sky style
+      return `${baseStyle} bg-gradient-to-b from-sky-400 to-[#38bcfd] text-slate-950 border-t border-sky-300/40 shadow-[0_8px_16px_rgba(74,196,254,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.4)]`;
     }
 
-    // Inactive state colors per type:
-    if (color === "blue") return `${baseStyle} ${borderStyle} bg-blue-500/10 text-blue-400 hover:bg-blue-500/15`;
-    if (color === "yellow") return `${baseStyle} ${borderStyle} bg-amber-500/10 text-amber-500 hover:bg-amber-500/15`;
-    if (color === "red") return `${baseStyle} ${borderStyle} bg-red-500/10 text-red-500 hover:bg-red-500/15`;
+    // Inactive glassy bubble style
+    if (color === "blue") {
+      return `${baseStyle} ${isDark ? "bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 shadow-md" : "bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100/50 shadow-sm"}`;
+    }
+    if (color === "yellow") {
+      return `${baseStyle} ${isDark ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 shadow-md" : "bg-amber-50 text-amber-700 border border-amber-100 hover:bg-amber-100/50 shadow-sm"}`;
+    }
+    if (color === "red") {
+      return `${baseStyle} ${isDark ? "bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500/20 shadow-md" : "bg-red-50 text-red-600 border border-red-100 hover:bg-red-100/50 shadow-sm"}`;
+    }
 
-    return `${baseStyle} ${borderStyle} ${isDark ? "bg-white/[0.04] text-white/70 hover:bg-white/[0.08]" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`;
+    return `${baseStyle} ${
+      isDark 
+        ? "bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 hover:text-white shadow-md shadow-black/10" 
+        : "bg-slate-100/80 border border-slate-200/80 text-slate-700 hover:bg-slate-200 shadow-sm"
+    }`;
   };
 
   const renderBullet = (text: React.ReactNode) => (
@@ -7303,6 +7318,20 @@ function SettingsNew(props: any) {
                         )}
                       </div>
                     )}
+
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-sm text-left">Chạm góc cổ điển (Floaty bars)</p>
+                          <p className="text-xs opacity-50 text-left font-normal">Quay lại kiểu thiết kế chạm góc truyền thống của topbar và sidebar thay vì block nổi lơ lửng</p>
+                        </div>
+                        <GlassToggle
+                          active={floatyBars}
+                          onToggle={() => setFloatyBars(!floatyBars)}
+                          isDark={isDark}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -7455,7 +7484,9 @@ function SettingsContent({
   showTempInClock,
   setShowTempInClock,
   headingBar,
-  setHeadingBar
+  setHeadingBar,
+  floatyBars,
+  setFloatyBars
 }: { 
   isDark: boolean, 
   setIsDark: (val: boolean) => void,
@@ -7503,7 +7534,9 @@ function SettingsContent({
   showTempInClock: boolean,
   setShowTempInClock: (val: boolean) => void,
   headingBar: boolean,
-  setHeadingBar: (val: boolean) => void
+  setHeadingBar: (val: boolean) => void,
+  floatyBars: boolean,
+  setFloatyBars: (val: boolean) => void
 }) {
   const [name, setName] = useState(user?.displayName || userData?.name || "Vplay User");
   const [avatar, setAvatar] = useState(user?.photoURL || userData?.avatar || "");
@@ -9157,7 +9190,8 @@ function TopBar({
   handleLogin,
   handleLogout,
   handleOpenSettings,
-  useSidebar = true
+  useSidebar = true,
+  floatyBars = false
 }: { 
   isDark: boolean, 
   onMenuClick: () => void, 
@@ -9198,7 +9232,8 @@ function TopBar({
   setShowVersionInfo: (o: boolean) => void,
   handleLogin: () => void,
   handleLogout: () => void,
-  handleOpenSettings: () => void
+  handleOpenSettings: () => void,
+  floatyBars?: boolean
 }) {
   const [isSearchButtonExpanded, setIsSearchButtonExpanded] = React.useState(false);
   const [showTopBarFilterDropdown, setShowTopBarFilterDropdown] = React.useState(false);
@@ -9222,7 +9257,11 @@ function TopBar({
   return (
     <div 
       onContextMenu={onContextMenu}
-      className={`h-14 flex items-center justify-between px-4 z-[130] transition-all duration-300 backdrop-blur-md rounded-2xl md:rounded-full border shadow-lg ${
+      className={`h-14 flex items-center justify-between px-4 z-[130] transition-all duration-300 backdrop-blur-md border ${
+        floatyBars 
+          ? "rounded-none border-x-0 border-t-0 shadow-sm" 
+          : "rounded-2xl md:rounded-full border shadow-lg"
+      } ${
         isDark ? "bg-[#181818]/70 border-white/10" : "bg-white/70 border-black/10"
       }`}
     >
@@ -11833,6 +11872,8 @@ function WidgetsDashboard({
                               setIsCompactMode={setIsCompactMode}
                               isTouchInterface={isTouchInterface}
                               setIsTouchInterface={setIsTouchInterface}
+                              floatyBars={floatyBars}
+                              setFloatyBars={setFloatyBars}
                               sidebarQuickAccess={sidebarQuickAccess}
                               setSidebarQuickAccess={setSidebarQuickAccess}
                               topbarSearchType={topbarSearchType}
@@ -12895,6 +12936,11 @@ const [headingBar, setHeadingBar] = useState(() => {
   const [showTempInClock, setShowTempInClock] = useState(() => localStorage.getItem("vplay_show_temp") === "true");
   const [showClock, setShowClock] = useState(() => localStorage.getItem("vplay_show_clock") !== "false");
   const [showDate, setShowDate] = useState(() => localStorage.getItem("vplay_show_date") !== "false");
+  const [floatyBars, setFloatyBars] = useState<boolean>(() => localStorage.getItem("vplay_floaty_bars") === "true");
+
+  useEffect(() => {
+    localStorage.setItem("vplay_floaty_bars", floatyBars.toString());
+  }, [floatyBars]);
 
   useEffect(() => {
     localStorage.setItem("vplay_show_clock", showClock.toString());
@@ -13592,17 +13638,20 @@ const [headingBar, setHeadingBar] = useState(() => {
       onTouchMove={cancelTouchTimer}
       style={{
         paddingLeft: useSidebar && !isMobile && !isSidebarRight 
-          ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) 
+          ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (!floatyBars ? 16 : 0) : (80 + (!floatyBars ? 16 : 0))) 
           : 0,
         paddingRight: useSidebar && !isMobile && isSidebarRight 
-          ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) 
+          ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (!floatyBars ? 16 : 0) : (80 + (!floatyBars ? 16 : 0))) 
           : 0,
-        paddingTop: headingBar ? 80 : 0,
+        paddingTop: headingBar ? (floatyBars ? 56 : 76) : 0,
       }}
       >
       {!showSplash && headingBar && (
         <div 
-          className="fixed top-3 left-3 right-3 md:left-4 md:right-4 max-w-7xl md:mx-auto z-[9999] transition-all duration-300"
+          className={floatyBars 
+            ? "fixed top-0 left-0 right-0 w-full z-[9999] transition-all duration-300"
+            : "fixed top-3 left-3 right-3 md:left-4 md:right-4 max-w-7xl md:mx-auto z-[9999] transition-all duration-300"
+          }
         >
           <TopBar 
             isDark={isDark} 
@@ -13650,6 +13699,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             handleLogin={handleLogin}
             handleLogout={handleLogout}
             handleOpenSettings={handleOpenSettings}
+            floatyBars={floatyBars}
           />
         </div>
       )}
@@ -14503,18 +14553,20 @@ const [headingBar, setHeadingBar] = useState(() => {
                 scale: { type: "spring", stiffness: 450, damping: 14 },
                 default: { type: "spring", damping: 30, stiffness: 300 }
               }}
-              className={`fixed z-[120] flex flex-col transition-all duration-300 overflow-visible ${
-                isSidebarRight 
-                  ? (sidebarDisplay === "float" && !isMobile ? "right-6" : "right-0") 
-                  : (sidebarDisplay === "float" && !isMobile ? "left-6" : "left-0")
+              className={`fixed z-[120] flex flex-col transition-all duration-300 overflow-visible border ${
+                isMobile
+                  ? (isSidebarRight ? "right-0" : "left-0")
+                  : (!floatyBars ? (isSidebarRight ? "right-3 md:right-4" : "left-3 md:left-4") : (isSidebarRight ? "right-0" : "left-0"))
               } ${
                 isMobile 
-                  ? `${headingBar ? "top-14 h-[calc(100%-56px)]" : "top-0 h-full"} !rounded-none !m-0 !left-0 !right-0 transition-none` 
-                  : sidebarDisplay === "float" 
-                    ? `top-0 h-full ${headingBar ? "pt-14" : "pt-6"} pb-6 !rounded-b-[32px] ${headingBar ? "!rounded-t-none" : "!rounded-t-[32px]"} shadow-2xl`
-                    : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 shadow-2xl`
+                  ? `${headingBar ? "top-14 h-[calc(100%-56px)]" : "top-0 h-full"} !rounded-none !m-0 !left-0 !right-0 transition-none border-none` 
+                  : !floatyBars 
+                    ? `h-[calc(100vh-24px)] ${headingBar ? "top-[76px] h-[calc(100vh-88px)]" : "top-3"} rounded-3xl shadow-xl shadow-black/10`
+                    : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 rounded-none shadow-2xl`
               } ${
-                isDark ? "bg-vplay-sidebar border-white/5 text-white" : "bg-slate-50 border-slate-200 text-slate-800 shadow-xl"
+                isDark 
+                  ? "bg-vplay-sidebar border-white/5 text-white" 
+                  : "bg-slate-50 border-slate-200 text-slate-800 shadow-lg"
               }`}
               style={{ background: isDark ? "var(--vplay-sidebar)" : undefined }}
             >
