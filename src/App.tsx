@@ -9105,8 +9105,8 @@ function TopBar({
   return (
     <div 
       onContextMenu={onContextMenu}
-      className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 ${
-        isDark ? "bg-vplay-topbar" : "bg-slate-50"
+      className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 backdrop-blur-md ${
+        isDark ? "bg-[#181818]/60 border-b border-white/5" : "bg-[#f8fafc]/60 border-b border-black/5"
       }`}
     >
       <div className="flex items-center gap-2">
@@ -14789,10 +14789,16 @@ const [headingBar, setHeadingBar] = useState(() => {
             onTouchEnd={handleNavTouchEnd}
             className={`flex-1 w-full flex items-center justify-between p-2 transition-all duration-500 overflow-hidden relative ${
               liquidGlass === "tinted"
-                ? `rounded-full border shadow-[0_20px_40px_rgba(0,0,0,0.15)] backdrop-blur-[100px] bg-white/80 border-white/80`
+                ? `rounded-full border shadow-[0_20px_40px_rgba(0,0,0,0.15)] backdrop-blur-[100px] ${
+                    isDark ? "bg-[#18181c]/50 border-white/10" : "bg-white/50 border-white/40"
+                  }`
                 : liquidGlass === "glassy"
-                  ? "rounded-full border shadow-[0_30px_60px_rgba(0,0,0,0.2)] backdrop-blur-[120px] bg-white/10 border-white/20"
-                  : `rounded-none border-t w-full justify-around backdrop-blur-none shadow-2xl ${isDark ? "bg-slate-900/95 border-white/5" : "bg-white/60 border-white/40"}`
+                  ? `rounded-full border shadow-[0_30px_60px_rgba(0,0,0,0.2)] backdrop-blur-[120px] ${
+                      isDark ? "bg-[#18181c]/25 border-white/10" : "bg-white/20 border-[#ffffff]/20"
+                    }`
+                  : `rounded-none border-t w-full justify-around backdrop-blur-md shadow-2xl ${
+                      isDark ? "bg-slate-900/40 border-white/5" : "bg-[#ffffff]/40 border-white/40"
+                    }`
             }`}>
             
             {/* Prev Arrow - Only shown on desktop as mobile uses gestures */}
