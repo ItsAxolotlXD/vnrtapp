@@ -75,7 +75,24 @@ const WidgetsIcon = ({ className, size, strokeWidth }: { className?: string, siz
   </svg>
 );
 const MicIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Mic className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
-const SearchIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Search className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const SearchIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
+  <img 
+    src="https://static.wikia.nocookie.net/ftv/images/d/dc/Ass_glass.svg/revision/latest?cb=20260612062405&path-prefix=vi" 
+    alt="Search"
+    className={`${className || ""} flex-shrink-0 object-contain [filter:brightness(0)_invert(1)]`} 
+    style={{ width: size || 22, height: size || 22 }}
+    referrerPolicy="no-referrer"
+  />
+);
+const SearchCustomIcon = ({ className, size }: { className?: string, size?: number | string }) => (
+  <img 
+    src="https://static.wikia.nocookie.net/ftv/images/d/dc/Ass_glass.svg/revision/latest?cb=20260612062405&path-prefix=vi" 
+    alt="Search"
+    className={`${className || ""} flex-shrink-0 object-contain [filter:brightness(0)_invert(1)]`} 
+    style={{ width: size || 18, height: size || 18 }}
+    referrerPolicy="no-referrer"
+  />
+);
 const FolderIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <FolderOpen className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const WavesIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
   <Waves className={className} size={size || 22} strokeWidth={strokeWidth || 1.8} />
@@ -6587,19 +6604,21 @@ function RejuvenatedSettings(props: any) {
           : (isDark ? "bg-black/20 border-white/5" : "bg-slate-50/10 border-slate-200")
       }`}>
         <div className="space-y-4">
-          <div className="relative group transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ease-out">
-            <Search size={16} className={`absolute left-4 lg:left-5 top-1/2 -translate-y-1/2 transition-colors ${frostedGlassWidgets ? "text-white/40 group-focus-within:text-white" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
+          <div className="relative group cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.04] focus-within:-translate-y-0.5 ease-out">
+            <div className="absolute left-4 lg:left-5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <SearchCustomIcon size={16} />
+            </div>
             <input 
               type="text" 
               placeholder="Tìm cài đặt..."
               value={activeSearchQuery}
               onChange={(e) => activeSetSearchQuery(e.target.value)}
-              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 ${
+              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1.5px_2px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.3)] ${
                 frostedGlassWidgets
-                  ? "bg-white/10 border-white/10 focus:border-white/25 text-white placeholder:text-white/45"
+                  ? "bg-white/10 border-white/12 text-white placeholder:text-white/45"
                   : (isDark 
-                      ? "bg-white/5 border-white/5 focus:border-[#4AC4FE] text-white placeholder:text-white/20" 
-                      : "bg-white border-slate-200 focus:border-[#4AC4FE] shadow-sm placeholder:text-slate-300")
+                      ? "bg-white/5 border-white/8 text-white placeholder:text-white/20" 
+                      : "bg-white border-slate-200 focus:border-[#4AC4FE] placeholder:text-slate-300")
               }`}
             />
           </div>
@@ -6812,14 +6831,12 @@ function SettingsNew(props: any) {
       {/* 5 Pages Tab bar - Desktop sidebar, Mobile floating segmented control */}
       <div className="w-full md:w-64 flex flex-col gap-4 shrink-0">
         {/* Search settings input box styled as bubble */}
-        <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border transition-all duration-300 ${
+        <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.04] focus-within:-translate-y-0.5 ${
           isDark 
-            ? "bg-white/5 hover:bg-white/10 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
-            : "bg-slate-100 hover:bg-slate-200/80 border-slate-200 focus-within:border-[#4AC4FE] text-slate-800 shadow-sm"
+            ? "bg-white/5 border-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+            : "bg-slate-100 border-slate-200 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
         }`}>
-          <Search size={16} className={`shrink-0 transition-colors ${
-            settingsSearchQuery ? "text-[#4AC4FE]" : "text-slate-400"
-          }`} />
+          <SearchCustomIcon size={16} className={`shrink-0 transition-colors`} />
           <input
             type="text"
             value={settingsSearchQuery}
@@ -8847,12 +8864,12 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMen
 
   return (
     <div 
-      className={`flex items-center gap-2 md:gap-3 px-5 md:px-7 py-1.5 h-10 md:h-13 w-full max-w-2xl relative group rounded-full border transition-all duration-300 ${
+      className={`flex items-center gap-2 md:gap-3 px-5 md:px-7 py-1.5 h-10 md:h-13 w-full max-w-2xl relative group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.04] focus-within:-translate-y-0.5 ${
         isGlassy 
-          ? "bg-white/10 hover:bg-white/15 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
+          ? "bg-white/10 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.2)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
           : isDark 
-            ? "bg-slate-800/50 hover:bg-slate-800/70 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-md" 
-            : "bg-slate-200/80 hover:bg-slate-200/90 border-slate-300/60 focus-within:border-[#4AC4FE] text-slate-900 shadow-sm"
+            ? "bg-slate-800/55 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1.5px_2px_rgba(255,255,255,0.12)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+            : "bg-slate-100 border-slate-300/60 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
       }`}
       onContextMenu={onContextMenu}
     >
@@ -9313,19 +9330,19 @@ function TopBar({
         {topbarSearchType === "icon" ? (
           isSearchButtonExpanded ? (
             <div 
-              className={`group flex items-center gap-2.5 h-10 w-full transition-all duration-300 relative rounded-full border transition-all ${
+              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.05] focus-within:-translate-y-0.5 relative rounded-full border ${
                 isDark 
                   ? (isListening 
-                      ? "bg-red-500/15 border-red-500 text-slate-100 shadow-lg shadow-red-500/20" 
-                      : "bg-white/10 hover:bg-white/15 focus-within:bg-white/20 border-white/10 focus-within:border-[#4AC4FE] text-slate-100 shadow-md"
+                      ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)] focus-within:shadow-[0_8px_24px_rgba(239,68,68,0.3)]" 
+                      : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]"
                     ) 
                   : (isListening
-                      ? "bg-red-500/10 border-red-500 text-slate-800 shadow-lg shadow-red-500/10"
-                      : "bg-black/5 hover:bg-black/[0.07] focus-within:bg-white border-slate-200 focus-within:border-[#4AC4FE] text-slate-800 focus-within:shadow-md"
+                      ? "bg-red-500/10 border-red-500 text-slate-800 shadow-[0_4px_12px_rgba(239,68,68,0.15)] focus-within:shadow-[0_8px_24px_rgba(239,68,68,0.25)]"
+                      : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                     )
               }`}
             >
-              <Search size={18} className={`ml-3.5 ${isDark ? "text-slate-100/40 group-focus-within:text-[#4AC4FE]" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
+              <SearchCustomIcon size={16} className="ml-3.5" />
               <input
                 autoFocus
                 type="text"
@@ -9354,19 +9371,19 @@ function TopBar({
           ) : null
         ) : (
           <div 
-            className={`group flex items-center gap-2.5 h-10 w-full transition-all duration-300 relative rounded-full border transition-all ${
+            className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.05] focus-within:-translate-y-0.5 relative rounded-full border ${
               isDark 
                 ? (isListening 
-                    ? "bg-red-500/15 border-red-500 text-slate-100 shadow-lg shadow-red-500/20" 
-                    : "bg-white/10 hover:bg-white/15 focus-within:bg-white/20 border-white/10 focus-within:border-[#4AC4FE] text-slate-100 shadow-md"
+                    ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)] focus-within:shadow-[0_8px_24px_rgba(239,68,68,0.3)]" 
+                    : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]"
                   ) 
                 : (isListening
-                    ? "bg-red-500/10 border-red-500 text-slate-800 shadow-lg shadow-red-500/10"
-                    : "bg-black/5 hover:bg-black/[0.07] focus-within:bg-white border-slate-200 focus-within:border-[#4AC4FE] text-slate-800 focus-within:shadow-md"
+                    ? "bg-red-500/10 border-red-500 text-slate-800 shadow-[0_4px_12px_rgba(239,68,68,0.15)] focus-within:shadow-[0_8px_24px_rgba(239,68,68,0.25)]"
+                    : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                   )
             }`}
           >
-            <Search size={18} className={`ml-3.5 ${isDark ? "text-slate-100/40 group-focus-within:text-[#4AC4FE]" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
+            <SearchCustomIcon size={16} className="ml-3.5" />
             <input
               type="text"
               value={searchQuery}
@@ -10461,6 +10478,8 @@ function WidgetsDashboard({
   setIsCompactMode,
   isTouchInterface,
   setIsTouchInterface,
+  floatyBars,
+  setFloatyBars,
   sidebarQuickAccess,
   setSidebarQuickAccess,
   topbarSearchType,
@@ -10557,6 +10576,8 @@ function WidgetsDashboard({
   setIsCompactMode: (v: boolean) => void,
   isTouchInterface: boolean,
   setIsTouchInterface: (v: boolean) => void,
+  floatyBars: boolean,
+  setFloatyBars: (v: boolean) => void,
   sidebarQuickAccess: boolean,
   setSidebarQuickAccess: (v: boolean) => void,
   topbarSearchType: "minimal" | "full" | "floating",
@@ -11201,14 +11222,17 @@ function WidgetsDashboard({
                                                                </div>
                                                              </div>
                                                              
-                                                             <div className="mt-4 relative">
+                                                             <div className="mt-4 relative group overflow-visible">
                                                                 <input 
                                                                   type="text"
                                                                   value={widgetSearchQuery}
                                                                   onChange={(e) => setWidgetSearchQuery(e.target.value)}
                                                                   placeholder="Tìm tiện ích, tab, cài đặt..."
-                                                                  className="w-full h-11 pl-4 pr-10 bg-white/15 hover:bg-white/20 focus:bg-white/25 text-white placeholder-white/50 text-xs font-bold rounded-full border border-white/5 outline-none transition-all focus:ring-2 focus:ring-white/30"
+                                                                  className="w-full h-11 pl-11 pr-10 bg-white/12 hover:bg-white/16 focus:bg-white/18 text-white placeholder-white/45 text-xs font-bold rounded-full border border-white/10 outline-none shadow-[0_4px_10px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.15)] cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98] active:translate-y-0 focus:scale-[1.05] focus:-translate-y-0.5 focus:shadow-[0_8px_20px_rgba(74,196,254,0.3)] duration-300 ease-out"
                                                                 />
+                                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                                  <SearchCustomIcon size={14} />
+                                                                </div>
                                                                 {widgetSearchQuery && (
                                                                   <button onClick={() => setWidgetSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/10 transition-all text-white/70 hover:text-white">
                                                                     <X size={12} className="stroke-[2.5]" />
@@ -11780,13 +11804,13 @@ function WidgetsDashboard({
                           
                           <div className="flex-1 max-w-lg mx-4">
                             <div 
-                              className={`group flex items-center gap-2.5 h-10 w-full transition-all relative rounded-xl border-b-[2px] transition-all duration-300 ${
+                              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.05] focus-within:-translate-y-0.5 relative rounded-full border ${
                                 frostedGlassWidgets 
-                                  ? "bg-white/10 focus-within:bg-white/20 border-white/20 text-slate-100 shadow-xl border-b-white/20  focus-within:border-[#4AC4FE]" 
-                                  : "bg-black/5 focus-within:bg-black/10 border-black/10 text-slate-800 border-b-slate-300/30 focus-within:border-[#4AC4FE]"
+                                  ? "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+                                  : "bg-black/5 border-black/10 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                               }`}
                             >
-                              <Search size={18} className={`ml-3 transition-colors ${frostedGlassWidgets ? "text-slate-100/40 group-focus-within:text-slate-100" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
+                              <SearchCustomIcon size={16} className="ml-3.5" />
                               <input 
                                 type="text" 
                                 placeholder="Search settings"
@@ -11971,14 +11995,16 @@ function WidgetsDashboard({
                             </div>
                             
                             {/* Search Input */}
-                            <div className="relative mb-4 group">
-                              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-[#4AC4FE] transition-colors" />
+                            <div className="relative mb-4 group cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.05] focus-within:-translate-y-0.5">
+                              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                                <SearchCustomIcon size={12} />
+                              </div>
                               <input 
                                 type="text" 
                                 value={pickerSearchQuery}
                                 onChange={(e) => setPickerSearchQuery(e.target.value)}
                                 placeholder="Tìm kiếm tiện ích..." 
-                                className="w-full h-8 pl-9 pr-6 bg-white/5 focus:bg-white/10 border-b border-white/5 focus:border-b-[#4AC4FE] outline-none text-xs rounded-full text-white font-normal placeholder:text-white/30 transition-all"
+                                className="w-full h-8 pl-9 pr-6 bg-white/5 border border-white/10 outline-none text-xs rounded-full text-white font-semibold placeholder:text-white/35 transition-all shadow-[0_4px_10px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.15)] focus-within:shadow-[0_6px_15px_rgba(43,186,254,0.3)]"
                               />
                               {pickerSearchQuery && (
                                 <button onClick={() => setPickerSearchQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-white">
@@ -14139,8 +14165,12 @@ const [headingBar, setHeadingBar] = useState(() => {
               } ${liquidGlass ? "backdrop-blur-3xl" : ""}`}
             >
               <div className="p-6 border-b border-white/10 flex items-center gap-4">
-                 <div className={`flex-1 flex items-center gap-4 px-6 py-4 rounded-3xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                    <Search className={isDark ? "text-[#4AC4FE]" : "text-[#4AC4FE]"} size={22} />
+                 <div className={`flex-1 flex items-center gap-4 px-6 py-4 rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.03] focus-within:-translate-y-0.5 ${
+                   isDark 
+                     ? "bg-white/5 border-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.3)]" 
+                     : "bg-slate-100 border-slate-200 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+                 }`}>
+                    <SearchCustomIcon size={22} />
                     <input 
                       autoFocus
                       value={searchQuery}
@@ -14700,15 +14730,15 @@ const [headingBar, setHeadingBar] = useState(() => {
                   if ((tab.id || tab.name) === "Tìm kiếm" && isSidebarExpanded && !isCompact) {
                     return (
                       <div key={`side-nav-${tab.id || tab.name}-${idx}`} className="px-1.5 py-1 relative">
-                        <div className={`relative flex items-center gap-2.5 px-3.5 py-1.5 h-10 w-full group rounded-full overflow-hidden hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 ease-out ${
+                        <div className={`relative flex items-center gap-2.5 px-3.5 py-1.5 h-10 w-full group rounded-full cursor-pointer transform transition-all duration-300 hover:scale-[1.06] hover:-translate-y-0.5 active:scale-[0.96] active:translate-y-0 focus-within:scale-[1.06] focus-within:-translate-y-0.5 ${
                           liquidGlass === "glassy"
-                            ? "bg-white/10 text-white" 
+                            ? "bg-white/10 text-white shadow-[0_4px_10px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.2)] border border-white/10 focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.35)]" 
                             : isDark 
-                              ? "bg-slate-800/60 text-white" 
-                              : "bg-slate-200 text-slate-900"
+                              ? "bg-slate-800/55 text-white shadow-[0_3px_8px_rgba(0,0,0,0.2),_inset_0_1.5px_2px_rgba(255,255,255,0.12)] border border-white/10 focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.35)]" 
+                              : "bg-slate-100/90 text-slate-900 shadow-[0_3px_8px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] border border-slate-300/40 focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                         }`}>
-                          <Icon size={16} className={`shrink-0 transition-colors ${
-                            isSearchFocused ? "text-[#4AC4FE]" : (liquidGlass === "glassy" ? "text-white/60" : "text-slate-400")
+                          <SearchCustomIcon size={14} className={`shrink-0 transition-all ${
+                            isSearchFocused ? "scale-110" : ""
                           }`} />
                           <input
                             type="text"
@@ -14721,9 +14751,6 @@ const [headingBar, setHeadingBar] = useState(() => {
                               liquidGlass === "glassy" ? "text-white placeholder-white/40" : isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-black/40"
                             }`}
                           />
-                          <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-[90%] transition-all duration-300 ${
-                            liquidGlass === "glassy" ? "bg-white/20" : isDark ? "bg-white/5" : "bg-black/5"
-                          } ${isSearchFocused ? "bg-[#4AC4FE]" : ""}`} />
                         </div>
 
                         {/* Floating sidebar search results overlay */}
@@ -15142,15 +15169,15 @@ const [headingBar, setHeadingBar] = useState(() => {
                       </AnimatePresence>
 
                       <div className="flex-1 flex items-center justify-center">
-                        <div className={`relative flex items-center gap-2.5 px-4 py-1.5 h-10 w-full group rounded-full border transition-all duration-300 ${
+                        <div className={`relative flex items-center gap-2.5 px-4 py-1.5 h-10 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.04] focus-within:-translate-y-0.5 ${
                           liquidGlass === "glassy"
-                            ? "bg-white/10 hover:bg-white/15 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
+                            ? "bg-white/10 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.2)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
                             : isDark 
-                              ? "bg-slate-800/60 hover:bg-slate-800/80 border-white/10 focus-within:border-[#4AC4FE] text-white shadow-inner" 
-                              : "bg-slate-200/80 hover:bg-slate-200/90 border-slate-300/60 focus-within:border-[#4AC4FE] text-slate-900"
+                              ? "bg-slate-800/55 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1.5px_2px_rgba(255,255,255,0.12)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+                              : "bg-slate-100 border-slate-300/65 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                         }`}>
-                          <SearchIcon size={14} className={`shrink-0 transition-colors ${
-                            isSearchFocused ? "text-[#4AC4FE]" : (liquidGlass === "glassy" ? "text-white/60" : "text-slate-450")
+                          <SearchCustomIcon size={14} className={`shrink-0 transition-all ${
+                            isSearchFocused ? "scale-110" : ""
                           }`} />
                           <input
                             type="text"
