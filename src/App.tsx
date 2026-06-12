@@ -79,8 +79,8 @@ const SearchIcon = ({ className, size, strokeWidth }: { className?: string, size
   <img 
     src="https://static.wikia.nocookie.net/ftv/images/d/dc/Ass_glass.svg/revision/latest?cb=20260612062405&path-prefix=vi" 
     alt="Search"
-    className={`${className || ""} flex-shrink-0 object-contain [filter:brightness(0)_invert(1)]`} 
-    style={{ width: size || 22, height: size || 22 }}
+    className={`${className || ""} flex-shrink-0 object-contain [filter:brightness(0)_invert(1)] shadow-sm`} 
+    style={{ width: size || 26, height: size || 26 }}
     referrerPolicy="no-referrer"
   />
 );
@@ -89,7 +89,7 @@ const SearchCustomIcon = ({ className, size }: { className?: string, size?: numb
     src="https://static.wikia.nocookie.net/ftv/images/d/dc/Ass_glass.svg/revision/latest?cb=20260612062405&path-prefix=vi" 
     alt="Search"
     className={`${className || ""} flex-shrink-0 object-contain [filter:brightness(0)_invert(1)]`} 
-    style={{ width: size || 18, height: size || 18 }}
+    style={{ width: size || 22, height: size || 22 }}
     referrerPolicy="no-referrer"
   />
 );
@@ -6604,21 +6604,21 @@ function RejuvenatedSettings(props: any) {
           : (isDark ? "bg-black/20 border-white/5" : "bg-slate-50/10 border-slate-200")
       }`}>
         <div className="space-y-4">
-          <div className="relative group cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.04] focus-within:-translate-y-0.5 ease-out">
+          <div className="relative group cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ease-out">
             <div className="absolute left-4 lg:left-5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-              <SearchCustomIcon size={16} />
+              <SearchCustomIcon size={22} />
             </div>
             <input 
               type="text" 
               placeholder="Tìm cài đặt..."
               value={activeSearchQuery}
               onChange={(e) => activeSetSearchQuery(e.target.value)}
-              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1.5px_2px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.3)] ${
+              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus:shadow-[0_8px_20px_rgba(0,0,0,0.18)] ${
                 frostedGlassWidgets
                   ? "bg-white/10 border-white/12 text-white placeholder:text-white/45"
                   : (isDark 
                       ? "bg-white/5 border-white/8 text-white placeholder:text-white/20" 
-                      : "bg-white border-slate-200 focus:border-[#4AC4FE] placeholder:text-slate-300")
+                      : "bg-white border-slate-200 focus:border-slate-400 placeholder:text-slate-300")
               }`}
             />
           </div>
@@ -6831,12 +6831,12 @@ function SettingsNew(props: any) {
       {/* 5 Pages Tab bar - Desktop sidebar, Mobile floating segmented control */}
       <div className="w-full md:w-64 flex flex-col gap-4 shrink-0">
         {/* Search settings input box styled as bubble */}
-        <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.04] focus-within:-translate-y-0.5 ${
+        <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
           isDark 
-            ? "bg-white/5 border-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
-            : "bg-slate-100 border-slate-200 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+            ? "bg-white/5 border-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
+            : "bg-slate-100 border-slate-200 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
         }`}>
-          <SearchCustomIcon size={16} className={`shrink-0 transition-colors`} />
+          <SearchCustomIcon size={22} className={`shrink-0 transition-colors`} />
           <input
             type="text"
             value={settingsSearchQuery}
@@ -7716,19 +7716,40 @@ function SettingsContent({
             </div>
           ) : (
             <div className="space-y-8 flex-1 flex flex-col">
+              {!user && (
+                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-[22px] flex items-center gap-3 text-red-400 text-xs font-semibold">
+                  <Info size={16} className="shrink-0" />
+                  <span>Bạn đang truy cập dưới tư cách Khách. Vui lòng đăng nhập thực tế để upload ảnh đại diện có độ trong suốt và chỉnh sửa thông tin cá nhân!</span>
+                </div>
+              )}
+
               <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                <div 
+                  className={`relative group ${user ? "cursor-pointer" : "cursor-not-allowed"}`} 
+                  onClick={() => {
+                    if (!user) {
+                      onAlert("Yêu cầu đăng nhập", "Chức năng thay đổi avatar và tải ảnh lên từ thiết bị chỉ khả dụng cho người dùng đã đăng nhập!");
+                      return;
+                    }
+                    fileInputRef.current?.click();
+                  }}
+                >
                   <div className="absolute inset-0 bg-[#4AC4FE]/20 blur-xl rounded-full scale-125" />
-                  {avatar ? (
-                    <img src={avatar} alt="Avatar" className="w-28 h-28 rounded-[32px] object-cover border-4 border-white/10 relative z-10 shadow-2xl" referrerPolicy="no-referrer" />
-                  ) : (
-                    <div className={`w-28 h-28 rounded-[32px] flex items-center justify-center border-4 relative z-10 ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-white shadow-inner"}`}>
+                  {/* Checkerboard transparency grid background */}
+                  <div className="w-28 h-28 rounded-[32px] border-4 border-white/10 relative z-10 shadow-2xl overflow-hidden bg-[linear-gradient(45deg,#ccc_25%,transparent_25%,transparent_75%,#ccc_75%,#ccc_100%),linear-gradient(45deg,#ccc_25%,white_25%,white_75%,#ccc_75%,#ccc_100%)] bg-[size:16px_16px] bg-[position:0_0,8px_8px]">
+                    {avatar ? (
+                      <img src={avatar} alt="Avatar" className="w-full h-full object-cover relative z-10" referrerPolicy="no-referrer" />
+                    ) : (
+                      <div className={`w-full h-full flex items-center justify-center ${isDark ? "bg-slate-800" : "bg-slate-100"}`}>
                         <AccountIcon size={56} className="text-slate-400 opacity-20" />
+                      </div>
+                    )}
+                  </div>
+                  {user && (
+                    <div className="absolute inset-0 bg-black/60 rounded-[32px] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                      <Camera className="text-white w-8 h-8" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/60 rounded-[32px] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                    <Camera className="text-white w-8 h-8" />
-                  </div>
                   <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                 </div>
                 
@@ -7738,18 +7759,31 @@ function SettingsContent({
                     <div className={`relative group rounded-[22px] overflow-hidden transition-all ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
                       <input 
                         value={name} 
-                        onChange={e => setName(e.target.value)} 
-                        placeholder="Tên của bạn..."
+                        onChange={e => {
+                          if (!user) {
+                            onAlert("Yêu cầu đăng nhập", "Tính năng chỉnh sửa tên chỉ dành cho tài khoản đã đăng nhập!");
+                            return;
+                          }
+                          setName(e.target.value);
+                        }} 
+                        disabled={!user}
+                        placeholder={user ? "Tên của bạn..." : "Khách chưa đăng nhập..."}
                         className={`w-full px-5 py-3.5 text-base font-bold bg-transparent outline-none transition-all ${
                           isDark ? "text-white placeholder-white/20" : "text-slate-900 placeholder-slate-400"
-                        }`} 
+                        } disabled:opacity-50`} 
                       />
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <button 
-                      onClick={handleSave} 
-                      disabled={saving}
+                      onClick={() => {
+                        if (!user) {
+                          onAlert("Yêu cầu đăng nhập", "Vui lòng đăng nhập thực tế để lưu thay đổi thông tin cá nhân!");
+                          return;
+                        }
+                        handleSave();
+                      }} 
+                      disabled={saving || !user}
                       className="btn-purple-3d flex-1 text-xs py-3 disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl"
                     >
                       <CheckCircle2 size={16} /> {saving ? "Đang lưu..." : "Lưu thay đổi"}
@@ -7763,6 +7797,31 @@ function SettingsContent({
                   </div>
                 </div>
               </div>
+
+              {/* Quick Select Preset Transparent Avatars */}
+              {user && (
+                <div className="space-y-3 pt-4 border-t border-white/5">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.15em] opacity-40 ml-1">Chọn nhanh avatar Vplay trong suốt</label>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      "https://img.icons8.com/color/144/anonymous-mask.png",
+                      "https://img.icons8.com/color/144/superhero.png",
+                      "https://img.icons8.com/color/144/ninja.png",
+                      "https://img.icons8.com/color/144/cyborg.png",
+                      "https://img.icons8.com/color/144/hacker.png"
+                    ].map((p, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setAvatar(p)}
+                        className={`w-14 h-14 rounded-2xl p-2 bg-slate-800/40 border-2 transition-all hover:scale-105 active:scale-95 ${avatar === p ? "border-[#4AC4FE] bg-[#4AC4FE]/10" : "border-white/5 hover:border-white/10"}`}
+                        title="Chọn avatar nhanh"
+                      >
+                        <img src={p} alt={`Preset ${idx}`} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -8864,17 +8923,17 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMen
 
   return (
     <div 
-      className={`flex items-center gap-2 md:gap-3 px-5 md:px-7 py-1.5 h-10 md:h-13 w-full max-w-2xl relative group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.04] focus-within:-translate-y-0.5 ${
+      className={`flex items-center gap-2 md:gap-3 px-5 md:px-7 py-1.5 h-10 md:h-13 w-full max-w-2xl relative group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
         isGlassy 
-          ? "bg-white/10 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.2)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+          ? "bg-white/10 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
           : isDark 
-            ? "bg-slate-800/55 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1.5px_2px_rgba(255,255,255,0.12)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
-            : "bg-slate-100 border-slate-300/60 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+            ? "bg-slate-800/55 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1px_1.5px_rgba(255,255,255,0.05)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
+            : "bg-slate-100 border-slate-300/60 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
       }`}
       onContextMenu={onContextMenu}
     >
       <div className="flex items-center gap-2 flex-1 overflow-hidden">
-        <SearchIcon className={`h-4 w-4 md:h-5 md:w-5 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-[#4AC4FE]" : "group-focus-within:text-[#4AC4FE]"}`} />
+        <SearchIcon className={`h-5 w-5 md:h-6 md:w-6 ${iconColor} flex-shrink-0 transition-colors`} />
         <input
           ref={inputRef}
           type="text"
@@ -9282,12 +9341,14 @@ function TopBar({
   return (
     <div 
       onContextMenu={onContextMenu}
-      className={`h-14 flex items-center justify-between px-4 z-[130] transition-all duration-300 backdrop-blur-md border ${
+      className={`h-14 flex items-center justify-between px-4 z-[130] transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-0.5 active:scale-[0.99] ease-out backdrop-blur-md border ${
         floatyBars 
-          ? "rounded-none border-x-0 border-t-0 shadow-sm" 
-          : "rounded-2xl md:rounded-full border shadow-lg"
+          ? "rounded-none border-x-0 border-t-0 shadow-[0_12px_24px_rgba(0,0,0,0.1),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] border-b-white/10" 
+          : "rounded-2xl md:rounded-full border"
       } ${
-        isDark ? "bg-[#181818]/70 border-white/10" : "bg-white/70 border-black/10"
+        isDark 
+          ? "bg-[#181818]/60 border-white/12 text-white shadow-[0_15px_35px_rgba(0,0,0,0.18),_inset_0_1px_1.5px_rgba(255,255,255,0.06)]" 
+          : "bg-white/60 border-slate-200/80 text-slate-800 shadow-[0_12px_30px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)]"
       }`}
     >
       <div className="flex items-center gap-2">
@@ -9330,19 +9391,19 @@ function TopBar({
         {topbarSearchType === "icon" ? (
           isSearchButtonExpanded ? (
             <div 
-              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.05] focus-within:-translate-y-0.5 relative rounded-full border ${
+              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border ${
                 isDark 
                   ? (isListening 
-                      ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)] focus-within:shadow-[0_8px_24px_rgba(239,68,68,0.3)]" 
-                      : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]"
+                      ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)]" 
+                      : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
                     ) 
                   : (isListening
-                      ? "bg-red-500/10 border-red-500 text-slate-800 shadow-[0_4px_12px_rgba(239,68,68,0.15)] focus-within:shadow-[0_8px_24px_rgba(239,68,68,0.25)]"
-                      : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+                      ? "bg-red-500/10 border-red-500 text-slate-800 shadow-[0_4px_12px_rgba(239,68,68,0.15)]"
+                      : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
                     )
               }`}
             >
-              <SearchCustomIcon size={16} className="ml-3.5" />
+              <SearchCustomIcon size={22} className="ml-3.5" />
               <input
                 autoFocus
                 type="text"
@@ -9371,19 +9432,19 @@ function TopBar({
           ) : null
         ) : (
           <div 
-            className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.05] focus-within:-translate-y-0.5 relative rounded-full border ${
+            className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border ${
               isDark 
                 ? (isListening 
-                    ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)] focus-within:shadow-[0_8px_24px_rgba(239,68,68,0.3)]" 
-                    : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]"
+                    ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)]" 
+                    : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
                   ) 
                 : (isListening
-                    ? "bg-red-500/10 border-red-500 text-slate-800 shadow-[0_4px_12px_rgba(239,68,68,0.15)] focus-within:shadow-[0_8px_24px_rgba(239,68,68,0.25)]"
-                    : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+                    ? "bg-red-500/10 border-red-500 text-slate-800 shadow-[0_4px_12px_rgba(239,68,68,0.15)]"
+                    : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
                   )
             }`}
           >
-            <SearchCustomIcon size={16} className="ml-3.5" />
+            <SearchCustomIcon size={22} className="ml-3.5" />
             <input
               type="text"
               value={searchQuery}
@@ -9506,7 +9567,11 @@ function TopBar({
                   ? (isDark ? "bg-[#4AC4FE]/10 border-[#4AC4FE]/25 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 border-[#4AC4FE]/30 text-[#0284c7]")
                   : "bg-amber-400/10 border-white/10 text-amber-500"
               }`}>
-                <User size={18} />
+                {user && (user.photoURL || userData?.avatar) ? (
+                  <img src={user.photoURL || userData?.avatar} alt="User Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <User size={18} />
+                )}
               </div>
             </button>
           </Tooltip>
@@ -9518,21 +9583,27 @@ function TopBar({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -40, scale: 0.95 }}
                 transition={{ type: "spring", damping: 20, stiffness: 140 }}
-                className={`absolute top-full mt-3 right-0 w-[280px] rounded-[28px] shadow-2xl z-[500] overflow-hidden border ${
-                  isDark ? "bg-[#12131a] border-white/15 text-white" : "bg-white border-slate-200 text-slate-800 shadow-xl"
-                } backdrop-blur-3xl`}
+                className={`absolute top-full mt-3 right-0 w-[280px] rounded-[28px] border z-[500] overflow-hidden backdrop-blur-3xl transition-all duration-300 ${
+                  isDark 
+                    ? "bg-[#12131a]/50 border-white/20 text-white shadow-[0_20px_50px_rgba(0,0,0,0.45),_inset_0_1px_1.5px_rgba(255,255,255,0.08)]" 
+                    : "bg-white/45 border-slate-200/80 text-slate-800 shadow-[0_20px_45px_rgba(15,23,42,0.12),_inset_0_1px_1.5px_rgba(255,255,255,0.15)]"
+                }`}
               >
                  <div className="p-6 pb-4 flex flex-col items-center text-center">
                   {!showVersionInfo ? (
                     <>
-                      <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 border ${
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 border overflow-hidden bg-[linear-gradient(45deg,#ccc_25%,transparent_25%,transparent_75%,#ccc_75%,#ccc_100%),linear-gradient(45deg,#ccc_25%,white_25%,white_75%,#ccc_75%,#ccc_100%)] bg-[size:10px_10px] ${
                         isDark 
-                          ? "bg-[#4AC4FE]/10 border-[#4AC4FE]/25 text-[#4AC4FE]" 
-                          : "bg-[#4AC4FE]/10 border-[#4AC4FE]/35 text-[#0284c7]"
+                          ? "border-[#4AC4FE]/25 text-[#4AC4FE]" 
+                          : "border-[#4AC4FE]/35 text-[#0284c7]"
                       }`}>
-                        <User size={26} />
+                        {user && (user.photoURL || userData?.avatar) ? (
+                          <img src={user.photoURL || userData?.avatar} alt="User Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        ) : (
+                          <User size={26} />
+                        )}
                       </div>
-                      <h3 className="text-base font-bold mb-0.5 tracking-tight">{user ? (name || user.displayName || "Thành viên") : "Khách"}</h3>
+                      <h3 className="text-base font-bold mb-0.5 tracking-tight">{user ? (userData?.name || name || user.displayName || "Thành viên") : "Khách"}</h3>
                       <p className="text-[10px] opacity-40 mb-4 font-medium tracking-tight">
                         {user ? user.email : "Đăng nhập để có trải nghiệm tốt nhất"}
                       </p>
@@ -9661,8 +9732,10 @@ function SearchContextMenu({
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden backdrop-blur-xl ${
-          isDark ? "bg-[#181818]/85 border-white/10 text-white" : "bg-white/85 border-slate-200 text-slate-900 shadow-xl"
+        className={`fixed z-[1001] w-56 rounded-2xl border p-1.5 overflow-hidden backdrop-blur-3xl transition-all duration-300 ${
+          isDark 
+            ? "bg-[#181818]/60 border-white/15 text-white shadow-[0_12px_45px_rgba(0,0,0,0.55),_inset_0_1.5px_2px_rgba(255,255,255,0.18)]" 
+            : "bg-white/60 border-slate-300/40 text-slate-900 shadow-[0_12px_35px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]"
         }`}
       >
         {menuItems.map((item) => {
@@ -9729,10 +9802,10 @@ function UnifiedContextMenu({
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-60 rounded-2xl shadow-2xl border p-1.5 overflow-hidden backdrop-blur-xl ${
+        className={`fixed z-[1001] w-60 rounded-2xl border p-1.5 overflow-hidden backdrop-blur-3xl transition-all duration-300 ${
           isDark 
-            ? "bg-[#181818]/85 border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]" 
-            : "bg-white/85 border-slate-200 text-[#181818] shadow-[0_12px_30px_rgba(15,23,42,0.15)]"
+            ? "bg-[#181818]/60 border-white/15 text-white shadow-[0_12px_45px_rgba(0,0,0,0.55),_inset_0_1.5px_2px_rgba(255,255,255,0.18)]" 
+            : "bg-white/60 border-slate-300/40 text-[#181818] shadow-[0_12px_35px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]"
         }`}
       >
         {/* Section 1: UI Layout */}
@@ -11804,13 +11877,13 @@ function WidgetsDashboard({
                           
                           <div className="flex-1 max-w-lg mx-4">
                             <div 
-                              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.05] focus-within:-translate-y-0.5 relative rounded-full border ${
+                              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border ${
                                 frostedGlassWidgets 
-                                  ? "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
-                                  : "bg-black/5 border-black/10 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+                                  ? "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
+                                  : "bg-black/5 border-black/10 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
                               }`}
                             >
-                              <SearchCustomIcon size={16} className="ml-3.5" />
+                              <SearchCustomIcon size={22} className="ml-3.5" />
                               <input 
                                 type="text" 
                                 placeholder="Search settings"
@@ -11935,8 +12008,10 @@ function WidgetsDashboard({
              <AnimatePresence>
                 {contextMenu?.id && (
                   <div
-                    className={`fixed z-[1002] w-48 border shadow-2xl rounded-2xl p-1.5 flex flex-col gap-0.5 backdrop-blur-xl ${
-                      isDark ? "bg-[#181818]/85 border-white/10 text-white" : "bg-white/85 border-slate-200 text-slate-900 shadow-xl"
+                    className={`fixed z-[1002] w-48 border rounded-2xl p-1.5 flex flex-col gap-0.5 backdrop-blur-3xl transition-all duration-300 ${
+                      isDark 
+                        ? "bg-[#181818]/60 border-white/15 text-white shadow-[0_12px_45px_rgba(0,0,0,0.55),_inset_0_1.5px_2px_rgba(255,255,255,0.18)]" 
+                        : "bg-white/60 border-slate-300/40 text-slate-900 shadow-[0_12px_35px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]"
                     }`}
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                     onClick={(e) => e.stopPropagation()}
@@ -11995,16 +12070,16 @@ function WidgetsDashboard({
                             </div>
                             
                             {/* Search Input */}
-                            <div className="relative mb-4 group cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.05] focus-within:-translate-y-0.5">
+                            <div className="relative mb-4 group cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0">
                               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-                                <SearchCustomIcon size={12} />
+                                <SearchCustomIcon size={18} />
                               </div>
                               <input 
                                 type="text" 
                                 value={pickerSearchQuery}
                                 onChange={(e) => setPickerSearchQuery(e.target.value)}
                                 placeholder="Tìm kiếm tiện ích..." 
-                                className="w-full h-8 pl-9 pr-6 bg-white/5 border border-white/10 outline-none text-xs rounded-full text-white font-semibold placeholder:text-white/35 transition-all shadow-[0_4px_10px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.15)] focus-within:shadow-[0_6px_15px_rgba(43,186,254,0.3)]"
+                                className="w-full h-8 pl-9 pr-6 bg-white/5 border border-white/10 outline-none text-xs rounded-full text-white font-semibold placeholder:text-white/35 transition-all shadow-[0_4px_10px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_6px_15px_rgba(0,0,0,0.22)]"
                               />
                               {pickerSearchQuery && (
                                 <button onClick={() => setPickerSearchQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-white">
@@ -13883,10 +13958,10 @@ const [headingBar, setHeadingBar] = useState(() => {
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.12 }}
               style={{ top: channelContextMenu.y, left: channelContextMenu.x }}
-              className={`fixed z-[310] min-w-[240px] rounded-2xl border p-2.5 shadow-2xl backdrop-blur-xl ${
+              className={`fixed z-[310] min-w-[240px] rounded-2xl border p-2.5 backdrop-blur-3xl transition-all duration-300 ${
                 isDark 
-                  ? "bg-[#181924]/95 border-white/10 text-white shadow-black/80" 
-                  : "bg-white/95 border-slate-200 text-slate-800"
+                  ? "bg-[#181818]/60 border-white/15 text-white shadow-[0_12px_45px_rgba(0,0,0,0.55),_inset_0_1.5px_2px_rgba(255,255,255,0.18)]" 
+                  : "bg-white/60 border-slate-300/40 text-slate-800 shadow-[0_12px_35px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]"
               }`}
             >
               <div className="px-3 pb-2 pt-1 border-b border-white/5 mb-1.5 text-[10px] font-black uppercase tracking-wider opacity-50 truncate max-w-[220px]">
@@ -14165,12 +14240,12 @@ const [headingBar, setHeadingBar] = useState(() => {
               } ${liquidGlass ? "backdrop-blur-3xl" : ""}`}
             >
               <div className="p-6 border-b border-white/10 flex items-center gap-4">
-                 <div className={`flex-1 flex items-center gap-4 px-6 py-4 rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.03] focus-within:-translate-y-0.5 ${
+                 <div className={`flex-1 flex items-center gap-4 px-6 py-4 rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
                    isDark 
-                     ? "bg-white/5 border-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.3)]" 
-                     : "bg-slate-100 border-slate-200 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+                     ? "bg-white/5 border-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
+                     : "bg-slate-100 border-slate-200 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
                  }`}>
-                    <SearchCustomIcon size={22} />
+                    <SearchCustomIcon size={26} />
                     <input 
                       autoFocus
                       value={searchQuery}
@@ -14601,17 +14676,24 @@ const [headingBar, setHeadingBar] = useState(() => {
                 isMobile 
                   ? `${headingBar ? "top-14 h-[calc(100%-56px)]" : "top-0 h-full"} !rounded-none !m-0 !left-0 !right-0 transition-none border-none` 
                   : !floatyBars 
-                    ? `h-[calc(100vh-24px)] ${headingBar ? "top-[76px] h-[calc(100vh-88px)]" : "top-3"} rounded-3xl shadow-xl shadow-black/10`
+                    ? `h-[calc(100vh-24px)] ${headingBar ? "top-[76px] h-[calc(100vh-88px)]" : "top-3"} rounded-3xl`
                     : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 rounded-none shadow-2xl`
               } ${
                 isDark 
-                  ? "bg-[#181818]/70 border-white/10 text-white backdrop-blur-md" 
-                  : "bg-white/70 border-slate-200 text-slate-800 shadow-lg backdrop-blur-md"
+                  ? `text-white ${!floatyBars && !isMobile ? "border-white/20 bg-[#181818]/60" : "bg-[#181818]/70 border-white/10 backdrop-blur-md"}` 
+                  : `text-slate-800 ${!floatyBars && !isMobile ? "border-slate-200/80 bg-white/60" : "bg-white/70 border-slate-200 backdrop-blur-md"}`
               }`}
               style={{ 
-                background: isDark ? "rgba(24, 24, 24, 0.72)" : "rgba(255, 255, 255, 0.72)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)"
+                background: !floatyBars && !isMobile 
+                  ? (isDark ? "rgba(24, 24, 24, 0.60)" : "rgba(255, 255, 255, 0.60)")
+                  : (isDark ? "rgba(24, 24, 24, 0.72)" : "rgba(255, 255, 255, 0.72)"),
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                boxShadow: !floatyBars && !isMobile
+                  ? (isDark 
+                      ? "0 22px 50px rgba(0,0,0,0.22), inset 0 1.5px 3px rgba(255,255,255,0.22)" 
+                      : "0 15px 35px rgba(0,0,0,0.08), inset 0 1.5px 3px rgba(255,255,255,0.45)")
+                  : undefined
               }}
             >
               {/* Resize Handle */}
@@ -14983,17 +15065,17 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className={`flex-1 w-full flex items-center justify-between p-2 transition-all duration-500 overflow-hidden relative ${
+            className={`flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.03] hover:-translate-y-0.5 active:scale-[0.99] ease-out overflow-hidden relative ${
               liquidGlass === "tinted"
-                ? `rounded-full border shadow-[0_20px_40px_rgba(0,0,0,0.15)] backdrop-blur-[100px] ${
-                    isDark ? "bg-[#18181c]/50 border-white/10" : "bg-white/50 border-white/40"
+                ? `rounded-full border shadow-[0_25px_50px_rgba(0,0,0,0.2),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] backdrop-blur-[100px] ${
+                    isDark ? "bg-[#18181c]/50 border-white/12" : "bg-white/50 border-white/50"
                   }`
                 : liquidGlass === "glassy"
-                  ? `rounded-full border shadow-[0_30px_60px_rgba(0,0,0,0.2)] backdrop-blur-[120px] ${
-                      isDark ? "bg-[#18181c]/25 border-white/10" : "bg-white/20 border-[#ffffff]/20"
+                  ? `rounded-full border shadow-[0_35px_70px_rgba(0,0,0,0.25),_inset_0_1px_1.5px_rgba(255,255,255,0.05)] backdrop-blur-[120px] ${
+                      isDark ? "bg-[#18181c]/25 border-white/12" : "bg-white/20 border-[#ffffff]/35"
                     }`
-                  : `rounded-none border-t w-full justify-around backdrop-blur-md shadow-2xl ${
-                      isDark ? "bg-slate-900/40 border-white/5" : "bg-[#ffffff]/40 border-white/40"
+                  : `rounded-3xl border shadow-[0_20px_40px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] backdrop-blur-md ${
+                      isDark ? "bg-slate-900/60 border-white/12" : "bg-white/60 border-slate-200"
                     }`
             }`}>
             
@@ -15169,14 +15251,14 @@ const [headingBar, setHeadingBar] = useState(() => {
                       </AnimatePresence>
 
                       <div className="flex-1 flex items-center justify-center">
-                        <div className={`relative flex items-center gap-2.5 px-4 py-1.5 h-10 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:scale-[1.04] focus-within:-translate-y-0.5 ${
+                        <div className={`relative flex items-center gap-2.5 px-4 py-1.5 h-10 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
                           liquidGlass === "glassy"
-                            ? "bg-white/10 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.2)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+                            ? "bg-white/10 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
                             : isDark 
-                              ? "bg-slate-800/55 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1.5px_2px_rgba(255,255,255,0.12)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
-                              : "bg-slate-100 border-slate-300/65 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+                              ? "bg-slate-800/55 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1px_1.5px_rgba(255,255,255,0.05)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
+                              : "bg-slate-100 border-slate-300/65 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
                         }`}>
-                          <SearchCustomIcon size={14} className={`shrink-0 transition-all ${
+                          <SearchCustomIcon size={20} className={`shrink-0 transition-all ${
                             isSearchFocused ? "scale-110" : ""
                           }`} />
                           <input
