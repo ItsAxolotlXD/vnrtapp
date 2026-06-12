@@ -4,11 +4,18 @@
 @theme {
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-google: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-google: "Google Sans", "Product Sans", "Plus Jakarta Sans", "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --color-primary: var(--vplay-primary, #4AC4FE);
   --color-vplay-sidebar: var(--vplay-sidebar, #181818);
   --color-vplay-background: var(--vplay-background, #121214);
   --color-vplay-topbar: var(--vplay-topbar, #181818);
+}
+
+/* Custom Google Sans font-family for all placeholder texts */
+input::placeholder, textarea::placeholder {
+  font-family: "Google Sans", "Product Sans", "Plus Jakarta Sans", "Montserrat", sans-serif !important;
+  font-weight: 500;
+  letter-spacing: -0.015em;
 }
 
 :root {

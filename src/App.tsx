@@ -4726,7 +4726,7 @@ const settingsSearchOptions = [
   { name: "Liquid Glass style (Chủ đề kính)", page: 3, desc: "Tùy biến hiển thị dạng kính trong hoặc kính mờ", match: ["liquid glass", "kính trong", "kinh trong", "kính mờ", "kinh mo", "glassy", "tinted"] },
   { name: "Đồng hồ và Lịch", page: 4, desc: "Bật hoặc tắt đồng hồ, múi giờ và lịch trên topbar", match: ["đồng hồ", "dong ho", "lịch", "lich", "múi giờ", "mui gio", "định dạng", "dinh dang"] },
   { name: "Dự báo thời tiết và Vị trí địa lý", page: 4, desc: "Hiển thị thông tin nhiệt độ dựa theo vị trí định vị", match: ["thời tiết", "thoi tiet", "nhiệt độ", "nhiet do", "vị trí", "vi tri", "định vị", "dinh vi", "weather"] },
-  { name: "Số lượng tab tối đa trên Floatbar", page: 4, desc: "Thiết lập hiển thị từ 3 đến 5 tab trên thanh công cụ", match: ["tab tối đa", "tab toi da", "floatbar", "toolbar", "số tab", "so tab"] },
+  { name: "Số lượng tab tối đa trên Bottom bar", page: 4, desc: "Thiết lập hiển thị từ 3 đến 5 tab trên thanh công cụ", match: ["tab tối đa", "tab toi da", "bottom bar", "floatbar", "toolbar", "số tab", "so tab"] },
   { name: "Vị trí và Truy cập nhanh trên Sidebar", page: 4, desc: "Đổi vị trí Sidebar trái/phải và hiển thị icon kênh yêu thích nhanh", match: ["vị trí sidebar", "vi tri sidebar", "truy cập nhanh", "truy cap nhanh", "sidebar"] },
   { name: "Kiểu thiết kế Floaty bars", page: 4, desc: "Bật chế độ chạm góc màn hình cho thanh topbar và sidebar thay vì nổi lơ lửng", match: ["floaty bars", "thanh nổi", "thanh noi", "chạm góc", "cham goc", "topbar", "sidebar", "lơ lửng", "lo lung"] },
   { name: "Cửa sổ phát mini (Picture in Picture)", page: 5, desc: "Chế độ phát ngoài cửa sổ nổi khi chuyển phòng", match: ["picture in picture", "pip", "cửa sổ", "cua so", "phát nổi", "phat noi", "mini"] },
@@ -5670,6 +5670,7 @@ function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDa
 function RejuvenatedSettings(props: any) {
   const { 
     isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
+    liquidGlassBlur, setLiquidGlassBlur, liquidGlassOpacity, setLiquidGlassOpacity,
     useSidebar, setUseSidebar, isSidebarRight, setIsSidebarRight, isSidebarLocked, setIsSidebarLocked,
     sidebarDisplay, setSidebarDisplay, isPinningEnabled, setIsPinningEnabled, user, userData,
     onAlert, onLogin, onUpdateLogsClick, favorites, bypassed, loadingTreatment, setLoadingTreatment,
@@ -5706,7 +5707,7 @@ function RejuvenatedSettings(props: any) {
     { id: "Appearance", name: "Chủ đề giao diện", icon: Palette, keywords: ["tối", "sáng", "màu", "sidebar", "navbar", "kính", "touch", "desktop", "chủ đạo", "nền", "màn hình", "interface", "light", "dark", "chế độ", "màu sắc", "màu chính"] },
     { id: "TopBar", name: "Topbar", icon: Monitor, keywords: ["đồng hồ", "lịch", "thời tiết", "nhiệt độ", "giờ", "định vị", "clock", "weather", "search", "tìm kiếm", "thanh tiêu đề", "topbar", "định dạng", "múi giờ", "nhiệt độ"] },
     { id: "Sidebar", name: "Sidebar", icon: Columns, keywords: ["sidebar", "phải", "trái", "co gọn", "compact", "quick access", "truy cập nhanh", "vị trí", "thanh bên"] },
-    { id: "Floatbar", name: "Floatbar", icon: GlassWater, keywords: ["floatbar", "liquid glass", "kính", "glassy", "tinted", "mờ", "trong suốt", "hiệu ứng"] },
+    { id: "Floatbar", name: "Bottom bar", icon: GlassWater, keywords: ["bottom bar", "floatbar", "liquid glass", "kính", "glassy", "tinted", "mờ", "trong suốt", "hiệu ứng"] },
     { id: "Experiments", name: "Tính năng thử nghiệm", icon: Pizza, keywords: ["multiview", "quay màn hình", "pip", "thử nghiệm", "widgets", "dashboard", "widget", "phòng thí nghiệm", "labs", "experimental"] },
   ];
 
@@ -6199,7 +6200,7 @@ function RejuvenatedSettings(props: any) {
         );
       }
       case "Floatbar": {
-        const showLiquidEngine = shouldShowSetting("Liquid Glass Engine", "Lựa chọn phong cách hiển thị cho Floatbar và các cửa sổ con", ["floatbar", "liquid glass", "kính", "glassy", "tinted", "mờ", "trong suốt", "hiệu ứng"]);
+        const showLiquidEngine = shouldShowSetting("Liquid Glass Engine", "Lựa chọn phong cách hiển thị cho Bottom bar và các cửa sổ con", ["floatbar", "liquid glass", "kính", "glassy", "tinted", "mờ", "trong suốt", "hiệu ứng"]);
 
         if (!showLiquidEngine) return null;
         return (
@@ -6211,7 +6212,7 @@ function RejuvenatedSettings(props: any) {
                         </div>
                         <div className="text-left">
                             <h4 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Liquid Glass Engine</h4>
-                            <p className="text-sm opacity-50 font-medium tracking-tight">Lựa chọn phong cách hiển thị cho Floatbar và các cửa sổ con</p>
+                            <p className="text-sm opacity-50 font-medium tracking-tight">Lựa chọn phong cách hiển thị cho Bottom bar và các cửa sổ con</p>
                         </div>
                     </div>
                 </div>
@@ -6234,6 +6235,56 @@ function RejuvenatedSettings(props: any) {
                          </div>
                          <span className="text-sm font-bold uppercase tracking-widest">Tinted</span>
                     </button>
+                </div>
+
+                <div className="h-[1px] bg-slate-200 dark:bg-white/10 my-8" />
+                <div className="space-y-6">
+                    <div>
+                        <h5 className={`text-md font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>Điều chỉnh chi tiết kính</h5>
+                        <p className="text-xs opacity-50 font-normal">Tùy biến riêng độ mờ nền và độ trong suốt của kính theo ý muốn</p>
+                    </div>
+
+                    {/* Blur Slider */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm font-semibold">Độ mờ cảnh nền (Blur)</span>
+                            <span className="text-sm font-mono font-bold text-[#4AC4FE] bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{liquidGlassBlur}px</span>
+                        </div>
+                        <input 
+                            type="range" 
+                            min="0" 
+                            max="40" 
+                            step="1" 
+                            value={liquidGlassBlur} 
+                            onChange={(e) => setLiquidGlassBlur(parseInt(e.target.value, 10))}
+                            className="w-full h-1.5 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                        />
+                        <div className="flex justify-between text-[10px] opacity-40 font-semibold">
+                            <span>0px (Trong suốt hoàn toàn)</span>
+                            <span>40px (Mờ đục cực đại)</span>
+                        </div>
+                    </div>
+
+                    {/* Opacity Slider */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm font-semibold">Độ đục nền (Opacity)</span>
+                            <span className="text-sm font-mono font-bold text-[#4AC4FE] bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{liquidGlassOpacity}%</span>
+                        </div>
+                        <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            step="1" 
+                            value={liquidGlassOpacity} 
+                            onChange={(e) => setLiquidGlassOpacity(parseInt(e.target.value, 10))}
+                            className="w-full h-1.5 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                        />
+                        <div className="flex justify-between text-[10px] opacity-40 font-semibold">
+                            <span>0% (Không hiển thị nền)</span>
+                            <span>100% (Đặc màu nền)</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -6504,7 +6555,7 @@ function RejuvenatedSettings(props: any) {
                                 cat.id === "Appearance" ? "Chủ đề và Giao diện" : 
                                 cat.id === "TopBar" ? "Topbar (Desktop mode only)" :
                                 cat.id === "Sidebar" ? "Sidebar (Desktop mode only)" :
-                                cat.id === "Floatbar" ? "Floatbar (Touch mode only)" :
+                                cat.id === "Floatbar" ? "Bottom bar (Touch mode only)" :
                                 cat.id === "Experiments" ? "Experimental Features" :
                                 cat.id === "WidgetsBoard" ? "Widgets board" :
                                 cat.name}
@@ -6514,7 +6565,7 @@ function RejuvenatedSettings(props: any) {
                                  cat.id === "Appearance" ? "Tùy biến giao diện và trải nghiệm người dùng theo ý thích" :
                                  cat.id === "TopBar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng trên" :
                                  cat.id === "Sidebar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng bên" :
-                                 cat.id === "Floatbar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng dưới" :
+                                 cat.id === "Floatbar" ? "Tùy chỉnh các tính năng và hành vi của Bottom bar (thanh điều hướng dưới)" :
                                  cat.id === "Experiments" ? "Trải nghiệm sớm các tính năng mới sắp ra mắt của Vplay" : 
                                  cat.id === "WidgetsBoard" ? "Tùy chỉnh các tính năng và hành vi của bảng tiện ích" : "Quản lý cài đặt"}
                              </p>
@@ -6613,12 +6664,12 @@ function RejuvenatedSettings(props: any) {
               placeholder="Tìm cài đặt..."
               value={activeSearchQuery}
               onChange={(e) => activeSetSearchQuery(e.target.value)}
-              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus:shadow-[0_8px_20px_rgba(0,0,0,0.18)] ${
+              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1.5px_2px_rgba(255,255,255,0.18)] focus:shadow-[0_8px_24px_rgba(74,196,254,0.35)] ${
                 frostedGlassWidgets
-                  ? "bg-white/10 border-white/12 text-white placeholder:text-white/45"
+                  ? "bg-white/10 border-white/5 text-white placeholder:text-white/45"
                   : (isDark 
-                      ? "bg-white/5 border-white/8 text-white placeholder:text-white/20" 
-                      : "bg-white border-slate-200 focus:border-slate-400 placeholder:text-slate-300")
+                      ? "bg-white/5 border-white/4 text-white placeholder:text-white/20" 
+                      : "bg-white border-slate-200/40 focus:border-slate-300 placeholder:text-slate-300")
               }`}
             />
           </div>
@@ -6706,6 +6757,7 @@ const GlassSelect = ({ value, onChange, options, isDark }: { value: any, onChang
 function SettingsNew(props: any) {
   const {
     isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
+    liquidGlassBlur, setLiquidGlassBlur, liquidGlassOpacity, setLiquidGlassOpacity,
     useSidebar, setUseSidebar, isSidebarRight, setIsSidebarRight, isSidebarLocked, setIsSidebarLocked,
     isPinningEnabled, setIsPinningEnabled, user, userData, setUserData, onAlert, onLogin, onLogout,
     favorites, tempUnit, setTempUnit, location, setLocation, timeFormat, setTimeFormat, clockFormat, setClockFormat,
@@ -6833,8 +6885,8 @@ function SettingsNew(props: any) {
         {/* Search settings input box styled as bubble */}
         <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
           isDark 
-            ? "bg-white/5 border-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
-            : "bg-slate-100 border-slate-200 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+            ? "bg-white/5 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+            : "bg-slate-100 border-slate-200/40 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
         }`}>
           <SearchCustomIcon size={22} className={`shrink-0 transition-colors`} />
           <input
@@ -7205,6 +7257,44 @@ function SettingsNew(props: any) {
                         </div>
                       </div>
                     )}
+
+                    {renderBullet(
+                      <div className="pl-4 border-l-2 border-sky-500/20 py-2 space-y-5 mt-4">
+                        {/* Blur Slider */}
+                        <div className="space-y-2 text-left">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold opacity-85">Độ mờ cảnh nền (Blur)</span>
+                            <span className="text-xs font-mono font-bold text-[#4AC4FE] bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{liquidGlassBlur}px</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="40" 
+                            step="1" 
+                            value={liquidGlassBlur} 
+                            onChange={(e) => setLiquidGlassBlur(parseInt(e.target.value, 10))}
+                            className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                          />
+                        </div>
+
+                        {/* Opacity Slider */}
+                        <div className="space-y-2 text-left">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold opacity-85">Độ đục nền (Opacity)</span>
+                            <span className="text-xs font-mono font-bold text-[#4AC4FE] bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{liquidGlassOpacity}%</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            step="1" 
+                            value={liquidGlassOpacity} 
+                            onChange={(e) => setLiquidGlassOpacity(parseInt(e.target.value, 10))}
+                            className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -7361,13 +7451,13 @@ function SettingsNew(props: any) {
                 </div>
 
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Floatbar</h4>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Bottom bar</h4>
                   <div className="pl-3">
                     {renderBullet(
                       <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="text-left font-normal">
                           <p className="font-semibold text-sm text-left">Tab tối đa</p>
-                          <p className="text-xs opacity-50 text-left font-normal">Tùy chỉnh số lượng tab trong một trang trên Floatbar, tối đa 5 tab</p>
+                          <p className="text-xs opacity-50 text-left font-normal">Tùy chỉnh số lượng tab trong một trang trên Bottom bar, tối đa 5 tab</p>
                         </div>
                         <GlassSelect
                           value={maxToolbarTabs}
@@ -7471,6 +7561,10 @@ function SettingsContent({
   setFeatureFlags,
   liquidGlass, 
   setLiquidGlass,
+  liquidGlassBlur = 10,
+  setLiquidGlassBlur = () => {},
+  liquidGlassOpacity = 25,
+  setLiquidGlassOpacity = () => {},
   useSidebar,
   setUseSidebar,
   isSidebarRight,
@@ -7521,6 +7615,10 @@ function SettingsContent({
   setFeatureFlags: (val: { [key: string]: boolean } | ((prev: { [key: string]: boolean }) => { [key: string]: boolean })) => void,
   liquidGlass: "glassy" | "tinted",
   setLiquidGlass: (val: "glassy" | "tinted") => void,
+  liquidGlassBlur?: number,
+  setLiquidGlassBlur?: (val: number) => void,
+  liquidGlassOpacity?: number,
+  setLiquidGlassOpacity?: (val: number) => void,
   useSidebar: boolean,
   setUseSidebar: (val: boolean) => void,
   isSidebarRight: boolean,
@@ -8925,10 +9023,10 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMen
     <div 
       className={`flex items-center gap-2 md:gap-3 px-5 md:px-7 py-1.5 h-10 md:h-13 w-full max-w-2xl relative group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
         isGlassy 
-          ? "bg-white/10 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
+          ? "bg-white/10 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.2)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
           : isDark 
-            ? "bg-slate-800/55 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1px_1.5px_rgba(255,255,255,0.05)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
-            : "bg-slate-100 border-slate-300/60 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+            ? "bg-slate-800/55 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1.5px_2.5px_rgba(255,255,255,0.12)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+            : "bg-slate-100 border-slate-300/20 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
       }`}
       onContextMenu={onContextMenu}
     >
@@ -9341,14 +9439,14 @@ function TopBar({
   return (
     <div 
       onContextMenu={onContextMenu}
-      className={`h-14 flex items-center justify-between px-4 z-[130] transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-0.5 active:scale-[0.99] ease-out backdrop-blur-md border ${
+      className={`h-14 flex items-center justify-between px-4 z-[130] backdrop-blur-[3px] border ${
         floatyBars 
-          ? "rounded-none border-x-0 border-t-0 shadow-[0_12px_24px_rgba(0,0,0,0.1),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] border-b-white/10" 
+          ? "rounded-none border-x-0 border-t-0 shadow-[0_12px_24px_rgba(0,0,0,0.1),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] border-b-white/[0.06]" 
           : "rounded-2xl md:rounded-full border"
       } ${
         isDark 
-          ? "bg-[#181818]/60 border-white/12 text-white shadow-[0_15px_35px_rgba(0,0,0,0.18),_inset_0_1px_1.5px_rgba(255,255,255,0.06)]" 
-          : "bg-white/60 border-slate-200/80 text-slate-800 shadow-[0_12px_30px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)]"
+          ? "bg-[#181818]/60 border-white/[0.06] text-white shadow-[0_15px_35px_rgba(0,0,0,0.18),_inset_0_1.5px_3px_rgba(255,255,255,0.22)]" 
+          : "bg-white/60 border-slate-200/40 text-slate-800 shadow-[0_12px_30px_rgba(0,0,0,0.06),_inset_0_1.5px_3px_rgba(255,255,255,0.45)]"
       }`}
     >
       <div className="flex items-center gap-2">
@@ -9395,11 +9493,11 @@ function TopBar({
                 isDark 
                   ? (isListening 
                       ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)]" 
-                      : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
+                      : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]"
                     ) 
                   : (isListening
                       ? "bg-red-500/10 border-red-500 text-slate-800 shadow-[0_4px_12px_rgba(239,68,68,0.15)]"
-                      : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+                      : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                     )
               }`}
             >
@@ -9436,11 +9534,11 @@ function TopBar({
               isDark 
                 ? (isListening 
                     ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)]" 
-                    : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
+                    : "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]"
                   ) 
                 : (isListening
                     ? "bg-red-500/10 border-red-500 text-slate-800 shadow-[0_4px_12px_rgba(239,68,68,0.15)]"
-                    : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+                    : "bg-slate-100 border-slate-300/60 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                   )
             }`}
           >
@@ -9578,17 +9676,25 @@ function TopBar({
 
           <AnimatePresence>
             {isUserMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -40, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -40, scale: 0.95 }}
-                transition={{ type: "spring", damping: 20, stiffness: 140 }}
-                className={`absolute top-full mt-3 right-0 w-[280px] rounded-[28px] border z-[500] overflow-hidden backdrop-blur-3xl transition-all duration-300 ${
-                  isDark 
-                    ? "bg-[#12131a]/50 border-white/20 text-white shadow-[0_20px_50px_rgba(0,0,0,0.45),_inset_0_1px_1.5px_rgba(255,255,255,0.08)]" 
-                    : "bg-white/45 border-slate-200/80 text-slate-800 shadow-[0_20px_45px_rgba(15,23,42,0.12),_inset_0_1px_1.5px_rgba(255,255,255,0.15)]"
-                }`}
-              >
+              <>
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className={`fixed inset-0 z-[490] ${isDark ? "bg-[#0c1020]/45" : "bg-[#e0f2fe]/40"}`} 
+                  onClick={() => setIsUserMenuOpen(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: -40, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -40, scale: 0.95 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 140 }}
+                  className={`absolute top-full mt-3 right-0 w-[280px] rounded-[28px] border z-[500] overflow-hidden backdrop-blur-none transition-all duration-300 ${
+                    isDark 
+                      ? "bg-[#12131a]/90 border-white/25 text-white shadow-[0_20px_50px_rgba(0,0,0,0.45),_inset_0_1.5px_2px_rgba(255,255,255,0.12)]" 
+                      : "bg-white/92 border-slate-200/90 text-slate-800 shadow-[0_20px_45px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.35)]"
+                  }`}
+                >
                  <div className="p-6 pb-4 flex flex-col items-center text-center">
                   {!showVersionInfo ? (
                     <>
@@ -9695,6 +9801,7 @@ function TopBar({
                   )}
                 </AnimatePresence>
               </motion.div>
+              </>
             )}
           </AnimatePresence>
         </div>
@@ -9826,7 +9933,7 @@ function UnifiedContextMenu({
           }`}
         >
           {useSidebar ? <Smartphone size={16} /> : <Columns size={16} />}
-          <span className="text-sm font-medium">{useSidebar ? "Sử dụng Floatbar" : "Sử dụng Sidebar"}</span>
+          <span className="text-sm font-medium">{useSidebar ? "Sử dụng Bottom bar" : "Sử dụng Sidebar"}</span>
         </button>
 
         <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1.5 mx-1`} />
@@ -10500,6 +10607,10 @@ function WidgetsDashboard({
   setIsDev,
   liquidGlass,
   setLiquidGlass,
+  liquidGlassBlur = 10,
+  setLiquidGlassBlur = () => {},
+  liquidGlassOpacity = 25,
+  setLiquidGlassOpacity = () => {},
   onOpenUserMenu,
   activeDashboardTab,
   setActiveDashboardTab,
@@ -10598,6 +10709,10 @@ function WidgetsDashboard({
   liquidGlass?: "glassy" | "tinted",
   onOpenUserMenu?: () => void,
   setLiquidGlass: (v: "glassy" | "tinted") => void,
+  liquidGlassBlur?: number,
+  setLiquidGlassBlur?: (v: number) => void,
+  liquidGlassOpacity?: number,
+  setLiquidGlassOpacity?: (v: number) => void,
   activeDashboardTab: "widgets" | "changelogs" | "labs" | "settings",
   setActiveDashboardTab: (val: "widgets" | "changelogs" | "labs" | "settings") => void,
   // Add remaining settings props needed for RejuvenatedSettings
@@ -11879,8 +11994,8 @@ function WidgetsDashboard({
                             <div 
                               className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border ${
                                 frostedGlassWidgets 
-                                  ? "bg-white/10 border-white/15 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
-                                  : "bg-black/5 border-black/10 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+                                  ? "bg-white/10 border-white/5 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+                                  : "bg-black/5 border-black/5 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                               }`}
                             >
                               <SearchCustomIcon size={22} className="ml-3.5" />
@@ -11923,6 +12038,10 @@ function WidgetsDashboard({
                               setFeatureFlags={setFeatureFlags || (() => {})}
                               liquidGlass={liquidGlass || "glassy"} 
                               setLiquidGlass={setLiquidGlass}
+                              liquidGlassBlur={liquidGlassBlur}
+                              setLiquidGlassBlur={setLiquidGlassBlur}
+                              liquidGlassOpacity={liquidGlassOpacity}
+                              setLiquidGlassOpacity={setLiquidGlassOpacity}
                               useSidebar={useSidebar}
                               setUseSidebar={setUseSidebar}
                               searchQuery={settingsSearchQuery}
@@ -12629,6 +12748,22 @@ function App() {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const [hoveredTabRect, setHoveredTabRect] = useState<DOMRect | null>(null);
   const [liquidGlass, setLiquidGlass] = useState<"glassy" | "tinted">("glassy");
+  const [liquidGlassBlur, setLiquidGlassBlur] = useState<number>(() => {
+    const saved = localStorage.getItem("vplay_liquid_glass_blur");
+    return saved ? parseInt(saved, 10) : 10;
+  });
+  const [liquidGlassOpacity, setLiquidGlassOpacity] = useState<number>(() => {
+    const saved = localStorage.getItem("vplay_liquid_glass_opacity");
+    return saved ? parseInt(saved, 10) : 25;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_liquid_glass_blur", liquidGlassBlur.toString());
+  }, [liquidGlassBlur]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_liquid_glass_opacity", liquidGlassOpacity.toString());
+  }, [liquidGlassOpacity]);
   const [useSidebar, setUseSidebar] = useState(() => {
     const saved = localStorage.getItem("vplay_sidebar");
     return saved === null ? true : saved === "true";
@@ -13912,6 +14047,109 @@ const [headingBar, setHeadingBar] = useState(() => {
           onAlert("Vị trí", `Đã cập nhật vị trí: ${city}`);
         }}
       />
+
+      <WidgetsDashboard 
+        isOpen={isWidgetsOpen}
+        onClose={() => setIsWidgetsOpen(false)}
+        isDark={isDark}
+        weather={weather}
+        getTempDisplay={getTempDisplay}
+        currentTime={currentTime}
+        formatTime={formatTime}
+        formatDateString={formatDateString}
+        activeChannel={activeChannel}
+        setActiveChannel={handleChannelSelect}
+        setActiveTab={setActiveTab}
+        user={user}
+        userData={userData}
+        featureFlags={featureFlags}
+        setFeatureFlags={setFeatureFlags}
+        loadingTreatment={loadingTreatment}
+        setLoadingTreatment={setLoadingTreatment}
+        isDev={isDev}
+        setIsDev={setIsDev}
+        liquidGlass={liquidGlass}
+        setLiquidGlass={setLiquidGlass}
+        liquidGlassBlur={liquidGlassBlur}
+        setLiquidGlassBlur={setLiquidGlassBlur}
+        liquidGlassOpacity={liquidGlassOpacity}
+        setLiquidGlassOpacity={setLiquidGlassOpacity}
+        onOpenUserMenu={() => setIsUserMenuOpen(true)}
+        activeDashboardTab={activeDashboardTab}
+        setActiveDashboardTab={setActiveDashboardTab}
+        setIsDark={setIsDark}
+        useSidebar={useSidebar}
+        setUseSidebar={setUseSidebar}
+        isSidebarRight={isSidebarRight}
+        setIsSidebarRight={setIsSidebarRight}
+        isSidebarLocked={isSidebarLocked}
+        setIsSidebarLocked={setIsSidebarLocked}
+        sidebarDisplay={sidebarDisplay}
+        setSidebarDisplay={setSidebarDisplay}
+        isPinningEnabled={isPinningEnabled}
+        setIsPinningEnabled={setIsPinningEnabled}
+        setUserData={setUserData}
+        onAlert={onAlert}
+        handleLogin={handleLogin}
+        handleResetOnboarding={handleResetOnboarding}
+        favorites={favorites}
+        bypassed={bypassed}
+        tempUnit={tempUnit}
+        setTempUnit={setTempUnit}
+        location={location}
+        setLocation={setLocation}
+        timeFormat={timeFormat}
+        setTimeFormat={setTimeFormat}
+        clockFormat={clockFormat}
+        setClockFormat={setClockFormat}
+        dateFormat={dateFormat}
+        setDateFormat={setDateFormat}
+        showClock={showClock}
+        setShowClock={setShowClock}
+        showDate={showDate}
+        setShowDate={setShowDate}
+        showTempInClock={showTempInClock}
+        setShowTempInClock={setShowTempInClock}
+        headingBar={headingBar}
+        setHeadingBar={setHeadingBar}
+        isSearchCompact={isSearchCompact}
+        setIsSearchCompact={setIsSearchCompact}
+        handleLogout={handleLogout}
+        customColors={customColors}
+        setCustomColors={setCustomColors}
+        setShowGeoPopup={setShowGeoPopup}
+        handleGeolocation={handleGeolocation}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isCompactMode={isCompactMode}
+        setIsCompactMode={setIsCompactMode}
+        isTouchInterface={isTouchInterface}
+        setIsTouchInterface={setIsTouchInterface}
+        floatyBars={floatyBars}
+        setFloatyBars={setFloatyBars}
+        sidebarQuickAccess={sidebarQuickAccess}
+        setSidebarQuickAccess={setSidebarQuickAccess}
+        topbarSearchType={topbarSearchType}
+        setTopbarSearchType={setTopbarSearchType}
+        locationDetection={locationDetection}
+        setLocationDetection={setLocationDetection}
+        timeZone={timeZone}
+        setTimeZone={setTimeZone}
+        onCloseDashboard={() => setIsWidgetsOpen(false)}
+        widgetsBoardPosition={widgetsBoardPosition}
+        setWidgetsBoardPosition={setWidgetsBoardPosition}
+        hideSidebarInWidgets={hideSidebarInWidgets}
+        setHideSidebarInWidgets={setHideSidebarInWidgets}
+        fullScreenWidgets={fullScreenWidgets}
+        setFullScreenWidgets={setFullScreenWidgets}
+        frostedGlassWidgets={frostedGlassWidgets}
+        setFrostedGlassWidgets={setFrostedGlassWidgets}
+        colorWidgets={colorWidgets}
+        setColorWidgets={setColorWidgets}
+        setIsReinstalling={setIsReinstalling}
+        setShowSplash={setShowSplash}
+        setSplashDuration={setSplashDuration}
+      />
       
       <AnimatePresence>
         {contextMenu && contextMenu.type === "search" && (
@@ -14239,11 +14477,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                 isDark ? "popup-3d-dark" : "popup-3d-light"
               } ${liquidGlass ? "backdrop-blur-3xl" : ""}`}
             >
-              <div className="p-6 border-b border-white/10 flex items-center gap-4">
+              <div className="p-6 border-b border-white/5 flex items-center gap-4">
                  <div className={`flex-1 flex items-center gap-4 px-6 py-4 rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
                    isDark 
-                     ? "bg-white/5 border-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
-                     : "bg-slate-100 border-slate-200 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+                     ? "bg-white/5 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+                     : "bg-slate-100 border-slate-200/40 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                  }`}>
                     <SearchCustomIcon size={26} />
                     <input 
@@ -14559,6 +14797,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setFeatureFlags={setFeatureFlags}
                       liquidGlass={liquidGlass} 
                       setLiquidGlass={setLiquidGlass}
+                      liquidGlassBlur={liquidGlassBlur}
+                      setLiquidGlassBlur={setLiquidGlassBlur}
+                      liquidGlassOpacity={liquidGlassOpacity}
+                      setLiquidGlassOpacity={setLiquidGlassOpacity}
                       useSidebar={useSidebar}
                       setUseSidebar={setUseSidebar}
                       isSidebarRight={isSidebarRight}
@@ -14680,15 +14922,15 @@ const [headingBar, setHeadingBar] = useState(() => {
                     : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 rounded-none shadow-2xl`
               } ${
                 isDark 
-                  ? `text-white ${!floatyBars && !isMobile ? "border-white/20 bg-[#181818]/60" : "bg-[#181818]/70 border-white/10 backdrop-blur-md"}` 
-                  : `text-slate-800 ${!floatyBars && !isMobile ? "border-slate-200/80 bg-white/60" : "bg-white/70 border-slate-200 backdrop-blur-md"}`
+                  ? `text-white ${!floatyBars && !isMobile ? "border-white/10 bg-[#181818]/60" : "bg-[#181818]/70 border-white/5 backdrop-blur-[3px]"}` 
+                  : `text-slate-800 ${!floatyBars && !isMobile ? "border-slate-200/30 bg-white/60" : "bg-white/70 border-slate-200/40 backdrop-blur-[3px]"}`
               }`}
               style={{ 
                 background: !floatyBars && !isMobile 
                   ? (isDark ? "rgba(24, 24, 24, 0.60)" : "rgba(255, 255, 255, 0.60)")
                   : (isDark ? "rgba(24, 24, 24, 0.72)" : "rgba(255, 255, 255, 0.72)"),
-                backdropFilter: "blur(24px)",
-                WebkitBackdropFilter: "blur(24px)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
                 boxShadow: !floatyBars && !isMobile
                   ? (isDark 
                       ? "0 22px 50px rgba(0,0,0,0.22), inset 0 1.5px 3px rgba(255,255,255,0.22)" 
@@ -15067,17 +15309,24 @@ const [headingBar, setHeadingBar] = useState(() => {
             onTouchEnd={handleNavTouchEnd}
             className={`flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.03] hover:-translate-y-0.5 active:scale-[0.99] ease-out overflow-hidden relative ${
               liquidGlass === "tinted"
-                ? `rounded-full border shadow-[0_25px_50px_rgba(0,0,0,0.2),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] backdrop-blur-[100px] ${
-                    isDark ? "bg-[#18181c]/50 border-white/12" : "bg-white/50 border-white/50"
+                ? `rounded-full border shadow-[0_25px_50px_rgba(0,0,0,0.2),_inset_0_1.5px_3px_rgba(255,255,255,0.25)] ${
+                    isDark ? "border-white/[0.06]" : "border-white/30"
                   }`
                 : liquidGlass === "glassy"
-                  ? `rounded-full border shadow-[0_35px_70px_rgba(0,0,0,0.25),_inset_0_1px_1.5px_rgba(255,255,255,0.05)] backdrop-blur-[120px] ${
-                      isDark ? "bg-[#18181c]/25 border-white/12" : "bg-white/20 border-[#ffffff]/35"
+                  ? `rounded-full border shadow-[0_35px_70px_rgba(0,0,0,0.25),_inset_0_2px_4px_rgba(255,255,255,0.3)] ${
+                      isDark ? "border-white/[0.06]" : "border-white/10"
                     }`
-                  : `rounded-3xl border shadow-[0_20px_40px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] backdrop-blur-md ${
-                      isDark ? "bg-slate-900/60 border-white/12" : "bg-white/60 border-slate-200"
+                  : `rounded-3xl border shadow-[0_20px_40px_rgba(0,0,0,0.15),_inset_0_1.5px_3px_rgba(255,255,255,0.2)] ${
+                      isDark ? "border-white/5" : "border-slate-200/40"
                     }`
-            }`}>
+            }`}
+            style={{
+              backdropFilter: `blur(${liquidGlassBlur}px)`,
+              WebkitBackdropFilter: `blur(${liquidGlassBlur}px)`,
+              backgroundColor: isDark 
+                ? `rgba(24, 24, 28, ${liquidGlassOpacity / 100})` 
+                : `rgba(255, 255, 255, ${liquidGlassOpacity / 100})`
+            }}>
             
             {/* Prev Arrow - Only shown on desktop as mobile uses gestures */}
             {!isMobile && (
@@ -15253,10 +15502,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                       <div className="flex-1 flex items-center justify-center">
                         <div className={`relative flex items-center gap-2.5 px-4 py-1.5 h-10 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
                           liquidGlass === "glassy"
-                            ? "bg-white/10 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.06)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
+                            ? "bg-white/10 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.2)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
                             : isDark 
-                              ? "bg-slate-800/55 border-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1px_1.5px_rgba(255,255,255,0.05)] focus-within:shadow-[0_8px_24px_rgba(0,0,0,0.25)]" 
-                              : "bg-slate-100 border-slate-300/65 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+                              ? "bg-slate-800/55 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.2),_inset_0_1.5px_2.5px_rgba(255,255,255,0.12)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
+                              : "bg-slate-100 border-slate-300/20 text-slate-900 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
                         }`}>
                           <SearchCustomIcon size={20} className={`shrink-0 transition-all ${
                             isSearchFocused ? "scale-110" : ""
