@@ -123,6 +123,12 @@ const TornadoIcon = ({ className, size, strokeWidth }: { className?: string, siz
 
 const EXPERIMENTS = [
   {
+    id: "quick_channel_switch",
+    name: "Chuyển kênh nhanh",
+    desc: "Tính năng nhập nhanh số kênh từ bàn phím điều khiển từ xa để chuyển kênh trực tiếp.",
+    stability: "stable"
+  },
+  {
     id: "low_latency_profile",
     name: "Low Latency Profile",
     desc: "Tối ưu hóa hiệu năng ứng dụng, giảm thời gian Splash screen và cải thiện tốc độ phản hồi.",
@@ -713,7 +719,7 @@ const getProvinceName = (fullName: string) => {
   return name.split("(")[0].trim();
 };
 
-const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign, activeChannelName, isLargeLayout }: {
+const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign, activeChannelName, isLargeLayout, quickSwitchEnabled }: {
   ch: Channel,
   onClick: (targetCh?: Channel) => void,
   isDark: boolean,
@@ -727,7 +733,8 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
   onContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
   useNewDesign?: boolean,
   activeChannelName?: string,
-  isLargeLayout?: boolean
+  isLargeLayout?: boolean,
+  quickSwitchEnabled?: boolean
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
@@ -853,20 +860,34 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         }`}
       >
 
-        {isMaintenance && (
-          <div className="absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
-            BẢO TRÌ
+        {quickSwitchEnabled ? (
+          <div className={`absolute top-2 left-2 text-[10px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded-md z-20 shadow-sm ${
+            isDark ? "bg-[#18181c]/90 text-[#4AC4FE] border border-white/5" : "bg-white/90 text-blue-600 border border-slate-200"
+          }`}>
+            {(() => {
+              const channelIndex = channels.findIndex(c => c.name === ch.name);
+              const num = channelIndex !== -1 ? channelIndex + 1 : null;
+              return num ? String(num).padStart(3, '0') : "000";
+            })()}
           </div>
-        )}
-        {isComingSoon && isVTV6 && (
-          <div className="absolute top-2 left-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
-            {getVTV6Days()}d
-          </div>
-        )}
-        {isComingSoon && !isVTV6 && (
-          <div className="absolute top-2 left-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase">
-            SẮP RA MẮT
-          </div>
+        ) : (
+          <>
+            {isMaintenance && (
+              <div className="absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
+                BẢO TRÌ
+              </div>
+            )}
+            {isComingSoon && isVTV6 && (
+              <div className="absolute top-2 left-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
+                {getVTV6Days()}d
+              </div>
+            )}
+            {isComingSoon && !isVTV6 && (
+              <div className="absolute top-2 left-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase">
+                SẮP RA MẮT
+              </div>
+            )}
+          </>
         )}
 
         {ch.qualityBadge && (
@@ -1084,7 +1105,8 @@ function HomeContent({
   bypassed,
   onChannelContextMenu,
   useNewDesign,
-  activeChannelName
+  activeChannelName,
+  featureFlags
 }: {
   setActiveTab: (tab: string) => void,
   setActiveChannel: (ch: typeof channels[0]) => void,
@@ -1101,7 +1123,8 @@ function HomeContent({
   bypassed?: boolean,
   onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
   useNewDesign?: boolean,
-  activeChannelName?: string
+  activeChannelName?: string,
+  featureFlags?: { [key: string]: boolean }
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
   
@@ -1562,6 +1585,7 @@ function HomeContent({
                       onContextMenu={onChannelContextMenu}
                       useNewDesign={useNewDesign}
                       activeChannelName={activeChannelName}
+                      quickSwitchEnabled={featureFlags?.quick_channel_switch}
                     />
                     <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-300" : "text-slate-400"}`}>
                       {ch.name}
@@ -1598,6 +1622,7 @@ function HomeContent({
                     onContextMenu={onChannelContextMenu}
                     useNewDesign={useNewDesign}
                     activeChannelName={activeChannelName}
+                    quickSwitchEnabled={featureFlags?.quick_channel_switch}
                   />
                   <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                     {ch.name}
@@ -1678,6 +1703,7 @@ function HomeContent({
                 onContextMenu={onChannelContextMenu}
                 useNewDesign={useNewDesign}
                 activeChannelName={activeChannelName}
+                quickSwitchEnabled={featureFlags?.quick_channel_switch}
               />
             ))}
           </div>
@@ -1950,6 +1976,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
 
   const [isMobileScheduleOpen, setIsMobileScheduleOpen] = useState(false);
   const [selectedDayOffset, setSelectedDayOffset] = useState<number>(0);
+  const [isRemoteOpen, setIsRemoteOpen] = useState(false);
+  const [remoteInput, setRemoteInput] = useState("");
 
   const [liveSubTab, setLiveSubTab] = useState<"vplay" | "custom" | "url">(mode === "realm" ? "custom" : "vplay");
   const [liveTabSection, setLiveTabSection] = useState<"channels" | "schedule">("channels");
@@ -3174,6 +3202,22 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           >
                             <Pin size={18} className={`md:w-5 md:h-5 transition-transform ${lockPlayer ? "rotate-45" : ""}`} />
                           </button>
+                          {featureFlags.quick_channel_switch && (
+                            <button 
+                              onClick={() => {
+                                setIsRemoteOpen(true);
+                                setRemoteInput("");
+                              }}
+                              className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
+                                isRemoteOpen
+                                  ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
+                                  : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black animate-pulse" : "bg-white/5 border-white/10 text-white animate-pulse"
+                              }`}
+                              title="Chuyển kênh nhanh (Bàn phím Remote)"
+                            >
+                              <Smartphone size={18} className="md:w-5 md:h-5" />
+                            </button>
+                          )}
                           <button 
                             onClick={() => toggleFavorite(active)}
                             className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
@@ -4394,6 +4438,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             useNewDesign={useNewDesign}
                             activeChannelName={active?.name}
                             isLargeLayout={isLargeLayout}
+                            quickSwitchEnabled={featureFlags.quick_channel_switch}
                           />
                         ))
                       )}
@@ -4707,6 +4752,132 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   </div>
                 </>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Remote Quick Channels switching Modal */}
+      <AnimatePresence>
+        {isRemoteOpen && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsRemoteOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            />
+            
+            {/* Modal Keyboard Box */}
+            <motion.div 
+              initial={{ scale: 0.9, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 20, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              className={`relative w-full max-w-xs rounded-[32px] border p-6 flex flex-col items-center shadow-2xl ${
+                isDark 
+                  ? "bg-[#18181b]/95 border-white/10 text-white" 
+                  : "bg-white/95 border-slate-200 text-slate-900"
+              } backdrop-blur-3xl`}
+            >
+              {/* Header */}
+              <div className="w-full flex items-center justify-between mb-4 border-b border-slate-200/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <Smartphone size={18} className="text-[#4AC4FE]" />
+                  <span className="text-xs font-black uppercase tracking-wider">Chuyển kênh nhanh</span>
+                </div>
+                <button 
+                  onClick={() => setIsRemoteOpen(false)}
+                  className={`p-1.5 rounded-full transition-colors ${
+                    isDark ? "hover:bg-white/10 text-white/70" : "hover:bg-slate-100 text-slate-900"
+                  }`}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Digital Screen Display on Remote */}
+              <div className={`w-full mb-6 p-4 rounded-2xl flex flex-col items-center justify-center font-mono ${
+                isDark ? "bg-black/40 border border-white/5" : "bg-slate-100 border border-slate-200"
+              }`}>
+                <span className={`text-3xl font-black tracking-widest ${isDark ? "text-[#4AC4FE]" : "text-blue-600"}`}>
+                  {remoteInput.padStart(3, "0")}
+                </span>
+                <span className={`text-[10px] font-bold mt-1.5 min-h-[14px] truncate max-w-full text-center ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  {(() => {
+                    const chNum = parseInt(remoteInput, 10);
+                    if (isNaN(chNum) || chNum < 1 || chNum > channels.length) {
+                      return remoteInput ? "Không tìm thấy kênh" : "Nhập số kênh từ 0-9";
+                    }
+                    return `Mục tiêu: ${channels[chNum - 1].name}`;
+                  })()}
+                </span>
+              </div>
+
+              {/* Keypad Grid */}
+              <div className="grid grid-cols-3 gap-3 w-full">
+                {/* 1 - 9 Keys */}
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => {
+                      if (remoteInput.length < 3) {
+                        setRemoteInput(prev => prev + num);
+                      }
+                    }}
+                    className={`h-12 rounded-xl text-base font-black flex items-center justify-center active:scale-90 transition-all ${
+                      isDark 
+                        ? "bg-white/5 border border-white/5 text-white hover:bg-white/10" 
+                        : "bg-slate-50 border border-slate-200 text-slate-800 hover:bg-slate-100"
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+
+                {/* Clear, 0, OK */}
+                <button
+                  onClick={() => setRemoteInput("")}
+                  className={`h-12 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-red-500/10 text-red-500 hover:bg-red-500/20`}
+                >
+                  CLEAR
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (remoteInput.length < 3) {
+                      setRemoteInput(prev => prev + "0");
+                    }
+                  }}
+                  className={`h-12 rounded-xl text-base font-black flex items-center justify-center active:scale-90 transition-all ${
+                    isDark 
+                      ? "bg-white/5 border border-white/5 text-white hover:bg-white/10" 
+                      : "bg-slate-50 border border-slate-200 text-slate-800 hover:bg-slate-100"
+                  }`}
+                >
+                  0
+                </button>
+
+                <button
+                  onClick={() => {
+                    const targetNum = parseInt(remoteInput, 10);
+                    if (isNaN(targetNum) || targetNum < 1 || targetNum > channels.length) {
+                      showToast("Vui lòng nhập vị trí số kênh hợp lệ!", "error");
+                    } else {
+                      const matchedCh = channels[targetNum - 1];
+                      setActive(matchedCh);
+                      setIsRemoteOpen(false);
+                      setRemoteInput("");
+                      showToast(`Đã chuyển sang ${matchedCh.name}`, "success");
+                    }
+                  }}
+                  className="h-12 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-emerald-500 text-slate-950 font-extrabold hover:bg-emerald-450"
+                >
+                  OK
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
@@ -13014,6 +13185,7 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   const [featureFlags, setFeatureFlags] = useState<{ [key: string]: boolean }>(() => {
     const saved = localStorage.getItem("vplay_feature_flags");
     const defaults = { 
+      quick_channel_switch: false,
       settings_in_widgets: false,
       widgets_dashboard: false, 
       multiview_channels: false, 
@@ -14676,6 +14848,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   onChannelContextMenu={onChannelContextMenu}
                   useNewDesign={useNewDesign}
                   activeChannelName={activeChannel?.name}
+                  featureFlags={featureFlags}
                 />
               )}
               {displayTab === "Tìm kiếm" && (
@@ -15307,17 +15480,17 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className={`flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.03] hover:-translate-y-0.5 active:scale-[0.99] ease-out overflow-hidden relative ${
+            className={`flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative ${
               liquidGlass === "tinted"
-                ? `rounded-full border shadow-[0_25px_50px_rgba(0,0,0,0.2),_inset_0_1.5px_3px_rgba(255,255,255,0.25)] ${
-                    isDark ? "border-white/[0.06]" : "border-white/30"
+                ? `rounded-2xl border shadow-[0_12px_24px_rgba(0,0,0,0.12),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] ${
+                    isDark ? "border-white/[0.04]" : "border-white/20"
                   }`
                 : liquidGlass === "glassy"
-                  ? `rounded-full border shadow-[0_35px_70px_rgba(0,0,0,0.25),_inset_0_2px_4px_rgba(255,255,255,0.3)] ${
-                      isDark ? "border-white/[0.06]" : "border-white/10"
+                  ? `rounded-2xl border shadow-[0_16px_32px_rgba(0,0,0,0.15),_inset_0_1px_2px_rgba(255,255,255,0.2)] ${
+                      isDark ? "border-white/[0.04]" : "border-white/10"
                     }`
-                  : `rounded-3xl border shadow-[0_20px_40px_rgba(0,0,0,0.15),_inset_0_1.5px_3px_rgba(255,255,255,0.2)] ${
-                      isDark ? "border-white/5" : "border-slate-200/40"
+                  : `rounded-xl border shadow-[0_8px_16px_rgba(0,0,0,0.08),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] ${
+                      isDark ? "border-white/5" : "border-slate-200/30"
                     }`
             }`}
             style={{
