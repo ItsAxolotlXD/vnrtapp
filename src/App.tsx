@@ -4787,15 +4787,15 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsRemoteOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/60"
             />
             
             {/* Modal Keyboard Box */}
             <motion.div 
-              initial={{ scale: 0.9, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              initial={{ scale: 1.2, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.2, opacity: 0 }}
+              transition={{ type: "tween", ease: "easeIn", duration: 0.22 }}
               className={`relative w-full max-w-xs rounded-[32px] border border-white/25 p-6 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.35),_inset_0_1.5px_2.5px_rgba(255,255,255,0.3)] ${
                 isDark ? "text-white" : "text-slate-900 border-slate-500/25 shadow-[0_20px_50px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.5)]"
               }`}
@@ -5866,7 +5866,7 @@ function RejuvenatedSettings(props: any) {
     isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
     liquidGlassBlur, setLiquidGlassBlur, liquidGlassOpacity, setLiquidGlassOpacity,
     useSidebar, setUseSidebar, isSidebarRight, setIsSidebarRight, isSidebarLocked, setIsSidebarLocked,
-    sidebarDisplay, setSidebarDisplay, isPinningEnabled, setIsPinningEnabled, user, userData,
+    sidebarDisplay, setSidebarDisplay, isPinningEnabled, setIsPinningEnabled, user, userData, setUserData,
     onAlert, onLogin, onUpdateLogsClick, favorites, bypassed, loadingTreatment, setLoadingTreatment,
     tempUnit, setTempUnit, location, setLocation, timeFormat, setTimeFormat, clockFormat, setClockFormat,
     dateFormat, setDateFormat, showClock, setShowClock, showDate, setShowDate, showTempInClock, setShowTempInClock, headingBar, setHeadingBar,
@@ -5894,6 +5894,57 @@ function RejuvenatedSettings(props: any) {
   const [activeCategory, setActiveCategory] = useState("SystemInfo");
   const [drillDownCategory, setDrillDownCategory] = useState<string | null>(null);
   const [showResetPopup, setShowResetPopup] = useState(false);
+
+  const [profileName, setProfileName] = useState(user?.displayName || userData?.name || "Người dùng Vplay");
+  const [profileAvatar, setProfileAvatar] = useState(user?.photoURL || userData?.avatar || "");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const profileFileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setProfileName(user?.displayName || userData?.name || "Người dùng Vplay");
+    setProfileAvatar(user?.photoURL || userData?.avatar || "");
+  }, [user, userData]);
+
+  const handleProfileFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleProfileSave = async () => {
+    setProfileSaving(true);
+    try {
+      if (user) {
+        await updateProfile(user, {
+          displayName: profileName,
+          photoURL: profileAvatar
+        });
+      }
+      
+      const userRef = doc(db, "users", user ? user.uid : "bypassed_guest");
+      await setDoc(userRef, {
+        name: profileName,
+        avatar: profileAvatar,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      
+      setUserData({
+        ...userData,
+        name: profileName,
+        avatar: profileAvatar
+      });
+      
+      onAlert("Thành công", "Đã cập nhật thông tin cá nhân của bạn!");
+    } catch (err: any) {
+      onAlert("Lỗi", "Không thể lưu thông tin: " + err.message);
+    }
+    setProfileSaving(false);
+  };
 
   const categories = [
     { id: "SystemInfo", name: "Thông tin phiên bản", icon: Info, keywords: ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái", "ổn định", "vplay", "canary", "metadata", "vnrt"] },
@@ -6020,10 +6071,10 @@ function RejuvenatedSettings(props: any) {
           <div className="space-y-6">
             {showInfo && (
               <div className={`p-5 md:p-10 rounded-[20px] md:rounded-[32px] border flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-8 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-                 <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white/10 shadow-xl shrink-0" />
+                 <img src={profileAvatar || user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white/10 shadow-xl shrink-0" />
                  <div className="space-y-2 text-left">
-                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight">{user?.displayName || "Người dùng Vplay"}</h3>
-                    <p className="opacity-50 text-sm md:text-base">{user?.email || "Chưa xác minh email"}</p>
+                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight">{profileName || user?.displayName || "Người dùng Vplay"}</h3>
+                    <p className="opacity-50 text-sm md:text-base">{user?.email || "Chưa xác minh email (Khách)"}</p>
                     <div className="pt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
                        <span className="px-2.5 py-0.5 bg-[#4AC4FE]/20 text-[#4AC4FE] text-[10px] md:text-xs font-bold rounded-lg uppercase tracking-wider">Vip Membership</span>
                        <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] md:text-xs font-bold rounded-lg uppercase tracking-wider">Beta Tester</span>
@@ -6032,13 +6083,98 @@ function RejuvenatedSettings(props: any) {
               </div>
             )}
             {showEdit && (
-              <RejuvenatedSettingsItem 
-                icon={Monitor} 
-                title="Chỉnh sửa hồ sơ" 
-                description="Thay đổi tên hiển thị và ảnh đại diện để cá nhân hóa tài khoản của bạn"
-                onClick={() => onAlert("Tính năng", "Coming soon in detailed view")}
-                isDark={isDark}
-              />
+              <div className={`p-5 md:p-8 rounded-[20px] md:rounded-[32px] border space-y-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                    <User size={20} />
+                  </div>
+                  <h4 className="text-lg font-black uppercase tracking-tight">Chỉnh sửa hồ sơ</h4>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  {/* Clickable Profile Avatar for upload */}
+                  <div 
+                    className="relative group cursor-pointer"
+                    onClick={() => profileFileInputRef.current?.click()}
+                  >
+                    <div className="absolute inset-0 bg-[#4AC4FE]/20 blur-xl rounded-full scale-110" />
+                    <div className="w-24 h-24 rounded-full border-4 border-[#4AC4FE]/30 relative z-10 shadow-xl overflow-hidden bg-slate-800">
+                      {profileAvatar ? (
+                        <img src={profileAvatar} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                          <User size={36} className="text-slate-400 opacity-45" />
+                        </div>
+                      )}
+                      
+                      <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                        <Camera className="text-white w-6 h-6" />
+                        <span className="text-[9px] text-white font-extrabold uppercase mt-1">Tải ảnh lên</span>
+                      </div>
+                    </div>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      ref={profileFileInputRef} 
+                      onChange={handleProfileFileChange} 
+                      className="hidden" 
+                    />
+                  </div>
+
+                  <div className="flex-1 w-full space-y-4">
+                    <div className="space-y-1.5 align-left text-left">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 ml-1 block text-left">Tên hiển thị</label>
+                      <input 
+                        value={profileName} 
+                        onChange={e => setProfileName(e.target.value)} 
+                        placeholder="Nhập tên hiển thị..."
+                        className={`w-full px-4 py-3 rounded-xl border text-sm font-bold bg-transparent outline-none transition-all ${
+                          isDark 
+                            ? "text-white border-white/10 focus:border-[#4AC4FE]/50 bg-white/[0.02]" 
+                            : "text-slate-900 border-slate-200 focus:border-[#4AC4FE]/50 bg-slate-50"
+                        }`} 
+                      />
+                    </div>
+
+                    <div className="flex gap-2.5 text-left">
+                      <button 
+                        onClick={handleProfileSave}
+                        disabled={profileSaving}
+                        className={`px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all ${
+                          profileSaving 
+                            ? "bg-[#4AC4FE]/10 text-[#4AC4FE] opacity-50" 
+                            : "bg-[#4AC4FE] text-slate-950 font-extrabold shadow-lg shadow-[#4AC4FE]/20 hover:scale-[1.02] cursor-pointer"
+                        }`}
+                      >
+                        <Check size={14} /> {profileSaving ? "Đang lưu..." : "Lưu thay đổi"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preset Avatars Selection */}
+                <div className="space-y-2.5 pt-4 border-t border-white/5 text-left align-left">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.15em] opacity-40 ml-1 block text-left">Chọn nhanh avatar vplay</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "https://img.icons8.com/color/144/anonymous-mask.png",
+                      "https://img.icons8.com/color/144/superhero.png",
+                      "https://img.icons8.com/color/144/ninja.png",
+                      "https://img.icons8.com/color/144/cyborg.png",
+                      "https://img.icons8.com/color/144/hacker.png"
+                    ].map((p, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setProfileAvatar(p)}
+                        className={`w-11 h-11 rounded-xl p-1.5 bg-slate-800/40 border-2 transition-all hover:scale-105 active:scale-95 ${profileAvatar === p ? "border-[#4AC4FE] bg-[#4AC4FE]/10" : "border-white/5 hover:border-white/10"}`}
+                        title="Chọn avatar nhanh"
+                      >
+                        <img src={p} alt={`Preset ${idx}`} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
             {showLogout && (
               <RejuvenatedSettingsItem 
@@ -9652,10 +9788,10 @@ function TopBar({
   return (
     <div 
       onContextMenu={onContextMenu}
-      className={`h-14 flex items-center justify-between px-4 z-[130] backdrop-blur-[3px] border ${
+      className={`h-14 flex items-center justify-between px-6 z-[130] backdrop-blur-[3px] border ${
         floatyBars 
           ? "rounded-none border-x-0 border-t-0 shadow-[0_12px_24px_rgba(0,0,0,0.1),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] border-b-white/[0.06]" 
-          : "rounded-2xl border"
+          : "rounded-full border"
       } ${
         isDark 
           ? "bg-[#181818]/60 border-white/[0.06] text-white shadow-[0_6px_20px_rgba(0,0,0,0.12),_inset_0_1px_2px_rgba(255,255,255,0.12)]" 
@@ -15524,14 +15660,14 @@ const [headingBar, setHeadingBar] = useState(() => {
             onTouchEnd={handleNavTouchEnd}
             className={`flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative ${
               liquidGlass === "tinted"
-                ? `rounded-2xl border shadow-[0_12px_24px_rgba(0,0,0,0.12),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] ${
+                ? `rounded-full border shadow-[0_12px_24px_rgba(0,0,0,0.12),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] ${
                     isDark ? "border-white/[0.04]" : "border-white/20"
                   }`
                 : liquidGlass === "glassy"
-                  ? `rounded-2xl border shadow-[0_16px_32px_rgba(0,0,0,0.15),_inset_0_1px_2px_rgba(255,255,255,0.2)] ${
+                  ? `rounded-full border shadow-[0_16px_32px_rgba(0,0,0,0.15),_inset_0_1px_2px_rgba(255,255,255,0.2)] ${
                       isDark ? "border-white/[0.04]" : "border-white/10"
                     }`
-                  : `rounded-xl border shadow-[0_8px_16px_rgba(0,0,0,0.08),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] ${
+                  : `rounded-full border shadow-[0_8px_16px_rgba(0,0,0,0.08),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] ${
                       isDark ? "border-white/5" : "border-slate-200/30"
                     }`
             }`}
