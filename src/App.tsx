@@ -1106,8 +1106,7 @@ function HomeContent({
   onChannelContextMenu,
   useNewDesign,
   activeChannelName,
-  featureFlags,
-  showChannelNumbers
+  featureFlags
 }: {
   setActiveTab: (tab: string) => void,
   setActiveChannel: (ch: typeof channels[0]) => void,
@@ -1125,8 +1124,7 @@ function HomeContent({
   onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
   useNewDesign?: boolean,
   activeChannelName?: string,
-  featureFlags?: { [key: string]: boolean },
-  showChannelNumbers?: boolean
+  featureFlags?: { [key: string]: boolean }
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
   
@@ -1587,7 +1585,7 @@ function HomeContent({
                       onContextMenu={onChannelContextMenu}
                       useNewDesign={useNewDesign}
                       activeChannelName={activeChannelName}
-                      quickSwitchEnabled={featureFlags?.quick_channel_switch || showChannelNumbers}
+                      quickSwitchEnabled={featureFlags?.quick_channel_switch}
                     />
                     <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-300" : "text-slate-400"}`}>
                       {ch.name}
@@ -1624,7 +1622,7 @@ function HomeContent({
                     onContextMenu={onChannelContextMenu}
                     useNewDesign={useNewDesign}
                     activeChannelName={activeChannelName}
-                    quickSwitchEnabled={featureFlags?.quick_channel_switch || showChannelNumbers}
+                    quickSwitchEnabled={featureFlags?.quick_channel_switch}
                   />
                   <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                     {ch.name}
@@ -1705,7 +1703,7 @@ function HomeContent({
                 onContextMenu={onChannelContextMenu}
                 useNewDesign={useNewDesign}
                 activeChannelName={activeChannelName}
-                quickSwitchEnabled={featureFlags?.quick_channel_switch || showChannelNumbers}
+                quickSwitchEnabled={featureFlags?.quick_channel_switch}
               />
             ))}
           </div>
@@ -1941,7 +1939,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers }: { 
+function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -1967,8 +1965,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   togglePinChannel: (ch: Channel) => void,
   isTopBarVisible?: boolean,
   useNewDesign?: boolean,
-  setUseNewDesign?: (val: boolean) => void,
-  showChannelNumbers?: boolean
+  setUseNewDesign?: (val: boolean) => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1983,7 +1980,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   const [remoteInput, setRemoteInput] = useState("");
 
   const [liveSubTab, setLiveSubTab] = useState<"vplay" | "custom" | "url">(mode === "realm" ? "custom" : "vplay");
-  const [liveTabSection, setLiveTabSection] = useState<"channels" | "schedule" | "favorites">("channels");
+  const [liveTabSection, setLiveTabSection] = useState<"channels" | "schedule">("channels");
   const [isLargeLayout, setIsLargeLayout] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem("vplay_is_large_layout");
@@ -2376,17 +2373,6 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         return b.name.localeCompare(a.name);
       });
   }, [displayChannelsList, searchQuery, filterType, sortOrder]);
-
-  const favoriteChannelsFiltered = useMemo(() => {
-    return channels
-      .filter(ch => favorites.includes(ch.name))
-      .filter(ch => ch.name.toLowerCase().includes(searchQuery.toLowerCase()))
-      .sort((a, b) => {
-        if (sortOrder === "default") return 0;
-        if (sortOrder === "az") return a.name.localeCompare(b.name);
-        return b.name.localeCompare(a.name);
-      });
-  }, [channels, favorites, searchQuery, sortOrder]);
 
   const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "HTV", "Các kênh địa phương"];
   const filteredCategories = useMemo(() => {
@@ -4013,7 +3999,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         </div>
       )}
 
-      {/* 4 SMALL TABS IN THE LIVE TAB: CHUYỂN KÊNH, YÊU THÍCH, LỊCH PHÁT SÓNG & NHẬP SỐ */}
+      {/* 3 SMALL TABS IN THE LIVE TAB: CHUYỂN KÊNH, LỊCH PHÁT SÓNG & NHẬP SỐ */}
       {mode === "live" && (
         <div className="flex justify-center mt-6 mb-2">
           <div className={`p-1 rounded-[20px] border flex gap-1 ${
@@ -4024,7 +4010,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 setLiveTabSection("channels");
                 setIsRemoteOpen(false);
               }}
-              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center hover:scale-105 active:scale-115 cursor-pointer ${
+              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
                 liveTabSection === "channels" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
@@ -4035,24 +4021,10 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             </button>
             <button
               onClick={() => {
-                setLiveTabSection("favorites");
-                setIsRemoteOpen(false);
-              }}
-              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center hover:scale-105 active:scale-115 cursor-pointer ${
-                liveTabSection === "favorites" && !isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
-                  : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
-              }`}
-              title="Yêu thích"
-            >
-              <Heart className={`w-4 h-4 ${liveTabSection === "favorites" && !isRemoteOpen ? "fill-slate-950" : ""}`} />
-            </button>
-            <button
-              onClick={() => {
                 setLiveTabSection("schedule");
                 setIsRemoteOpen(false);
               }}
-              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center hover:scale-105 active:scale-115 cursor-pointer ${
+              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
                 liveTabSection === "schedule" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
@@ -4066,7 +4038,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 setIsRemoteOpen(true);
                 setRemoteInput("");
               }}
-              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center hover:scale-105 active:scale-115 cursor-pointer ${
+              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
                 isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
@@ -4486,7 +4458,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             useNewDesign={useNewDesign}
                             activeChannelName={active?.name}
                             isLargeLayout={isLargeLayout}
-                            quickSwitchEnabled={featureFlags?.quick_channel_switch || showChannelNumbers}
+                            quickSwitchEnabled={featureFlags.quick_channel_switch}
                           />
                         ))
                       )}
@@ -4535,64 +4507,6 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           ) : null}
         </div>
       </div>
-      )}
-
-      {/* FAVORITES VIEW IN THE LIVE TAB */}
-      {liveTabSection === "favorites" && (
-        <div className="mt-8 md:mt-12">
-          {favoriteChannelsFiltered.length === 0 ? (
-            <div className={`p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all max-w-xl mx-auto py-16 ${
-              isDark ? "border-white/10 bg-[#12131c]" : "border-slate-300 bg-slate-50 text-slate-800"
-            }`}>
-              <div className="p-4 rounded-3xl bg-red-500/10 text-red-500">
-                <Heart size={32} className="animate-pulse" />
-              </div>
-              <div className="text-center">
-                <p className="font-extrabold text-lg tracking-tight uppercase mb-1">Chưa có kênh yêu thích nào</p>
-                <p className="text-xs font-semibold opacity-60 max-w-sm mx-auto">Nhấp giữ hoặc nhấn chuột phải vào ô kênh bất kỳ rồi chọn "Thêm vào yêu thích" để tạo danh sách kênh riêng của bạn!</p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6 md:space-y-8 animate-in fade-in duration-300 slide-in-from-bottom-4">
-              <div className="flex items-center justify-between px-2">
-                <div className="flex items-center gap-3">
-                  <div className="h-6 w-[4px] bg-red-500 rounded-full" />
-                  <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>
-                    Kênh yêu thích của bạn
-                  </h3>
-                </div>
-                <span className="text-[10px] font-black px-3 py-1 bg-red-500/10 text-red-500 rounded-full">
-                  {favoriteChannelsFiltered.length} Kênh
-                </span>
-              </div>
-
-              <div className={
-                isLargeLayout 
-                  ? "grid grid-cols-2 gap-4 md:gap-8 animate-in fade-in" 
-                  : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6 animate-in fade-in"
-              }>
-                {favoriteChannelsFiltered.map((ch) => (
-                  <ChannelCard 
-                    key={`tv-fav-tab-${ch.name}-${ch.stream}`} 
-                    ch={ch} 
-                    onClick={(targetCh) => playChannelAndEnterFullscreen(targetCh || ch)} 
-                    isDark={isDark} 
-                    isActive={active.name === ch.name} 
-                    favorites={favorites} 
-                    toggleFavorite={toggleFavorite} 
-                    liquidGlass={liquidGlass}
-                    isLiveTab={true}
-                    onContextMenu={onChannelContextMenu}
-                    useNewDesign={useNewDesign}
-                    activeChannelName={active?.name}
-                    isLargeLayout={isLargeLayout}
-                    quickSwitchEnabled={featureFlags?.quick_channel_switch || showChannelNumbers}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
       )}
       </div>
 
@@ -4873,42 +4787,48 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsRemoteOpen(false)}
-              className="absolute inset-0 bg-transparent"
+              className="absolute inset-0 bg-black/60"
             />
             
             {/* Modal Keyboard Box */}
             <motion.div 
-              initial={{ scale: 1.35, opacity: 0 }}
+              initial={{ scale: 1.2, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.35, opacity: 0 }}
-              transition={{ ease: [0.34, 1.56, 0.64, 1], duration: 0.38 }}
-              className="relative w-full max-w-xs rounded-[32px] border border-white p-6 flex flex-col items-center shadow-[0_25px_60px_rgba(0,0,0,0.18),_0_0_30px_rgba(255,255,255,0.8)] bg-white text-slate-950"
+              exit={{ scale: 1.2, opacity: 0 }}
+              transition={{ type: "tween", ease: "easeIn", duration: 0.22 }}
+              className={`relative w-full max-w-xs rounded-[32px] border border-white/25 p-6 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.35),_inset_0_1.5px_2.5px_rgba(255,255,255,0.3)] ${
+                isDark ? "text-white" : "text-slate-900 border-slate-500/25 shadow-[0_20px_50px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.5)]"
+              }`}
               style={{
                 backdropFilter: "blur(15px)",
                 WebkitBackdropFilter: "blur(15px)",
-                backgroundColor: "rgba(255, 255, 255, 0.98)"
+                backgroundColor: isDark ? "rgba(0, 0, 0, 0)" : "rgba(255, 255, 255, 0.05)"
               }}
             >
               {/* Header */}
-              <div className="w-full flex items-center justify-between mb-4 border-b border-slate-950/10 pb-3">
+              <div className="w-full flex items-center justify-between mb-4 border-b border-slate-200/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <Smartphone size={18} className="text-blue-600" />
-                  <span className="text-xs font-black uppercase tracking-wider text-slate-900">Chuyển kênh nhanh</span>
+                  <Smartphone size={18} className="text-[#4AC4FE]" />
+                  <span className="text-xs font-black uppercase tracking-wider">Chuyển kênh nhanh</span>
                 </div>
                 <button 
                   onClick={() => setIsRemoteOpen(false)}
-                  className="p-1.5 rounded-full transition-colors hover:bg-slate-100 text-slate-800"
+                  className={`p-1.5 rounded-full transition-colors ${
+                    isDark ? "hover:bg-white/10 text-white/70" : "hover:bg-slate-100 text-slate-900"
+                  }`}
                 >
                   <X size={16} />
                 </button>
               </div>
 
               {/* Digital Screen Display on Remote */}
-              <div className="w-full mb-6 p-4 rounded-2xl flex flex-col items-center justify-center font-mono bg-slate-100/80 border border-slate-200">
-                <span className="text-3xl font-black tracking-widest text-blue-600">
+              <div className={`w-full mb-6 p-4 rounded-2xl flex flex-col items-center justify-center font-mono ${
+                isDark ? "bg-black/40 border border-white/5" : "bg-slate-100 border border-slate-200"
+              }`}>
+                <span className={`text-3xl font-black tracking-widest ${isDark ? "text-[#4AC4FE]" : "text-blue-600"}`}>
                   {remoteInput.padStart(3, "0")}
                 </span>
-                <span className="text-[10px] font-bold mt-1.5 min-h-[14px] truncate max-w-full text-center text-slate-600">
+                <span className={`text-[10px] font-bold mt-1.5 min-h-[14px] truncate max-w-full text-center ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                   {(() => {
                     const chNum = parseInt(remoteInput, 10);
                     if (isNaN(chNum) || chNum < 1 || chNum > channels.length) {
@@ -4930,7 +4850,11 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                         setRemoteInput(prev => prev + num);
                       }
                     }}
-                    className="h-11 rounded-full text-sm font-black flex items-center justify-center hover:scale-[1.08] active:scale-[1.18] transition-all bg-slate-50 border border-slate-200/80 text-slate-800 hover:bg-slate-100 cursor-pointer"
+                    className={`h-11 rounded-full text-sm font-black flex items-center justify-center active:scale-90 transition-all ${
+                      isDark 
+                        ? "bg-white/5 border border-white/10 text-white hover:bg-white/10" 
+                        : "bg-slate-50 border border-slate-200 text-slate-800 hover:bg-slate-100"
+                    }`}
                   >
                     {num}
                   </button>
@@ -4939,7 +4863,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 {/* Clear, 0, OK */}
                 <button
                   onClick={() => setRemoteInput("")}
-                  className="h-11 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center justify-center hover:scale-[1.08] active:scale-[1.18] transition-all bg-red-500/15 text-red-600 border border-red-500/20 hover:bg-red-500/25 cursor-pointer"
+                  className={`h-11 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20`}
                 >
                   CLEAR
                 </button>
@@ -4950,7 +4874,11 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       setRemoteInput(prev => prev + "0");
                     }
                   }}
-                  className="h-11 rounded-full text-sm font-black flex items-center justify-center hover:scale-[1.08] active:scale-[1.18] transition-all bg-slate-50 border border-slate-200/80 text-slate-800 hover:bg-slate-100 cursor-pointer"
+                  className={`h-11 rounded-full text-sm font-black flex items-center justify-center active:scale-90 transition-all ${
+                    isDark 
+                      ? "bg-white/5 border border-white/10 text-white hover:bg-white/10" 
+                      : "bg-slate-50 border border-slate-200 text-slate-800 hover:bg-slate-100"
+                  }`}
                 >
                   0
                 </button>
@@ -4968,7 +4896,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       showToast(`Đã chuyển sang ${matchedCh.name}`, "success");
                     }
                   }}
-                  className="h-11 rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center hover:scale-[1.08] active:scale-[1.18] transition-all bg-blue-100 text-blue-600 border border-blue-200 hover:bg-blue-200 cursor-pointer"
+                  className={`h-11 rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20 hover:bg-[#4AC4FE]/20 hover:text-white`}
                 >
                   OK
                 </button>
@@ -5938,7 +5866,6 @@ function RejuvenatedSettings(props: any) {
     isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
     liquidGlassBlur, setLiquidGlassBlur, liquidGlassOpacity, setLiquidGlassOpacity,
     useSidebar, setUseSidebar, isSidebarRight, setIsSidebarRight, isSidebarLocked, setIsSidebarLocked,
-    showChannelNumbers, setShowChannelNumbers,
     sidebarDisplay, setSidebarDisplay, isPinningEnabled, setIsPinningEnabled, user, userData, setUserData,
     onAlert, onLogin, onUpdateLogsClick, favorites, bypassed, loadingTreatment, setLoadingTreatment,
     tempUnit, setTempUnit, location, setLocation, timeFormat, setTimeFormat, clockFormat, setClockFormat,
@@ -6023,7 +5950,6 @@ function RejuvenatedSettings(props: any) {
     { id: "SystemInfo", name: "Thông tin phiên bản", icon: Info, keywords: ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái", "ổn định", "vplay", "canary", "metadata", "vnrt"] },
     { id: "Profile", name: "Quản lý hồ sơ", icon: User, keywords: ["tên", "email", "avatar", "đăng xuất", "hồ sơ", "vip", "account", "user", "hồ sơ", "tài khoản", "đổi tên", "ảnh đại diện"] },
     { id: "Appearance", name: "Chủ đề giao diện", icon: Palette, keywords: ["tối", "sáng", "màu", "sidebar", "navbar", "kính", "touch", "desktop", "chủ đạo", "nền", "màn hình", "interface", "light", "dark", "chế độ", "màu sắc", "màu chính"] },
-    { id: "Broadcast", name: "Phát sóng", icon: Tv, keywords: ["phát sóng", "hiện số", "kênh", "ô kênh", "quản lý phát sóng", "stream", "broadcast", "tivi"] },
     { id: "TopBar", name: "Topbar", icon: Monitor, keywords: ["đồng hồ", "lịch", "thời tiết", "nhiệt độ", "giờ", "định vị", "clock", "weather", "search", "tìm kiếm", "thanh tiêu đề", "topbar", "định dạng", "múi giờ", "nhiệt độ"] },
     { id: "Sidebar", name: "Sidebar", icon: Columns, keywords: ["sidebar", "phải", "trái", "co gọn", "compact", "quick access", "truy cập nhanh", "vị trí", "thanh bên"] },
     { id: "Floatbar", name: "Bottom bar", icon: GlassWater, keywords: ["bottom bar", "floatbar", "liquid glass", "kính", "glassy", "tinted", "mờ", "trong suốt", "hiệu ứng"] },
@@ -6049,23 +5975,6 @@ function RejuvenatedSettings(props: any) {
   const renderContent = (catId?: string) => {
     const id = catId || activeCategory;
     switch (id) {
-      case "Broadcast": {
-        const showChannelNumbersSetting = shouldShowSetting("Hiện số trên ô kênh", "Hiển thị số thứ tự kênh ở trên đầu góc trái các ô kênh", ["phát sóng", "hiện số", "kênh", "ô kênh", "số"]);
-        if (!showChannelNumbersSetting) return null;
-        return (
-          <div className="space-y-6 text-left origin-top animate-in fade-in duration-300">
-            <RejuvenatedSettingsItem 
-              icon={Tv} 
-              title="Hiện số trên ô kênh" 
-              description={showChannelNumbers ? "Đang hiển thị số thứ tự kênh tại góc trên bên trái của mỗi ô kênh" : "Đang ẩn số thứ tự kênh khỏi các ô kênh"}
-              onClick={() => setShowChannelNumbers(!showChannelNumbers)}
-              isDark={isDark}
-              isToggleable={true}
-              isToggled={showChannelNumbers}
-            />
-          </div>
-        );
-      }
       case "SystemInfo": {
         const showSystem = shouldShowSetting("Hệ thống Vplay", "Thông tin phiên bản Vplay VNRT, trạng thái hoạt động", ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái", "ổn định", "vplay", "canary", "metadata", "vnrt"]);
         if (!showSystem) return null;
@@ -7187,8 +7096,7 @@ function SettingsNew(props: any) {
     maxToolbarTabs, setMaxToolbarTabs, toastDuration, setToastDuration, locationDetection, setLocationDetection,
     toastMode, setToastMode,
     setActiveTab, settingsActivePage, setSettingsActivePage,
-    floatyBars, setFloatyBars,
-    showChannelNumbers, setShowChannelNumbers
+    floatyBars, setFloatyBars
   } = props;
 
   const [localActivePage, setLocalActivePage] = useState<number>(1);
@@ -8046,9 +7954,7 @@ function SettingsContent({
   headingBar,
   setHeadingBar,
   floatyBars,
-  setFloatyBars,
-  showChannelNumbers,
-  setShowChannelNumbers
+  setFloatyBars
 }: { 
   isDark: boolean, 
   setIsDark: (val: boolean) => void,
@@ -8102,9 +8008,7 @@ function SettingsContent({
   headingBar: boolean,
   setHeadingBar: (val: boolean) => void,
   floatyBars: boolean,
-  setFloatyBars: (val: boolean) => void,
-  showChannelNumbers?: boolean,
-  setShowChannelNumbers?: (val: boolean) => void
+  setFloatyBars: (val: boolean) => void
 }) {
   const [name, setName] = useState(user?.displayName || userData?.name || "Vplay User");
   const [avatar, setAvatar] = useState(user?.photoURL || userData?.avatar || "");
@@ -11109,8 +11013,6 @@ function WidgetsDashboard({
   setIsTouchInterface,
   floatyBars,
   setFloatyBars,
-  showChannelNumbers,
-  setShowChannelNumbers,
   sidebarQuickAccess,
   setSidebarQuickAccess,
   topbarSearchType,
@@ -11213,8 +11115,6 @@ function WidgetsDashboard({
   setIsTouchInterface: (v: boolean) => void,
   floatyBars: boolean,
   setFloatyBars: (v: boolean) => void,
-  showChannelNumbers?: boolean,
-  setShowChannelNumbers?: (val: boolean) => void,
   sidebarQuickAccess: boolean,
   setSidebarQuickAccess: (v: boolean) => void,
   topbarSearchType: "minimal" | "full" | "floating",
@@ -12564,8 +12464,6 @@ function WidgetsDashboard({
                               setFullScreenWidgets={setFullScreenWidgets}
                               frostedGlassWidgets={frostedGlassWidgets}
                               setFrostedGlassWidgets={setFrostedGlassWidgets}
-                              showChannelNumbers={showChannelNumbers}
-                              setShowChannelNumbers={setShowChannelNumbers}
                            />
                         </div>
                       </div>
@@ -13633,15 +13531,10 @@ const [headingBar, setHeadingBar] = useState(() => {
   const [showClock, setShowClock] = useState(() => localStorage.getItem("vplay_show_clock") !== "false");
   const [showDate, setShowDate] = useState(() => localStorage.getItem("vplay_show_date") !== "false");
   const [floatyBars, setFloatyBars] = useState<boolean>(() => localStorage.getItem("vplay_floaty_bars") === "true");
-  const [showChannelNumbers, setShowChannelNumbers] = useState<boolean>(() => localStorage.getItem("vplay_show_channel_numbers") === "true");
 
   useEffect(() => {
     localStorage.setItem("vplay_floaty_bars", floatyBars.toString());
   }, [floatyBars]);
-
-  useEffect(() => {
-    localStorage.setItem("vplay_show_channel_numbers", showChannelNumbers.toString());
-  }, [showChannelNumbers]);
 
   useEffect(() => {
     localStorage.setItem("vplay_show_clock", showClock.toString());
@@ -14584,8 +14477,6 @@ const [headingBar, setHeadingBar] = useState(() => {
         setIsTouchInterface={setIsTouchInterface}
         floatyBars={floatyBars}
         setFloatyBars={setFloatyBars}
-        showChannelNumbers={showChannelNumbers}
-        setShowChannelNumbers={setShowChannelNumbers}
         sidebarQuickAccess={sidebarQuickAccess}
         setSidebarQuickAccess={setSidebarQuickAccess}
         topbarSearchType={topbarSearchType}
@@ -15136,7 +15027,6 @@ const [headingBar, setHeadingBar] = useState(() => {
                   useNewDesign={useNewDesign}
                   activeChannelName={activeChannel?.name}
                   featureFlags={featureFlags}
-                  showChannelNumbers={showChannelNumbers}
                 />
               )}
               {displayTab === "Tìm kiếm" && (
@@ -15205,7 +15095,6 @@ const [headingBar, setHeadingBar] = useState(() => {
                   isTopBarVisible={isTopBarVisible}
                   useNewDesign={useNewDesign}
                   setUseNewDesign={setUseNewDesign}
-                  showChannelNumbers={showChannelNumbers}
                 />
               )}
               {displayTab === "Package" && (
@@ -15235,7 +15124,6 @@ const [headingBar, setHeadingBar] = useState(() => {
                   isTopBarVisible={isTopBarVisible}
                   useNewDesign={useNewDesign}
                   setUseNewDesign={setUseNewDesign}
-                  showChannelNumbers={showChannelNumbers}
                 />
               )}
               {displayTab === "Experiments" && (
@@ -15314,8 +15202,6 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setSettingsActivePage={setSettingsActivePage}
                       floatyBars={floatyBars}
                       setFloatyBars={setFloatyBars}
-                      showChannelNumbers={showChannelNumbers}
-                      setShowChannelNumbers={setShowChannelNumbers}
                     />
                   </div>
                 </div>
