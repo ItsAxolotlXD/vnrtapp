@@ -7687,6 +7687,25 @@ function SettingsNew(props: any) {
             {activePage === 5 && (
               <div className="space-y-6">
                 <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Chuyển kênh nhanh</h4>
+                  <div className="pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-sm text-left">Chuyển kênh nhanh</p>
+                          <p className="text-xs opacity-50 text-left font-normal animate-none">Tính năng nhập nhanh số kênh từ bàn phím điều khiển từ xa để chuyển kênh trực tiếp.</p>
+                        </div>
+                        <GlassToggle
+                          active={!!featureFlags.quick_channel_switch}
+                          onToggle={() => setFeatureFlags((prev: any) => ({ ...prev, quick_channel_switch: !prev.quick_channel_switch }))}
+                          isDark={isDark}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/5">
                   <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Picture in Picture</h4>
                   <div className="pl-3">
                     {renderBullet(
