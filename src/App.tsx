@@ -4006,40 +4006,46 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             isDark ? "bg-[#181818]/40 border-white/5" : "bg-slate-100 border-slate-200"
           }`}>
             <button
-              onClick={() => setLiveTabSection("channels")}
-              className={`px-5 py-2 rounded-[16px] text-xs font-normal tracking-wide uppercase transition-all flex items-center gap-1.5 ${
+              onClick={() => {
+                setLiveTabSection("channels");
+                setIsRemoteOpen(false);
+              }}
+              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
                 liveTabSection === "channels" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
+              title="Chuyển kênh"
             >
-              <Tv className="w-3.5 h-3.5" />
-              Chuyển kênh
+              <Tv className="w-4 h-4" />
             </button>
             <button
-              onClick={() => setLiveTabSection("schedule")}
-              className={`px-5 py-2 rounded-[16px] text-xs font-normal tracking-wide uppercase transition-all flex items-center gap-1.5 ${
+              onClick={() => {
+                setLiveTabSection("schedule");
+                setIsRemoteOpen(false);
+              }}
+              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
                 liveTabSection === "schedule" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
+              title="Lịch phát sóng"
             >
-              <Calendar className="w-3.5 h-3.5" />
-              Lịch phát sóng
+              <Calendar className="w-4 h-4" />
             </button>
             <button
               onClick={() => {
                 setIsRemoteOpen(true);
                 setRemoteInput("");
               }}
-              className={`px-5 py-2 rounded-[16px] text-xs font-normal tracking-wide uppercase transition-all flex items-center gap-1.5 ${
+              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
                 isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
+              title="Nhập số"
             >
-              <Smartphone className="w-3.5 h-3.5" />
-              Nhập số
+              <Smartphone className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -4790,11 +4796,14 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, y: 20, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className={`relative w-full max-w-xs rounded-[32px] border p-6 flex flex-col items-center shadow-2xl ${
-                isDark 
-                  ? "bg-[#18181b]/95 border-white/10 text-white" 
-                  : "bg-white/95 border-slate-200 text-slate-900"
-              } backdrop-blur-3xl`}
+              className={`relative w-full max-w-xs rounded-[32px] border border-white/25 p-6 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.35),_inset_0_1.5px_2.5px_rgba(255,255,255,0.3)] ${
+                isDark ? "text-white" : "text-slate-900 border-slate-500/25 shadow-[0_20px_50px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.5)]"
+              }`}
+              style={{
+                backdropFilter: "blur(15px)",
+                WebkitBackdropFilter: "blur(15px)",
+                backgroundColor: isDark ? "rgba(0, 0, 0, 0)" : "rgba(255, 255, 255, 0.05)"
+              }}
             >
               {/* Header */}
               <div className="w-full flex items-center justify-between mb-4 border-b border-slate-200/10 pb-3">
@@ -4841,9 +4850,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                         setRemoteInput(prev => prev + num);
                       }
                     }}
-                    className={`h-12 rounded-xl text-base font-black flex items-center justify-center active:scale-90 transition-all ${
+                    className={`h-11 rounded-full text-sm font-black flex items-center justify-center active:scale-90 transition-all ${
                       isDark 
-                        ? "bg-white/5 border border-white/5 text-white hover:bg-white/10" 
+                        ? "bg-white/5 border border-white/10 text-white hover:bg-white/10" 
                         : "bg-slate-50 border border-slate-200 text-slate-800 hover:bg-slate-100"
                     }`}
                   >
@@ -4854,7 +4863,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 {/* Clear, 0, OK */}
                 <button
                   onClick={() => setRemoteInput("")}
-                  className={`h-12 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-red-500/10 text-red-500 hover:bg-red-500/20`}
+                  className={`h-11 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20`}
                 >
                   CLEAR
                 </button>
@@ -4865,9 +4874,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       setRemoteInput(prev => prev + "0");
                     }
                   }}
-                  className={`h-12 rounded-xl text-base font-black flex items-center justify-center active:scale-90 transition-all ${
+                  className={`h-11 rounded-full text-sm font-black flex items-center justify-center active:scale-90 transition-all ${
                     isDark 
-                      ? "bg-white/5 border border-white/5 text-white hover:bg-white/10" 
+                      ? "bg-white/5 border border-white/10 text-white hover:bg-white/10" 
                       : "bg-slate-50 border border-slate-200 text-slate-800 hover:bg-slate-100"
                   }`}
                 >
@@ -4887,7 +4896,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       showToast(`Đã chuyển sang ${matchedCh.name}`, "success");
                     }
                   }}
-                  className="h-12 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-emerald-500 text-slate-950 font-extrabold hover:bg-emerald-450"
+                  className={`h-11 rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20 hover:bg-[#4AC4FE]/20 hover:text-white`}
                 >
                   OK
                 </button>
