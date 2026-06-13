@@ -9632,11 +9632,11 @@ function TopBar({
       className={`h-14 flex items-center justify-between px-4 z-[130] backdrop-blur-[3px] border ${
         floatyBars 
           ? "rounded-none border-x-0 border-t-0 shadow-[0_12px_24px_rgba(0,0,0,0.1),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] border-b-white/[0.06]" 
-          : "rounded-2xl md:rounded-full border"
+          : "rounded-2xl border"
       } ${
         isDark 
-          ? "bg-[#181818]/60 border-white/[0.06] text-white shadow-[0_15px_35px_rgba(0,0,0,0.18),_inset_0_1.5px_3px_rgba(255,255,255,0.22)]" 
-          : "bg-white/60 border-slate-200/40 text-slate-800 shadow-[0_12px_30px_rgba(0,0,0,0.06),_inset_0_1.5px_3px_rgba(255,255,255,0.45)]"
+          ? "bg-[#181818]/60 border-white/[0.06] text-white shadow-[0_6px_20px_rgba(0,0,0,0.12),_inset_0_1px_2px_rgba(255,255,255,0.12)]" 
+          : "bg-white/60 border-slate-200/40 text-slate-800 shadow-[0_6px_20px_rgba(0,0,0,0.04),_inset_0_1px_2px_rgba(255,255,255,0.25)]"
       }`}
     >
       <div className="flex items-center gap-2">
@@ -9679,7 +9679,7 @@ function TopBar({
         {topbarSearchType === "icon" ? (
           isSearchButtonExpanded ? (
             <div 
-              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border ${
+              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.01] hover:border-[#4AC4FE]/40 active:scale-[0.99] relative rounded-xl border ${
                 isDark 
                   ? (isListening 
                       ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)]" 
@@ -9720,7 +9720,7 @@ function TopBar({
           ) : null
         ) : (
           <div 
-            className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border ${
+            className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.01] hover:border-[#4AC4FE]/40 active:scale-[0.99] relative rounded-xl border ${
               isDark 
                 ? (isListening 
                     ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)]" 
@@ -15110,7 +15110,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 isMobile 
                   ? `${headingBar ? "top-14 h-[calc(100%-56px)]" : "top-0 h-full"} !rounded-none !m-0 !left-0 !right-0 transition-none border-none` 
                   : !floatyBars 
-                    ? `h-[calc(100vh-24px)] ${headingBar ? "top-[76px] h-[calc(100vh-88px)]" : "top-3"} rounded-3xl`
+                    ? `h-[calc(100vh-24px)] ${headingBar ? "top-[76px] h-[calc(100vh-88px)]" : "top-3"} rounded-2xl`
                     : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 rounded-none shadow-2xl`
               } ${
                 isDark 
@@ -15125,8 +15125,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                 WebkitBackdropFilter: "blur(12px)",
                 boxShadow: !floatyBars && !isMobile
                   ? (isDark 
-                      ? "0 22px 50px rgba(0,0,0,0.22), inset 0 1.5px 3px rgba(255,255,255,0.22)" 
-                      : "0 15px 35px rgba(0,0,0,0.08), inset 0 1.5px 3px rgba(255,255,255,0.45)")
+                      ? "0 8px 30px rgba(0,0,0,0.16), inset 0 1px 2px rgba(255,255,255,0.15)" 
+                      : "0 8px 30px rgba(0,0,0,0.05), inset 0 1px 2px rgba(255,255,255,0.3)")
                   : undefined
               }}
             >
