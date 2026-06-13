@@ -3999,7 +3999,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         </div>
       )}
 
-      {/* 2 SMALL TABS IN THE LIVE TAB: CHUYỂN KÊNH & LỊCH PHÁT SÓNG */}
+      {/* 3 SMALL TABS IN THE LIVE TAB: CHUYỂN KÊNH, LỊCH PHÁT SÓNG & NHẬP SỐ */}
       {mode === "live" && (
         <div className="flex justify-center mt-6 mb-2">
           <div className={`p-1 rounded-[20px] border flex gap-1 ${
@@ -4008,7 +4008,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             <button
               onClick={() => setLiveTabSection("channels")}
               className={`px-5 py-2 rounded-[16px] text-xs font-normal tracking-wide uppercase transition-all flex items-center gap-1.5 ${
-                liveTabSection === "channels"
+                liveTabSection === "channels" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
@@ -4019,13 +4019,27 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             <button
               onClick={() => setLiveTabSection("schedule")}
               className={`px-5 py-2 rounded-[16px] text-xs font-normal tracking-wide uppercase transition-all flex items-center gap-1.5 ${
-                liveTabSection === "schedule"
+                liveTabSection === "schedule" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
             >
               <Calendar className="w-3.5 h-3.5" />
               Lịch phát sóng
+            </button>
+            <button
+              onClick={() => {
+                setIsRemoteOpen(true);
+                setRemoteInput("");
+              }}
+              className={`px-5 py-2 rounded-[16px] text-xs font-normal tracking-wide uppercase transition-all flex items-center gap-1.5 ${
+                isRemoteOpen
+                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
+                  : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              Nhập số
             </button>
           </div>
         </div>
