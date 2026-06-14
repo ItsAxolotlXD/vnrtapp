@@ -1255,12 +1255,12 @@ function HomeContent({
   }, []);
 
   return (
-    <div className="relative pb-32 w-full mx-auto flex flex-col space-y-8 md:space-y-16">
+    <div className="relative space-y-16 pb-32 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-4 md:px-12">
       {/* Dynamic Hero Section */}
       <div 
         onTouchStart={handleSlideTouchStart}
         onTouchEnd={handleSlideTouchEnd}
-        className="relative w-full overflow-visible select-none"
+        className="relative w-full overflow-visible py-4 select-none"
       >
         {/* Carousel 3D Track */}
         <div className="relative w-full max-w-6xl mx-auto aspect-[16/9] md:aspect-[2.2/1] overflow-visible">
@@ -1329,8 +1329,8 @@ function HomeContent({
                   setActiveTab("Live");
                 }
               }}
-              className={`w-full h-full rounded-none md:rounded-[32px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.65)] border-none md:border md:border-white/10 relative transform scale-100 transition-all duration-500 ${
-                (slides[slideIndex]?.channel || slides[slideIndex]?.action) ? "cursor-pointer group/card md:border-white/20 hover:md:border-[#4AC4FE]/40" : ""
+              className={`w-full h-full rounded-[32px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.65)] border border-white/10 relative transform scale-100 transition-all duration-500 ${
+                (slides[slideIndex]?.channel || slides[slideIndex]?.action) ? "cursor-pointer group/card border-white/20 hover:border-[#4AC4FE]/40" : ""
               }`}
             >
               <AnimatePresence initial={false} custom={direction}>
@@ -1421,38 +1421,36 @@ function HomeContent({
         </div>
       </div>
 
-      {/* Main content sections with standard margins and padding */}
-      <div className="px-4 md:px-12 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto space-y-10 md:space-y-16">
-        {/* Mobile Slide Info (shown outside the thumbnail image/box) */}
-        <div className="block md:hidden pb-1 -mt-4">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`mob-text-${slideIndex}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-1.5"
-            >
-              <div className="flex items-center gap-1.5">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20 text-[9px] font-black uppercase tracking-wider">
-                  {slides[slideIndex]?.tag}
+      {/* Mobile Slide Info (shown outside the thumbnail image/box) */}
+      <div className="block md:hidden px-2 -mt-4 mb-2">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`mob-text-${slideIndex}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-1.5"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20 text-[9px] font-black uppercase tracking-wider">
+                {slides[slideIndex]?.tag}
+              </span>
+              {slides[slideIndex]?.channel && (
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase tracking-wider animate-pulse">
+                  <Play size={8} fill="currentColor" /> QUA TRỰC TIẾP
                 </span>
-                {slides[slideIndex]?.channel && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase tracking-wider animate-pulse">
-                    <Play size={8} fill="currentColor" /> QUA TRỰC TIẾP
-                  </span>
-                )}
-              </div>
-              <h3 className={`text-base font-black uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-                {slides[slideIndex]?.title}
-              </h3>
-              <p className={`text-xs font-semibold leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"} line-clamp-3`}>
-                {slides[slideIndex]?.desc}
-              </p>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+              )}
+            </div>
+            <h3 className={`text-base font-black uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+              {slides[slideIndex]?.title}
+            </h3>
+            <p className={`text-xs font-semibold leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"} line-clamp-3`}>
+              {slides[slideIndex]?.desc}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       {/* VTV6 Return Banner */}
       <motion.div 
@@ -1717,8 +1715,6 @@ function HomeContent({
           </div>
         </div>
       )}
-
-      </div>
     </div>
   );
 }
@@ -6165,7 +6161,13 @@ function RejuvenatedSettings(props: any) {
           <div className="space-y-6">
             {showInfo && (
               <div className={`p-5 md:p-10 rounded-[20px] md:rounded-[32px] border flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-8 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-                 <img src={profileAvatar || user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white/10 shadow-xl shrink-0" />
+                 {profileAvatar || user?.photoURL ? (
+                   <img src={profileAvatar || user?.photoURL} className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white/10 shadow-xl shrink-0 object-cover" />
+                 ) : (
+                   <div className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white/10 shadow-xl shrink-0 flex items-center justify-center bg-slate-800 text-white">
+                     <User size={36} />
+                   </div>
+                 )}
                  <div className="space-y-2 text-left">
                     <h3 className="text-2xl md:text-3xl font-bold tracking-tight">{profileName || user?.displayName || "Người dùng Vplay"}</h3>
                     <p className="opacity-50 text-sm md:text-base">{user?.email || "Chưa xác minh email (Khách)"}</p>
@@ -14254,7 +14256,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             const fallbackUserData: any = {
               uid: currentUser.uid,
               displayName: currentUser.displayName || "Tài khoản Vplay",
-              photoURL: currentUser.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
+              photoURL: currentUser.photoURL || "",
               role: role,
               createdAt: new Date().toISOString()
             };
@@ -14288,7 +14290,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             uid: currentUser.uid,
             email: currentUser.email || "",
             displayName: currentUser.displayName || "Tài khoản Vplay",
-            photoURL: currentUser.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
+            photoURL: currentUser.photoURL || "",
             role: role,
             createdAt: new Date().toISOString()
           });
@@ -15777,12 +15779,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           ) : (
                             <Icon size={isCompact ? (isActive ? 30 : 24) : 20} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? activeColorClass : (isDark ? "text-white/70" : "text-slate-600")} group-hover:scale-110`} />
                           )}
-                          {(tab.id === "Cài đặt" || tab.name === "Cài đặt" || tab.id === "Settings (new)" || tab.name === "Settings (new)") && (
-                            <div className="absolute -top-1.5 -right-3.5 px-1 py-0.2 bg-sky-400 text-[8px] text-slate-900 rounded font-black leading-none scale-[0.8]">
-                              NEW
-                            </div>
-                          )}
-                          {(tab.id === "Cài đặt" || tab.name === "Cài đặt") && !user && (
+                          {tab.id === "Cài đặt" && !user && (
                             <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[9px] font-black shadow-md border border-slate-900 animate-pulse">
                               !
                             </div>
@@ -15993,16 +15990,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 className="z-10 relative flex items-center justify-center"
                               >
-                                <Icon className={`h-5.5 w-5.5 flex-shrink-0 transition-colors duration-300 ${
+                                <Icon className={`h-6.5 w-6.5 flex-shrink-0 transition-colors duration-300 ${
                                   isActive 
                                     ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.12)] stroke-[2px]" 
-                                    : isDark ? "text-white/60 hover:text-white" : "text-slate-800/70 hover:text-slate-900"
+                                    : "text-black/60 hover:text-black"
                                 }`} />
-                                {(tabId === "Cài đặt" || tabId === "Settings (new)") && (
-                                  <div className="absolute -top-1 -right-3 px-1 py-0.2 bg-sky-400 text-[8px] text-slate-900 rounded font-black leading-none scale-90 shadow-sm z-20">
-                                    NEW
-                                  </div>
-                                )}
                                 {tabId === "Cài đặt" && !user && (
                                   <div className="absolute -top-1 -right-1.5 w-3 h-3 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[8px] font-extrabold shadow-md border border-slate-900 animate-pulse z-20">
                                     !
