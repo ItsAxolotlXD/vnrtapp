@@ -719,7 +719,7 @@ const getProvinceName = (fullName: string) => {
   return name.split("(")[0].trim();
 };
 
-const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign, activeChannelName, isLargeLayout, quickSwitchEnabled }: {
+const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, useNewDesign, activeChannelName, isLargeLayout, quickSwitchEnabled, showChannelNumbers }: {
   ch: Channel,
   onClick: (targetCh?: Channel) => void,
   isDark: boolean,
@@ -734,7 +734,8 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
   useNewDesign?: boolean,
   activeChannelName?: string,
   isLargeLayout?: boolean,
-  quickSwitchEnabled?: boolean
+  quickSwitchEnabled?: boolean,
+  showChannelNumbers?: boolean
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
@@ -860,7 +861,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         }`}
       >
 
-        {quickSwitchEnabled ? (
+        {showChannelNumbers || quickSwitchEnabled ? (
           <div className={`absolute top-2 left-2 text-[10px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded-md z-20 shadow-sm ${
             isDark ? "bg-[#18181c]/90 text-[#4AC4FE] border border-white/5" : "bg-white/90 text-blue-600 border border-slate-200"
           }`}>
@@ -1106,7 +1107,8 @@ function HomeContent({
   onChannelContextMenu,
   useNewDesign,
   activeChannelName,
-  featureFlags
+  featureFlags,
+  showChannelNumbers
 }: {
   setActiveTab: (tab: string) => void,
   setActiveChannel: (ch: typeof channels[0]) => void,
@@ -1124,7 +1126,8 @@ function HomeContent({
   onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
   useNewDesign?: boolean,
   activeChannelName?: string,
-  featureFlags?: { [key: string]: boolean }
+  featureFlags?: { [key: string]: boolean },
+  showChannelNumbers?: boolean
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
   
@@ -1586,6 +1589,7 @@ function HomeContent({
                       useNewDesign={useNewDesign}
                       activeChannelName={activeChannelName}
                       quickSwitchEnabled={featureFlags?.quick_channel_switch}
+                      showChannelNumbers={showChannelNumbers}
                     />
                     <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-300" : "text-slate-400"}`}>
                       {ch.name}
@@ -1623,6 +1627,7 @@ function HomeContent({
                     useNewDesign={useNewDesign}
                     activeChannelName={activeChannelName}
                     quickSwitchEnabled={featureFlags?.quick_channel_switch}
+                    showChannelNumbers={showChannelNumbers}
                   />
                   <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                     {ch.name}
@@ -1704,6 +1709,7 @@ function HomeContent({
                 useNewDesign={useNewDesign}
                 activeChannelName={activeChannelName}
                 quickSwitchEnabled={featureFlags?.quick_channel_switch}
+                showChannelNumbers={showChannelNumbers}
               />
             ))}
           </div>
@@ -1939,7 +1945,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign }: { 
+function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -1965,7 +1971,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   togglePinChannel: (ch: Channel) => void,
   isTopBarVisible?: boolean,
   useNewDesign?: boolean,
-  setUseNewDesign?: (val: boolean) => void
+  setUseNewDesign?: (val: boolean) => void,
+  showChannelNumbers?: boolean
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1980,7 +1987,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   const [remoteInput, setRemoteInput] = useState("");
 
   const [liveSubTab, setLiveSubTab] = useState<"vplay" | "custom" | "url">(mode === "realm" ? "custom" : "vplay");
-  const [liveTabSection, setLiveTabSection] = useState<"channels" | "schedule">("channels");
+  const [liveTabSection, setLiveTabSection] = useState<"channels" | "schedule" | "favorites">("channels");
   const [isLargeLayout, setIsLargeLayout] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem("vplay_is_large_layout");
@@ -3999,7 +4006,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         </div>
       )}
 
-      {/* 3 SMALL TABS IN THE LIVE TAB: CHUYỂN KÊNH, LỊCH PHÁT SÓNG & NHẬP SỐ */}
+      {/* 4 SMALL TABS IN THE LIVE TAB: CHUYỂN KÊNH, LỊCH PHÁT SÓNG, YÊU THÍCH & NHẬP SỐ */}
       {mode === "live" && (
         <div className="flex justify-center mt-6 mb-2">
           <div className={`p-1 rounded-[20px] border flex gap-1 ${
@@ -4032,6 +4039,20 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               title="Lịch phát sóng"
             >
               <Calendar className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                setLiveTabSection("favorites");
+                setIsRemoteOpen(false);
+              }}
+              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
+                liveTabSection === "favorites" && !isRemoteOpen
+                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
+                  : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
+              }`}
+              title="Yêu thích"
+            >
+              <Heart className="w-4 h-4" />
             </button>
             <button
               onClick={() => {
@@ -4459,6 +4480,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             activeChannelName={active?.name}
                             isLargeLayout={isLargeLayout}
                             quickSwitchEnabled={featureFlags.quick_channel_switch}
+                            showChannelNumbers={showChannelNumbers}
                           />
                         ))
                       )}
@@ -4507,6 +4529,67 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           ) : null}
         </div>
       </div>
+      )}
+
+      {/* FAVORITES SUB-TAB CONTENT */}
+      {mode === "live" && liveTabSection === "favorites" && (
+        <div className="mt-8 md:mt-12 space-y-6 md:space-y-8">
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-3">
+              <div className="h-6 md:h-8 w-[4px] bg-red-500 rounded-full" />
+              <h3 className={`text-xl md:text-3xl font-extrabold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>
+                Kênh yêu thích ({favorites.length})
+              </h3>
+            </div>
+            <span className={`text-[10px] font-black px-3 py-1 rounded-full ${isDark ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-500"}`}>
+              {favorites.length} Kênh
+            </span>
+          </div>
+
+          {channels.filter(ch => favorites.includes(ch.name)).length === 0 ? (
+            <div className={`p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all max-w-xl mx-auto py-16 ${
+              isDark ? "border-white/10 bg-[#181818]/30" : "border-slate-300 bg-slate-50/50"
+            }`}>
+              <div className="p-4 rounded-3xl bg-red-500/10 text-red-500">
+                <Heart size={32} className="fill-none animate-pulse" />
+              </div>
+              <div className="text-center">
+                <p className="font-extrabold text-lg tracking-tight uppercase mb-1">Chưa có kênh yêu thích</p>
+                <p className="text-xs font-semibold opacity-60 max-w-sm mx-auto">
+                  Hãy nhấn nút Trái tim (Yêu thích) ở cạnh trình phát hoặc menu chuột phải để lưu kênh vào đây để truy cập nhanh chóng.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className={
+              isLargeLayout 
+                ? "grid grid-cols-2 gap-4 md:gap-8" 
+                : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"
+            }>
+              {channels
+                .filter(ch => favorites.includes(ch.name))
+                .map((ch) => (
+                  <ChannelCard 
+                    key={`fav-tab-${ch.name}`} 
+                    ch={ch} 
+                    onClick={(targetCh) => playChannelAndEnterFullscreen(targetCh || ch)} 
+                    isDark={isDark} 
+                    isActive={active.name === ch.name} 
+                    favorites={favorites} 
+                    toggleFavorite={toggleFavorite} 
+                    liquidGlass={liquidGlass}
+                    isLiveTab={true}
+                    onContextMenu={onChannelContextMenu}
+                    useNewDesign={useNewDesign}
+                    activeChannelName={active?.name}
+                    isLargeLayout={isLargeLayout}
+                    quickSwitchEnabled={featureFlags.quick_channel_switch}
+                    showChannelNumbers={showChannelNumbers}
+                  />
+                ))}
+            </div>
+          )}
+        </div>
       )}
       </div>
 
@@ -4786,23 +4869,31 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setIsRemoteOpen(false)}
-              className="absolute inset-0 bg-black/60"
+              className="absolute inset-0"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.10)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)"
+              }}
             />
             
             {/* Modal Keyboard Box */}
             <motion.div 
-              initial={{ scale: 1.2, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.2, opacity: 0 }}
-              transition={{ type: "tween", ease: "easeIn", duration: 0.22 }}
-              className={`relative w-full max-w-xs rounded-[32px] border border-white/25 p-6 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.35),_inset_0_1.5px_2.5px_rgba(255,255,255,0.3)] ${
-                isDark ? "text-white" : "text-slate-900 border-slate-500/25 shadow-[0_20px_50px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.5)]"
+              initial={{ scale: 0.85, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: 30 }}
+              transition={{ type: "spring", stiffness: 260, damping: 25 }}
+              className={`relative w-full max-w-xs rounded-[32px] border p-6 flex flex-col items-center shadow-2xl ${
+                isDark 
+                  ? "border-white/20 text-white bg-slate-900/40" 
+                  : "border-slate-200/50 text-slate-900 bg-white/45"
               }`}
               style={{
-                backdropFilter: "blur(15px)",
-                WebkitBackdropFilter: "blur(15px)",
-                backgroundColor: isDark ? "rgba(0, 0, 0, 0)" : "rgba(255, 255, 255, 0.05)"
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.12)"
               }}
             >
               {/* Header */}
@@ -4813,7 +4904,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 </div>
                 <button 
                   onClick={() => setIsRemoteOpen(false)}
-                  className={`p-1.5 rounded-full transition-colors ${
+                  className={`p-1.5 rounded-full transition-all active:scale-115 hover:scale-105 duration-200 ${
                     isDark ? "hover:bg-white/10 text-white/70" : "hover:bg-slate-100 text-slate-900"
                   }`}
                 >
@@ -4850,7 +4941,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                         setRemoteInput(prev => prev + num);
                       }
                     }}
-                    className={`h-11 rounded-full text-sm font-black flex items-center justify-center active:scale-90 transition-all ${
+                    className={`h-11 rounded-full text-sm font-black flex items-center justify-center active:scale-115 hover:scale-105 transition-all duration-200 ${
                       isDark 
                         ? "bg-white/5 border border-white/10 text-white hover:bg-white/10" 
                         : "bg-slate-50 border border-slate-200 text-slate-800 hover:bg-slate-100"
@@ -4863,7 +4954,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 {/* Clear, 0, OK */}
                 <button
                   onClick={() => setRemoteInput("")}
-                  className={`h-11 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20`}
+                  className={`h-11 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center justify-center active:scale-115 hover:scale-105 transition-all duration-200 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20`}
                 >
                   CLEAR
                 </button>
@@ -4874,7 +4965,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       setRemoteInput(prev => prev + "0");
                     }
                   }}
-                  className={`h-11 rounded-full text-sm font-black flex items-center justify-center active:scale-90 transition-all ${
+                  className={`h-11 rounded-full text-sm font-black flex items-center justify-center active:scale-115 hover:scale-105 transition-all duration-200 ${
                     isDark 
                       ? "bg-white/5 border border-white/10 text-white hover:bg-white/10" 
                       : "bg-slate-50 border border-slate-200 text-slate-800 hover:bg-slate-100"
@@ -4896,7 +4987,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                       showToast(`Đã chuyển sang ${matchedCh.name}`, "success");
                     }
                   }}
-                  className={`h-11 rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center active:scale-95 transition-all bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20 hover:bg-[#4AC4FE]/20 hover:text-white`}
+                  className={`h-11 rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center active:scale-115 hover:scale-105 transition-all duration-200 bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20 hover:bg-[#4AC4FE]/20 hover:text-white`}
                 >
                   OK
                 </button>
@@ -7096,7 +7187,8 @@ function SettingsNew(props: any) {
     maxToolbarTabs, setMaxToolbarTabs, toastDuration, setToastDuration, locationDetection, setLocationDetection,
     toastMode, setToastMode,
     setActiveTab, settingsActivePage, setSettingsActivePage,
-    floatyBars, setFloatyBars
+    floatyBars, setFloatyBars,
+    showChannelNumbers, setShowChannelNumbers
   } = props;
 
   const [localActivePage, setLocalActivePage] = useState<number>(1);
@@ -7150,7 +7242,8 @@ function SettingsNew(props: any) {
     { num: 2, label: "Accessibility", icon: Accessibility },
     { num: 3, label: "Chủ đề giao diện", icon: Palette },
     { num: 4, label: "Toolbars", icon: LayoutGrid },
-    { num: 5, label: "Thử nghiệm", icon: Pizza }
+    { num: 5, label: "Thử nghiệm", icon: Pizza },
+    { num: 6, label: "Phát sóng", icon: Radio }
   ];
 
   // Helper styles
@@ -7888,6 +7981,30 @@ function SettingsNew(props: any) {
                   <div className="pl-3 space-y-2">
                     {renderBullet(
                       <p className="text-sm font-normal text-left">Các tính năng thử nghiệm khác (Multiview, quay màn hình, v.v.) đã chính thức trở thành tính năng chính của hệ thống và được bật mặc định!</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Page 6: Broadcast Settings (Cài đặt phát sóng) */}
+            {activePage === 6 && (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Hành vi phát sóng</h4>
+                  <div className="pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-sm text-left">Hiện số trên ô kênh</p>
+                          <p className="text-xs opacity-50 text-left font-normal animate-none">Hiện số thứ tự kênh phía trên góc trái của mỗi ô kênh để dễ dàng ghi nhớ và nhập số chuyển kênh nhanh.</p>
+                        </div>
+                        <GlassToggle
+                          active={showChannelNumbers}
+                          onToggle={() => setShowChannelNumbers(!showChannelNumbers)}
+                          isDark={isDark}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
@@ -12788,6 +12905,10 @@ function App() {
     return saved === "stack" ? "stack" : "single";
   });
 
+  const [showChannelNumbers, setShowChannelNumbers] = useState<boolean>(() => {
+    return localStorage.getItem("vplay_show_channel_numbers") === "true";
+  });
+
   useEffect(() => {
     localStorage.setItem("vplay_max_toolbar_tabs", maxToolbarTabs.toString());
   }, [maxToolbarTabs]);
@@ -12799,6 +12920,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem("vplay_toast_mode", toastMode);
   }, [toastMode]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_show_channel_numbers", showChannelNumbers ? "true" : "false");
+  }, [showChannelNumbers]);
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [toastQueue, setToastQueue] = useState<ToastMessage[]>([]);
@@ -15027,6 +15152,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   useNewDesign={useNewDesign}
                   activeChannelName={activeChannel?.name}
                   featureFlags={featureFlags}
+                  showChannelNumbers={showChannelNumbers}
                 />
               )}
               {displayTab === "Tìm kiếm" && (
@@ -15095,6 +15221,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   isTopBarVisible={isTopBarVisible}
                   useNewDesign={useNewDesign}
                   setUseNewDesign={setUseNewDesign}
+                  showChannelNumbers={showChannelNumbers}
                 />
               )}
               {displayTab === "Package" && (
@@ -15124,6 +15251,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   isTopBarVisible={isTopBarVisible}
                   useNewDesign={useNewDesign}
                   setUseNewDesign={setUseNewDesign}
+                  showChannelNumbers={showChannelNumbers}
                 />
               )}
               {displayTab === "Experiments" && (
@@ -15202,6 +15330,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setSettingsActivePage={setSettingsActivePage}
                       floatyBars={floatyBars}
                       setFloatyBars={setFloatyBars}
+                      showChannelNumbers={showChannelNumbers}
+                      setShowChannelNumbers={setShowChannelNumbers}
                     />
                   </div>
                 </div>
