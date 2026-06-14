@@ -4009,64 +4009,64 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       {/* 4 SMALL TABS IN THE LIVE TAB: CHUYỂN KÊNH, LỊCH PHÁT SÓNG, YÊU THÍCH & NHẬP SỐ */}
       {mode === "live" && (
         <div className="flex justify-center mt-6 mb-2">
-          <div className={`p-1 rounded-[20px] border flex gap-1 ${
-            isDark ? "bg-[#181818]/40 border-white/5" : "bg-slate-100 border-slate-200"
+          <div className={`p-1.5 rounded-full border flex gap-1 items-center flex-wrap justify-center ${
+            isDark ? "bg-[#181818]/60 border-white/5" : "bg-slate-100 border-slate-200"
           }`}>
             <button
               onClick={() => {
                 setLiveTabSection("channels");
                 setIsRemoteOpen(false);
               }}
-              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
+              className={`px-4 py-2.5 rounded-full transition-all flex items-center gap-2 text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "channels" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
-              title="Chuyển kênh"
             >
               <Tv className="w-4 h-4" />
+              <span className="text-[10px] uppercase tracking-wider">KÊNH</span>
             </button>
             <button
               onClick={() => {
                 setLiveTabSection("schedule");
                 setIsRemoteOpen(false);
               }}
-              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
+              className={`px-4 py-2.5 rounded-full transition-all flex items-center gap-2 text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "schedule" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
-              title="Lịch phát sóng"
             >
               <Calendar className="w-4 h-4" />
+              <span className="text-[10px] uppercase tracking-wider">Lịch chiếu</span>
             </button>
             <button
               onClick={() => {
                 setLiveTabSection("favorites");
                 setIsRemoteOpen(false);
               }}
-              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
+              className={`px-4 py-2.5 rounded-full transition-all flex items-center gap-2 text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "favorites" && !isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
-              title="Yêu thích"
             >
               <Heart className="w-4 h-4" />
+              <span className="text-[10px] uppercase tracking-wider">Yêu thích</span>
             </button>
             <button
               onClick={() => {
                 setIsRemoteOpen(true);
                 setRemoteInput("");
               }}
-              className={`p-2.5 rounded-[16px] transition-all flex items-center justify-center ${
+              className={`px-4 py-2.5 rounded-full transition-all flex items-center gap-2 text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 isRemoteOpen
                   ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
-              title="Nhập số"
             >
               <Smartphone className="w-4 h-4" />
+              <span className="text-[10px] uppercase tracking-wider">Nhập số</span>
             </button>
           </div>
         </div>
@@ -4836,7 +4836,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             </div>
 
                             {/* Program Title */}
-                            <div className="flex-1 space-y-0.5">
+                            <div className="flex-1 space-y-0.5 text-left">
                               <p className={`text-[11px] sm:text-xs leading-tight font-black uppercase tracking-tight ${
                                 isActive ? "text-[#4AC4FE]" : ""
                               }`}>
@@ -4864,36 +4864,36 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       <AnimatePresence>
         {isRemoteOpen && (
           <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-            {/* Backdrop */}
+            {/* Backdrop: Completely transparent, zero blur, zero overlay as requested */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setIsRemoteOpen(false)}
-              className="absolute inset-0"
+              className="absolute inset-0 bg-transparent cursor-pointer"
               style={{
-                backgroundColor: "rgba(255, 255, 255, 0.10)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)"
+                backdropFilter: "none",
+                WebkitBackdropFilter: "none"
               }}
             />
             
-            {/* Modal Keyboard Box */}
+            {/* Modal Keyboard Box: White overlay, blur 20% (20px), opacity 10%, Zoom near-to-far */}
             <motion.div 
-              initial={{ scale: 0.85, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.85, opacity: 0, y: 30 }}
-              transition={{ type: "spring", stiffness: 260, damping: 25 }}
+              initial={{ scale: 1.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 280, damping: 26 }}
               className={`relative w-full max-w-xs rounded-[32px] border p-6 flex flex-col items-center shadow-2xl ${
                 isDark 
-                  ? "border-white/20 text-white bg-slate-900/40" 
-                  : "border-slate-200/50 text-slate-900 bg-white/45"
+                  ? "border-white/20 text-white" 
+                  : "border-slate-200/50 text-slate-800"
               }`}
               style={{
-                backdropFilter: "blur(24px)",
-                WebkitBackdropFilter: "blur(24px)",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.12)"
+                backgroundColor: "rgba(255, 255, 255, 0.10)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)"
               }}
             >
               {/* Header */}
@@ -7199,9 +7199,73 @@ function SettingsNew(props: any) {
   const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState("");
 
+  const [profileAvatar, setProfileAvatar] = useState(() => {
+    return user?.photoURL || userData?.avatar || localStorage.getItem("vplay_guest_avatar") || "";
+  });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const profileFileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     setNewDisplayName(user?.displayName || userData?.name || guestName);
   }, [user, userData, guestName]);
+
+  useEffect(() => {
+    setProfileAvatar(user?.photoURL || userData?.avatar || localStorage.getItem("vplay_guest_avatar") || "");
+  }, [user, userData]);
+
+  const handleProfileFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleProfileSave = async () => {
+    setProfileSaving(true);
+    try {
+      if (user) {
+        await updateProfile(user, {
+          displayName: newDisplayName,
+          photoURL: profileAvatar
+        });
+        
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, {
+          name: newDisplayName,
+          avatar: profileAvatar,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+        
+        if (setUserData) {
+          setUserData((prev: any) => ({
+            ...prev,
+            name: newDisplayName,
+            avatar: profileAvatar
+          }));
+        }
+        showToast("Đã cập nhật thông tin cá nhân thành công!", "success");
+      } else {
+        localStorage.setItem("vplay_guest_name", newDisplayName);
+        localStorage.setItem("vplay_guest_avatar", profileAvatar);
+        setGuestName(newDisplayName);
+        if (setUserData) {
+          setUserData((prev: any) => ({
+            ...prev,
+            name: newDisplayName,
+            avatar: profileAvatar
+          }));
+        }
+        showToast("Đã cập nhật hồ sơ khách của bạn!", "success");
+      }
+    } catch (err: any) {
+      showToast("Không thể lưu thông tin: " + err.message, "error");
+    }
+    setProfileSaving(false);
+  };
 
   const handleSaveProfile = async () => {
     if (!newDisplayName.trim()) return;
@@ -7458,7 +7522,7 @@ function SettingsNew(props: any) {
 
             {/* Page 1: Profile */}
             {activePage === 1 && (
-              <div className="space-y-6">
+              <div className="space-y-6 animate-fade-in">
                 <div>
                   <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Tài khoản</h4>
                   <div className="space-y-3.5 pl-3">
@@ -7479,15 +7543,104 @@ function SettingsNew(props: any) {
                   </div>
                 </div>
 
+                {/* THE GORGEOUS PROFILE EDITOR */}
+                <div className={`p-5 md:p-8 rounded-[24px] md:rounded-[32px] border space-y-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                      <User size={20} />
+                    </div>
+                    <h4 className="text-base font-black uppercase tracking-tight text-left">Chỉnh sửa hồ sơ</h4>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-6">
+                    {/* Clickable Profile Avatar for upload */}
+                    <div 
+                      className="relative group cursor-pointer shrink-0"
+                      onClick={() => profileFileInputRef.current?.click()}
+                    >
+                      <div className="absolute inset-0 bg-[#4AC4FE]/20 blur-xl rounded-full scale-110 animate-pulse" />
+                      <div className="w-24 h-24 rounded-full border-4 border-[#4AC4FE]/30 relative z-10 shadow-xl overflow-hidden bg-slate-800">
+                        {profileAvatar ? (
+                          <img src={profileAvatar} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                            <User size={36} className="text-slate-400 opacity-45" />
+                          </div>
+                        )}
+                        
+                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                          <Camera className="text-white w-6 h-6" />
+                          <span className="text-[9px] text-white font-extrabold uppercase mt-1">Tải ảnh lên</span>
+                        </div>
+                      </div>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        ref={profileFileInputRef} 
+                        onChange={handleProfileFileChange} 
+                        className="hidden" 
+                      />
+                    </div>
+
+                    <div className="flex-1 w-full space-y-4">
+                      <div className="space-y-1.5 text-left">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 ml-1 block text-left">Tên hiển thị</label>
+                        <input 
+                          value={newDisplayName} 
+                          onChange={(e) => setNewDisplayName(e.target.value)} 
+                          placeholder="Nhập tên hiển thị..."
+                          className={`w-full px-4 py-3 rounded-xl border text-sm font-bold bg-transparent outline-none transition-all ${
+                            isDark 
+                              ? "text-white border-white/10 focus:border-[#4AC4FE]/50 bg-white/[0.02]" 
+                              : "text-[#1e293b] border-slate-200 focus:border-[#4AC4FE]/50 bg-slate-50"
+                          }`} 
+                        />
+                      </div>
+
+                      <div className="flex gap-2.5 text-left">
+                        <button 
+                          onClick={handleProfileSave}
+                          disabled={profileSaving}
+                          className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                            profileSaving 
+                              ? "bg-[#4AC4FE]/10 text-[#4AC4FE] opacity-50" 
+                              : "bg-[#4AC4FE] text-slate-950 font-extrabold shadow-lg shadow-[#4AC4FE]/20 hover:scale-[1.03] cursor-pointer"
+                          }`}
+                        >
+                          <Check size={14} /> {profileSaving ? "Đang lưu..." : "Lưu thay đổi"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Preset Avatars Selection */}
+                  <div className="space-y-2.5 pt-4 border-t border-white/5 text-left">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] opacity-40 ml-1 block text-left">Chọn nhanh avatar vplay</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "https://img.icons8.com/color/144/anonymous-mask.png",
+                        "https://img.icons8.com/color/144/superhero.png",
+                        "https://img.icons8.com/color/144/ninja.png",
+                        "https://img.icons8.com/color/144/cyborg.png",
+                        "https://img.icons8.com/color/144/hacker.png"
+                      ].map((p, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setProfileAvatar(p)}
+                          className={`w-11 h-11 rounded-xl p-1.5 bg-slate-800/40 border-2 transition-all hover:scale-110 active:scale-95 flex items-center justify-center ${profileAvatar === p ? "border-[#4AC4FE] bg-[#4AC4FE]/10" : "border-white/5 hover:border-white/10"}`}
+                          title="Chọn avatar nhanh"
+                        >
+                          <img src={p} alt={`Preset ${idx}`} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Thao tác</h4>
                   <div className="flex flex-wrap gap-3 pl-3 pt-2">
-                    <button
-                      onClick={() => setIsEditingDisplayName(!isEditingDisplayName)}
-                      className={buttonStyle(isEditingDisplayName, "blue")}
-                    >
-                      Sửa hồ sơ
-                    </button>
                     {user ? (
                       <button onClick={() => { onLogout(); setActiveTab("Trang chủ"); }} className={buttonStyle(false, "yellow")}>
                         Đăng xuất
@@ -7496,34 +7649,11 @@ function SettingsNew(props: any) {
                       <button onClick={() => { onLogin(); }} className={buttonStyle(false, "sky")}>
                         Đăng nhập
                       </button>
-                    )
-                    }
+                    )}
                     <button onClick={handleFactoryReset} className={buttonStyle(false, "red")}>
                       Khôi phục cài đặt gốc
                     </button>
                   </div>
-
-                  {isEditingDisplayName && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      className="mt-4 pl-3 p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3 text-left"
-                    >
-                      <label className="text-xs opacity-60 font-semibold">Nhập tên hiển thị mới:</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={newDisplayName}
-                          onChange={(e) => setNewDisplayName(e.target.value)}
-                          className={`flex-1 px-4 py-2 text-sm rounded-full bg-black/10 border text-left ${isDark ? "border-white/10 text-white" : "border-slate-200 text-slate-800"}`}
-                          placeholder="Tên mới của bạn..."
-                        />
-                        <button onClick={handleSaveProfile} className={buttonStyle(true, "sky")}>
-                          Lưu
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
 
                 <div className="pt-4 border-t border-white/5">
@@ -7627,34 +7757,6 @@ function SettingsNew(props: any) {
             {/* Page 3: UI Theme */}
             {activePage === 3 && (
               <div className="space-y-6">
-                <div>
-                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Điều hướng</h4>
-                  <div className="pl-3 space-y-4">
-                    {renderBullet(
-                      <div className="flex flex-col gap-3 text-left">
-                        <div>
-                           <p className="font-semibold text-sm">Chế độ điều hướng</p>
-                           <p className="text-xs opacity-50 font-normal">Desktop sử dụng sidebar và Touch sử dụng navigation bar</p>
-                        </div>
-                        <div className="flex gap-2.5 pt-1">
-                          <button
-                            onClick={() => setUseSidebar(true)}
-                            className={buttonStyle(useSidebar === true, "sky")}
-                          >
-                            Desktop
-                          </button>
-                          <button
-                            onClick={() => setUseSidebar(false)}
-                            className={buttonStyle(useSidebar === false, "sky")}
-                          >
-                            Touch
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
                 <div>
                   <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Liquid Glass</h4>
                   <div className="pl-3 space-y-4">
@@ -13104,9 +13206,7 @@ function App() {
       setShowForceResetPopup(true);
     }
   };
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    return localStorage.getItem("vplay_onboarding_completed") !== "true";
-  });
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [isWidgetsOpen, setIsWidgetsOpen] = useState(false);
   const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs" | "settings">("widgets");
   const [activeTab, setActiveTab] = useState("Trang chủ");
@@ -13187,14 +13287,9 @@ function App() {
   };
 
   useEffect(() => {
-    // If no onboarding, show splash normally (wait for click)
-    if (!showOnboarding && localStorage.getItem("vplay_onboarding_completed") === "true") {
-      setShowSplash(true);
-    } else if (!showOnboarding && !localStorage.getItem("vplay_onboarding_completed")) {
-       // First time but maybe some error or user reset, show OOBE
-       setShowOnboarding(true);
-    }
-  }, [showOnboarding]);
+    setShowSplash(true);
+    localStorage.setItem("vplay_onboarding_completed", "true");
+  }, []);
 
   const handleOnboardingComplete = (config: any) => {
     setIsDark(config.isDark);
@@ -13238,10 +13333,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem("vplay_liquid_glass_opacity", liquidGlassOpacity.toString());
   }, [liquidGlassOpacity]);
-  const [useSidebar, setUseSidebar] = useState(() => {
-    const saved = localStorage.getItem("vplay_sidebar");
-    return saved === null ? true : saved === "true";
-  });
+  const [useSidebar, setUseSidebar] = useState(false);
   const [isSidebarRight, setIsSidebarRight] = useState(() => {
     return localStorage.getItem("vplay_sidebar_right") === "true";
   });

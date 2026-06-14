@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-google: "Google Sans", "Product Sans", "Plus Jakarta Sans", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-google: "Google Sans", "Product Sans", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --color-primary: var(--vplay-primary, #4AC4FE);
   --color-vplay-sidebar: var(--vplay-sidebar, #181818);
   --color-vplay-background: var(--vplay-background, #121214);
@@ -13,7 +13,7 @@
 
 /* Custom Google Sans font-family for all placeholder texts */
 input::placeholder, textarea::placeholder {
-  font-family: "Google Sans", "Product Sans", "Plus Jakarta Sans", "Montserrat", sans-serif !important;
+  font-family: "Google Sans", "Product Sans", "Plus Jakarta Sans", sans-serif !important;
   font-weight: 500;
   letter-spacing: -0.015em;
 }
@@ -50,7 +50,7 @@ input::placeholder, textarea::placeholder {
   transform: translate(0, 0) !important;
 }
 .btn-purple-3d:active {
-  @apply scale-[0.95];
+  @apply scale-[1.10];
   transform: translate(0, 0) !important;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
 }
@@ -64,13 +64,13 @@ input::placeholder, textarea::placeholder {
   transform: translate(0, 0) !important;
 }
 .btn-white-3d:active {
-  @apply scale-[0.95];
+  @apply scale-[1.10];
   transform: translate(0, 0) !important;
   box-shadow: 0 4px 8px rgba(0,0,0,0.04) !important;
 }
 
 .btn-3d-slate {
-  @apply bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300 text-slate-700 px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_6px_16px_rgba(0,0,0,0.06),_inset_0_2px_4px_rgba(255,255,255,0.8),_inset_0_-2px_4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.1)];
+  @apply bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300 text-slate-700 px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_6px_16px_rgba(0,0,0,0.06),_inset_0_2px_4px_rgba(255,255,255,0.8),_inset_0_-2px_4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.15)];
   transform: translate(0, 0) !important;
 }
 .btn-3d-slate:hover {
@@ -78,7 +78,7 @@ input::placeholder, textarea::placeholder {
   transform: translate(0, 0) !important;
 }
 .btn-3d-slate:active {
-  @apply scale-[0.95];
+  @apply scale-[1.10];
   transform: translate(0, 0) !important;
   box-shadow: 0 4px 8px rgba(0,0,0,0.03) !important;
 }
@@ -92,7 +92,7 @@ input::placeholder, textarea::placeholder {
   transform: translate(0, 0) !important;
 }
 .btn-vibrant-3d:active {
-  @apply scale-[0.95];
+  @apply scale-[1.10];
   transform: translate(0, 0) !important;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
 }
@@ -106,7 +106,7 @@ input::placeholder, textarea::placeholder {
   transform: translate(0, 0) !important;
 }
 .btn-3d-dark:active {
-  @apply scale-[0.95];
+  @apply scale-[1.10];
   transform: translate(0, 0) !important;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
 }
@@ -149,7 +149,7 @@ button:hover,
 
 button:active,
 [role="button"]:active {
-  transform: scale(0.95) !important;
+  transform: scale(1.10) !important;
 }
 
 .bg-vplay-background {
