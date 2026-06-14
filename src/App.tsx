@@ -27,9 +27,9 @@ export function showToast(message: string, type: "success" | "error" | "info" | 
   window.dispatchEvent(new CustomEvent("vplay-toast", { detail: { message, type } }));
 }
 
-const HomeIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Home className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
-const TvIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Radio className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
-const SettingsIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Settings className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const HomeIcon = ({ className, size, strokeWidth, filled }: { className?: string, size?: number | string, strokeWidth?: number, filled?: boolean }) => <Home className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} fill={filled ? "currentColor" : "none"} />;
+const TvIcon = ({ className, size, strokeWidth, filled }: { className?: string, size?: number | string, strokeWidth?: number, filled?: boolean }) => <Radio className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} fill={filled ? "currentColor" : "none"} />;
+const SettingsIcon = ({ className, size, strokeWidth, filled }: { className?: string, size?: number | string, strokeWidth?: number, filled?: boolean }) => <Settings className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} fill={filled ? "currentColor" : "none"} />;
 const SignInIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LogIn className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const SignOutIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LogOut className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const ExperimentalIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Pizza className={className} size={size || 22} strokeWidth={strokeWidth || 1} />;
@@ -97,8 +97,8 @@ const FolderIcon = ({ className, size, strokeWidth }: { className?: string, size
 const WavesIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
   <Waves className={className} size={size || 22} strokeWidth={strokeWidth || 1.8} />
 );
-const PackageIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
-  <Package className={className} size={size || 22} strokeWidth={strokeWidth || 1.8} />
+const PackageIcon = ({ className, size, strokeWidth, filled }: { className?: string, size?: number | string, strokeWidth?: number, filled?: boolean }) => (
+  <Package className={className} size={size || 22} strokeWidth={strokeWidth || 1.8} fill={filled ? "currentColor" : "none"} />
 );
 const TornadoIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
   <svg 
@@ -451,7 +451,7 @@ const Sparkles2 = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const AdminIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <ShieldCheck className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const AdminIcon = ({ className, size, strokeWidth, filled }: { className?: string, size?: number | string, strokeWidth?: number, filled?: boolean }) => <ShieldCheck className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} fill={filled ? "currentColor" : "none"} />;
 
 const TAB_ICON_URLS: Record<string, string> = {
   "Trang chủ": "https://static.wikia.nocookie.net/ftv/images/b/bb/Vplay-liquid-home.png/revision/latest?cb=20260610090420&path-prefix=vi",
@@ -4008,9 +4008,14 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       {/* 4 SMALL TABS IN THE LIVE TAB: CHUYỂN KÊNH, LỊCH PHÁT SÓNG, YÊU THÍCH & NHẬP SỐ */}
       {mode === "live" && (
         <div className="flex justify-center mt-6 mb-2">
-          <div className={`p-1.5 rounded-full border flex gap-1 items-center flex-wrap justify-center ${
-            isDark ? "bg-[#181818]/60 border-white/5" : "bg-slate-100 border-slate-200"
-          }`}>
+          <div 
+            className="p-1.5 rounded-full border flex gap-1.5 items-center flex-wrap justify-center shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12"
+            style={{
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              backgroundColor: "rgba(255, 255, 255, 0.16)",
+            }}
+          >
             <button
               onClick={() => {
                 setLiveTabSection("channels");
@@ -4018,8 +4023,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               }}
               className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "channels" && !isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none" : "bg-white text-slate-950 shadow-sm")
-                  : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
+                  ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none"
+                  : "text-slate-900 hover:text-black hover:bg-white/10"
               }`}
               title="KÊNH"
             >
@@ -4032,8 +4037,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               }}
               className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "schedule" && !isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none" : "bg-white text-slate-950 shadow-sm")
-                  : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
+                  ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none"
+                  : "text-slate-900 hover:text-black hover:bg-white/10"
               }`}
               title="Lịch phát sóng"
             >
@@ -4046,8 +4051,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               }}
               className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "favorites" && !isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none" : "bg-white text-slate-950 shadow-sm")
-                  : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
+                  ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none"
+                  : "text-slate-900 hover:text-black hover:bg-white/10"
               }`}
               title="Yêu thích"
             >
@@ -4060,8 +4065,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               }}
               className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none" : "bg-white text-slate-950 shadow-sm")
-                  : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
+                  ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none"
+                  : "text-slate-900 hover:text-black hover:bg-white/10"
               }`}
               title="Nhập số"
             >
@@ -4877,22 +4882,19 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               }}
             />
             
-            {/* Modal Keyboard Box: White overlay, blur 20% (20px), opacity 20%, Zoom near-to-far */}
+            {/* Modal Keyboard Box: White overlay, thin shiny border and blur like bottom bar */}
             <motion.div 
                initial={{ scale: 1.6, opacity: 0 }}
                animate={{ scale: 1, opacity: 1 }}
                exit={{ scale: 1.6, opacity: 0 }}
                transition={{ type: "spring", stiffness: 280, damping: 26 }}
-               className={`relative w-full max-w-xs rounded-[32px] border p-6 flex flex-col items-center shadow-2xl ${
-                 isDark 
-                   ? "border-white/20 text-white" 
-                   : "border-slate-200/50 text-slate-800"
+               className={`relative w-full max-w-xs rounded-[32px] border p-6 flex flex-col items-center shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12 ${
+                 isDark ? "text-white" : "text-slate-850"
                }`}
                style={{
-                 backgroundColor: isDark ? "rgba(15, 23, 42, 0.20)" : "rgba(255, 255, 255, 0.20)",
+                 backgroundColor: "rgba(255, 255, 255, 0.16)",
                  backdropFilter: "blur(20px)",
-                 WebkitBackdropFilter: "blur(20px)",
-                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)"
+                 WebkitBackdropFilter: "blur(20px)"
                }}
             >
               {/* Header */}
@@ -13559,7 +13561,7 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
       glowColor: "rgba(244, 63, 94, 0.75)"
     },
     { 
-      logo: vtvProposal?.logo || "https://static.wikia.nocookie.net/ftv/images/1/14/Imagev1.png/revision/latest/scale-to-width-down/1000?cb=20260601082104&path-prefix=vi", 
+      url: vtvProposal?.logo || "https://static.wikia.nocookie.net/ftv/images/1/14/Imagev1.png/revision/latest/scale-to-width-down/1000?cb=20260601082104&path-prefix=vi", 
       title: vtvProposal ? `Kênh VTV & VTVCab gợi ý cho bạn: ${vtvProposal.name}` : "Kênh VTV & VTVCab gợi ý cho bạn: VTV3 HD", 
       desc: "Thưởng thức các chương trình giải trí, phim truyền hình Việt giờ vàng, thể thao sống động và phim điện ảnh đặc sắc.",
       tag: "VTV & VTVCab",
@@ -13567,7 +13569,7 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
       glowColor: "rgba(220, 38, 38, 0.55)"
     },
     { 
-      logo: localProposal?.logo || "https://static.wikia.nocookie.net/logos/images/3/32/THVL1_logo_ident_2025.png/revision/latest/scale-to-width-down/1000?cb=20251206083051&path-prefix=vi", 
+      url: localProposal?.logo || "https://static.wikia.nocookie.net/logos/images/3/32/THVL1_logo_ident_2025.png/revision/latest/scale-to-width-down/1000?cb=20251206083051&path-prefix=vi", 
       title: localProposal ? `Kênh địa phương gợi ý cho bạn: ${localProposal.name}` : "Kênh địa phương gợi ý cho bạn: THVL1", 
       desc: "Xem các đài truyền hình địa phương được yêu thích nhất cả nước với các bộ phim bom tấn độc quyền.",
       tag: "Địa phương",
@@ -15990,11 +15992,15 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 className="z-10 relative flex items-center justify-center"
                               >
-                                <Icon className={`h-6.5 w-6.5 flex-shrink-0 transition-colors duration-300 ${
-                                  isActive 
-                                    ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.12)] stroke-[2px]" 
-                                    : "text-black/60 hover:text-black"
-                                }`} />
+                                <Icon 
+                                  size={30}
+                                  filled={isActive}
+                                  className={`h-8 w-8 flex-shrink-0 transition-colors duration-300 ${
+                                    isActive 
+                                      ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.12)] stroke-[1.8px]" 
+                                      : "text-black"
+                                  }`} 
+                                />
                                 {tabId === "Cài đặt" && !user && (
                                   <div className="absolute -top-1 -right-1.5 w-3 h-3 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[8px] font-extrabold shadow-md border border-slate-900 animate-pulse z-20">
                                     !
