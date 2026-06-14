@@ -84,31 +84,39 @@ input::placeholder, textarea::placeholder {
 }
 
 .btn-vibrant-3d {
-  @apply bg-gradient-to-b from-[#4AC4FE] to-[#38bcfd] border border-white/30 text-slate-950 px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_6px_16px_rgba(0,0,0,0.12),_inset_0_2.5px_4px_rgba(255,255,255,0.45),_inset_0_-2px_4px_rgba(0,0,0,0.15)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.16)];
+  @apply border border-white/20 text-white px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate shadow-[0_8px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.30)];
+  background-color: rgba(255, 255, 255, 0.30) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
   transform: translate(0, 0) !important;
 }
 .btn-vibrant-3d:hover {
-  @apply bg-gradient-to-b from-[#67ceff] to-[#0299dd] scale-[1.05];
+  @apply scale-[1.05];
+  background-color: rgba(255, 255, 255, 0.40) !important;
   transform: translate(0, 0) !important;
 }
 .btn-vibrant-3d:active {
   @apply scale-[1.10];
+  background-color: rgba(255, 255, 255, 0.25) !important;
   transform: translate(0, 0) !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
 }
 
 .btn-3d-dark {
-  @apply bg-gradient-to-b from-slate-800 to-slate-900 border border-white/10 text-slate-200 px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate backdrop-blur-md shadow-[0_6px_16px_rgba(0,0,0,0.35),_inset_0_1.5px_3px_rgba(255,255,255,0.12),_inset_0_-2px_4px_rgba(0,0,0,0.4)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.45)];
+  @apply border border-white/10 text-slate-200 px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate shadow-[0_8px_32px_rgba(0,0,0,0.25),_inset_0_1px_1.5px_rgba(255,255,255,0.15)];
+  background-color: rgba(15, 23, 42, 0.30) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
   transform: translate(0, 0) !important;
 }
 .btn-3d-dark:hover {
-  @apply bg-slate-800 scale-[1.05] border-white/20;
+  @apply scale-[1.05] border-white/20;
+  background-color: rgba(15, 23, 42, 0.40) !important;
   transform: translate(0, 0) !important;
 }
 .btn-3d-dark:active {
   @apply scale-[1.10];
+  background-color: rgba(15, 23, 42, 0.25) !important;
   transform: translate(0, 0) !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
 }
 
 .btn-3d-square {

@@ -4017,56 +4017,56 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 setLiveTabSection("channels");
                 setIsRemoteOpen(false);
               }}
-              className={`px-4 py-2.5 rounded-full transition-all flex items-center gap-2 text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
+              className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "channels" && !isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
+                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
+              title="KÊNH"
             >
               <Tv className="w-4 h-4" />
-              <span className="text-[10px] uppercase tracking-wider">KÊNH</span>
             </button>
             <button
               onClick={() => {
                 setLiveTabSection("schedule");
                 setIsRemoteOpen(false);
               }}
-              className={`px-4 py-2.5 rounded-full transition-all flex items-center gap-2 text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
+              className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "schedule" && !isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
+                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
+              title="Lịch phát sóng"
             >
               <Calendar className="w-4 h-4" />
-              <span className="text-[10px] uppercase tracking-wider">Lịch chiếu</span>
             </button>
             <button
               onClick={() => {
                 setLiveTabSection("favorites");
                 setIsRemoteOpen(false);
               }}
-              className={`px-4 py-2.5 rounded-full transition-all flex items-center gap-2 text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
+              className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 liveTabSection === "favorites" && !isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
+                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
+              title="Yêu thích"
             >
               <Heart className="w-4 h-4" />
-              <span className="text-[10px] uppercase tracking-wider">Yêu thích</span>
             </button>
             <button
               onClick={() => {
                 setIsRemoteOpen(true);
                 setRemoteInput("");
               }}
-              className={`px-4 py-2.5 rounded-full transition-all flex items-center gap-2 text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
+              className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
                 isRemoteOpen
-                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg" : "bg-white text-slate-950 shadow-sm")
+                  ? (isDark ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none" : "bg-white text-slate-950 shadow-sm")
                   : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900")
               }`}
+              title="Nhập số"
             >
-              <Smartphone className="w-4 h-4" />
-              <span className="text-[10px] uppercase tracking-wider">Nhập số</span>
+               <Smartphone className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -4878,23 +4878,23 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               }}
             />
             
-            {/* Modal Keyboard Box: White overlay, blur 20% (20px), opacity 10%, Zoom near-to-far */}
+            {/* Modal Keyboard Box: White overlay, blur 20% (20px), opacity 20%, Zoom near-to-far */}
             <motion.div 
-              initial={{ scale: 1.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 280, damping: 26 }}
-              className={`relative w-full max-w-xs rounded-[32px] border p-6 flex flex-col items-center shadow-2xl ${
-                isDark 
-                  ? "border-white/20 text-white" 
-                  : "border-slate-200/50 text-slate-800"
-              }`}
-              style={{
-                backgroundColor: "rgba(255, 255, 255, 0.10)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)"
-              }}
+               initial={{ scale: 1.6, opacity: 0 }}
+               animate={{ scale: 1, opacity: 1 }}
+               exit={{ scale: 1.6, opacity: 0 }}
+               transition={{ type: "spring", stiffness: 280, damping: 26 }}
+               className={`relative w-full max-w-xs rounded-[32px] border p-6 flex flex-col items-center shadow-2xl ${
+                 isDark 
+                   ? "border-white/20 text-white" 
+                   : "border-slate-200/50 text-slate-800"
+               }`}
+               style={{
+                 backgroundColor: isDark ? "rgba(15, 23, 42, 0.20)" : "rgba(255, 255, 255, 0.20)",
+                 backdropFilter: "blur(20px)",
+                 WebkitBackdropFilter: "blur(20px)",
+                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)"
+               }}
             >
               {/* Header */}
               <div className="w-full flex items-center justify-between mb-4 border-b border-slate-200/10 pb-3">
@@ -7228,9 +7228,16 @@ function SettingsNew(props: any) {
     setProfileSaving(true);
     try {
       if (user) {
+        // Firebase Auth photoURL has a max length limit of 2048 chars. 
+        // We bypass this for Base64 by storing a short placeholder in Auth, 
+        // while the full avatar continues to be safely persisted in Firestore.
+        const fbPhotoURL = profileAvatar && profileAvatar.length > 2000 
+          ? "https://img.icons8.com/color/144/superhero.png" 
+          : profileAvatar;
+
         await updateProfile(user, {
           displayName: newDisplayName,
-          photoURL: profileAvatar
+          photoURL: fbPhotoURL
         });
         
         const userRef = doc(db, "users", user.uid);
@@ -10057,7 +10064,7 @@ function TopBar({
         {topbarSearchType === "icon" ? (
           isSearchButtonExpanded ? (
             <div 
-              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.01] hover:border-[#4AC4FE]/40 active:scale-[0.99] relative rounded-xl border ${
+              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.01] hover:border-[#4AC4FE]/40 active:scale-[0.99] relative rounded-full border ${
                 isDark 
                   ? (isListening 
                       ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)]" 
@@ -10098,7 +10105,7 @@ function TopBar({
           ) : null
         ) : (
           <div 
-            className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.01] hover:border-[#4AC4FE]/40 active:scale-[0.99] relative rounded-xl border ${
+            className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.01] hover:border-[#4AC4FE]/40 active:scale-[0.99] relative rounded-full border ${
               isDark 
                 ? (isListening 
                     ? "bg-red-500/15 border-red-500 text-slate-100 shadow-[0_4px_12px_rgba(239,68,68,0.2)]" 
@@ -10404,14 +10411,22 @@ function SearchContextMenu({
   return (
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
-      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
-        style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-56 rounded-2xl border p-1.5 overflow-hidden backdrop-blur-3xl transition-all duration-300 ${
+        className={`fixed z-[1001] w-56 rounded-2xl border transition-all duration-300 font-bold ${
           isDark 
-            ? "bg-[#181818]/60 border-white/15 text-white shadow-[0_12px_45px_rgba(0,0,0,0.55),_inset_0_1.5px_2px_rgba(255,255,255,0.18)]" 
-            : "bg-white/60 border-slate-300/40 text-slate-900 shadow-[0_12px_35px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]"
+            ? "text-white shadow-[0_12px_45px_rgba(0,0,0,0.55)]" 
+            : "text-slate-900 shadow-[0_12px_35px_rgba(15,23,42,0.12)]"
         }`}
+        style={{
+          position: "fixed",
+          top: y,
+          left: x,
+          padding: "6px",
+          backgroundColor: isDark ? "rgba(15, 23, 42, 0.30)" : "rgba(255, 255, 255, 0.30)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: isDark ? "1px solid rgba(255, 255, 255, 0.20)" : "1px solid rgba(15, 23, 42, 0.15)"
+        }}
       >
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -10476,12 +10491,21 @@ function UnifiedContextMenu({
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
-        style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-60 rounded-2xl border p-1.5 overflow-hidden backdrop-blur-3xl transition-all duration-300 ${
+        className={`fixed z-[1001] w-60 rounded-2xl border transition-all duration-300 font-bold ${
           isDark 
-            ? "bg-[#181818]/60 border-white/15 text-white shadow-[0_12px_45px_rgba(0,0,0,0.55),_inset_0_1.5px_2px_rgba(255,255,255,0.18)]" 
-            : "bg-white/60 border-slate-300/40 text-[#181818] shadow-[0_12px_35px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]"
+            ? "text-white shadow-[0_12px_45px_rgba(0,0,0,0.55)]" 
+            : "text-slate-900 shadow-[0_12px_35px_rgba(15,23,42,0.12)]"
         }`}
+        style={{
+          position: "fixed",
+          top: y,
+          left: x,
+          padding: "6px",
+          backgroundColor: isDark ? "rgba(15, 23, 42, 0.30)" : "rgba(255, 255, 255, 0.30)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: isDark ? "1px solid rgba(255, 255, 255, 0.20)" : "1px solid rgba(15, 23, 42, 0.15)"
+        }}
       >
         {/* Section 1: UI Layout */}
         <button 
@@ -14762,12 +14786,21 @@ const [headingBar, setHeadingBar] = useState(() => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.12 }}
-              style={{ top: channelContextMenu.y, left: channelContextMenu.x }}
-              className={`fixed z-[310] min-w-[240px] rounded-2xl border p-2.5 backdrop-blur-3xl transition-all duration-300 ${
+              className={`fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold ${
                 isDark 
-                  ? "bg-[#181818]/60 border-white/15 text-white shadow-[0_12px_45px_rgba(0,0,0,0.55),_inset_0_1.5px_2px_rgba(255,255,255,0.18)]" 
-                  : "bg-white/60 border-slate-300/40 text-slate-800 shadow-[0_12px_35px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]"
+                  ? "text-white shadow-[0_12px_45px_rgba(0,0,0,0.55)]" 
+                  : "text-slate-800 shadow-[0_12px_35px_rgba(15,23,42,0.12)]"
               }`}
+              style={{
+                position: "fixed",
+                top: channelContextMenu.y,
+                left: channelContextMenu.x,
+                padding: "10px",
+                backgroundColor: isDark ? "rgba(15, 23, 42, 0.30)" : "rgba(255, 255, 255, 0.30)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                border: isDark ? "1px solid rgba(255, 255, 255, 0.20)" : "1px solid rgba(15, 23, 42, 0.15)"
+              }}
             >
               <div className="px-3 pb-2 pt-1 border-b border-white/5 mb-1.5 text-[10px] font-black uppercase tracking-wider opacity-50 truncate max-w-[220px]">
                 Kênh: {channelContextMenu.ch.name}
@@ -14808,16 +14841,16 @@ const [headingBar, setHeadingBar] = useState(() => {
       <AnimatePresence>
         {isMobileContextMenuOpen && (
           <div className="fixed inset-0 z-[999] flex items-end justify-center md:hidden">
-            {/* Backdrop: solid darkened mask without blur */}
+            {/* Backdrop: translucent darkened mask with blur */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileContextMenuOpen(false)}
-              className="absolute inset-0 bg-black/75 z-10"
+              className="absolute inset-0 bg-black/25 z-10 backdrop-blur-sm"
             />
             
-            {/* Modal/Drawer Container: solid opaque background without blur */}
+            {/* Modal/Drawer Container: translucent background with glassmorphism (opacity 30%, blur 20px) */}
             <motion.div 
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -14825,10 +14858,16 @@ const [headingBar, setHeadingBar] = useState(() => {
               transition={{ type: "spring", damping: 25, stiffness: 250 }}
               className={`relative w-full max-h-[85vh] flex flex-col rounded-t-[32px] border-t overflow-hidden shadow-2xl p-6 z-20 ${
                 isDark 
-                  ? "bg-[#181818] border-white/10 text-white" 
-                  : "bg-white border-slate-200 text-slate-900 shadow-2xl"
+                  ? "text-white" 
+                  : "text-slate-900"
               }`}
-              style={{ paddingBottom: "env(safe-area-inset-bottom, 24px)" }}
+              style={{ 
+                paddingBottom: "env(safe-area-inset-bottom, 24px)",
+                backgroundColor: isDark ? "rgba(15, 23, 42, 0.30)" : "rgba(255, 255, 255, 0.30)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                borderTop: isDark ? "1px solid rgba(255, 255, 255, 0.20)" : "1px solid rgba(15, 23, 42, 0.15)"
+              }}
             >
               {/* Drag indicator/handle */}
               <div className="w-12 h-1.5 rounded-full bg-slate-500/30 mx-auto mb-5 shrink-0" onClick={() => setIsMobileContextMenuOpen(false)} />
@@ -15880,25 +15919,13 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className={`flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative ${
-              liquidGlass === "tinted"
-                ? `rounded-full border shadow-[0_12px_24px_rgba(0,0,0,0.12),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] ${
-                    isDark ? "border-white/[0.04]" : "border-white/20"
-                  }`
-                : liquidGlass === "glassy"
-                  ? `rounded-full border shadow-[0_16px_32px_rgba(0,0,0,0.15),_inset_0_1px_2px_rgba(255,255,255,0.2)] ${
-                      isDark ? "border-white/[0.04]" : "border-white/10"
-                    }`
-                  : `rounded-full border shadow-[0_8px_16px_rgba(0,0,0,0.08),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] ${
-                      isDark ? "border-white/5" : "border-slate-200/30"
-                    }`
-            }`}
+            className="flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.18),_inset_0_1px_2.5px_rgba(255,255,255,0.25)] border-white/15"
             style={{
-              backdropFilter: `blur(${liquidGlassBlur}px)`,
-              WebkitBackdropFilter: `blur(${liquidGlassBlur}px)`,
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
               backgroundColor: isDark 
-                ? `rgba(24, 24, 28, ${liquidGlassOpacity / 100})` 
-                : `rgba(255, 255, 255, ${liquidGlassOpacity / 100})`
+                ? "rgba(15, 23, 42, 0.30)" 
+                : "rgba(255, 255, 255, 0.30)"
             }}>
             
             {/* Prev Arrow - Only shown on desktop as mobile uses gestures */}
