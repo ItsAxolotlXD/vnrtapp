@@ -1255,12 +1255,12 @@ function HomeContent({
   }, []);
 
   return (
-    <div className="relative space-y-16 pb-32 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-4 md:px-12">
+    <div className="relative pb-32 w-full mx-auto flex flex-col space-y-8 md:space-y-16">
       {/* Dynamic Hero Section */}
       <div 
         onTouchStart={handleSlideTouchStart}
         onTouchEnd={handleSlideTouchEnd}
-        className="relative w-full overflow-visible py-4 select-none"
+        className="relative w-full overflow-visible select-none"
       >
         {/* Carousel 3D Track */}
         <div className="relative w-full max-w-6xl mx-auto aspect-[16/9] md:aspect-[2.2/1] overflow-visible">
@@ -1329,8 +1329,8 @@ function HomeContent({
                   setActiveTab("Live");
                 }
               }}
-              className={`w-full h-full rounded-[32px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.65)] border border-white/10 relative transform scale-100 transition-all duration-500 ${
-                (slides[slideIndex]?.channel || slides[slideIndex]?.action) ? "cursor-pointer group/card border-white/20 hover:border-[#4AC4FE]/40" : ""
+              className={`w-full h-full rounded-none md:rounded-[32px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.65)] border-none md:border md:border-white/10 relative transform scale-100 transition-all duration-500 ${
+                (slides[slideIndex]?.channel || slides[slideIndex]?.action) ? "cursor-pointer group/card md:border-white/20 hover:md:border-[#4AC4FE]/40" : ""
               }`}
             >
               <AnimatePresence initial={false} custom={direction}>
@@ -1421,36 +1421,38 @@ function HomeContent({
         </div>
       </div>
 
-      {/* Mobile Slide Info (shown outside the thumbnail image/box) */}
-      <div className="block md:hidden px-2 -mt-4 mb-2">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`mob-text-${slideIndex}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-1.5"
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20 text-[9px] font-black uppercase tracking-wider">
-                {slides[slideIndex]?.tag}
-              </span>
-              {slides[slideIndex]?.channel && (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase tracking-wider animate-pulse">
-                  <Play size={8} fill="currentColor" /> QUA TRỰC TIẾP
+      {/* Main content sections with standard margins and padding */}
+      <div className="px-4 md:px-12 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto space-y-10 md:space-y-16">
+        {/* Mobile Slide Info (shown outside the thumbnail image/box) */}
+        <div className="block md:hidden pb-1 -mt-4">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`mob-text-${slideIndex}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-1.5"
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20 text-[9px] font-black uppercase tracking-wider">
+                  {slides[slideIndex]?.tag}
                 </span>
-              )}
-            </div>
-            <h3 className={`text-base font-black uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-              {slides[slideIndex]?.title}
-            </h3>
-            <p className={`text-xs font-semibold leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"} line-clamp-3`}>
-              {slides[slideIndex]?.desc}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+                {slides[slideIndex]?.channel && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase tracking-wider animate-pulse">
+                    <Play size={8} fill="currentColor" /> QUA TRỰC TIẾP
+                  </span>
+                )}
+              </div>
+              <h3 className={`text-base font-black uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                {slides[slideIndex]?.title}
+              </h3>
+              <p className={`text-xs font-semibold leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"} line-clamp-3`}>
+                {slides[slideIndex]?.desc}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
       {/* VTV6 Return Banner */}
       <motion.div 
@@ -1716,6 +1718,7 @@ function HomeContent({
         </div>
       )}
 
+      </div>
     </div>
   );
 }
@@ -15895,7 +15898,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className="flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.18),_inset_0_1px_2.5px_rgba(255,255,255,0.40)] border-white/35"
+            className="flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12"
             style={{
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
@@ -15937,21 +15940,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                         const isGlassy = liquidGlass === "glassy";
 
                         // Map tab colors individually
-                        let activeColorClass = "text-[#4AC4FE] font-black scale-102";
-                        let activeUnderlineClass = "bg-[#4AC4FE] shadow-[0_2px_8px_rgba(74,196,254,0.4)]";
-
-                        if (tabId === "Live") {
-                          activeColorClass = "text-red-500 font-black scale-102";
-                          activeUnderlineClass = "bg-red-500 shadow-[0_2px_8px_rgba(239,68,68,0.4)]";
-                        } else if (tabId === "Package") {
-                          activeColorClass = "text-[#FACC15] font-black scale-102";
-                          activeUnderlineClass = "bg-[#FACC15] shadow-[0_2px_8px_rgba(250,204,21,0.4)]";
-                        } else if (tabId === "Cài đặt" || tabId === "Settings (new)") {
-                          activeColorClass = isDark ? "text-white font-black scale-102" : "text-slate-900 font-black scale-102";
-                          activeUnderlineClass = isDark 
-                            ? "bg-white shadow-[0_2px_8px_rgba(255,255,255,0.4)]" 
-                            : "bg-slate-900 shadow-[0_2px_8px_rgba(15,23,42,0.4)]";
-                        }
+                        let activeColorClass = "text-slate-950 font-black scale-102";
 
                         return (
                           <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center p-1">
@@ -15970,7 +15959,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                               className={`relative flex flex-col items-center justify-center px-1.5 py-0 h-10 md:h-12 rounded-full transition-all duration-300 group z-10 w-full ${
                                 isActive 
                                   ? activeColorClass
-                                  : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black hover:opacity-100"
+                                  : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black/80 hover:text-black"
                               }`}
                             >
                                {isActive && (
@@ -16004,13 +15993,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 className="z-10 relative flex items-center justify-center"
                               >
-                                <div className={`flex items-center justify-center w-9 h-9 rounded-full shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.15),0_4px_10px_rgba(0,0,0,0.15)] backdrop-blur-xs transition-all duration-300 ${
+                                <Icon className={`h-5.5 w-5.5 flex-shrink-0 transition-colors duration-300 ${
                                   isActive 
-                                    ? "bg-black/50 text-white scale-105 ring-1 ring-white/10" 
-                                    : "bg-black/25 text-white/80 group-hover:bg-black/40 group-hover:text-white"
-                                }`}>
-                                  <Icon className="h-4.5 w-4.5 flex-shrink-0" />
-                                </div>
+                                    ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.12)] stroke-[2px]" 
+                                    : isDark ? "text-white/60 hover:text-white" : "text-slate-800/70 hover:text-slate-900"
+                                }`} />
                                 {(tabId === "Cài đặt" || tabId === "Settings (new)") && (
                                   <div className="absolute -top-1 -right-3 px-1 py-0.2 bg-sky-400 text-[8px] text-slate-900 rounded font-black leading-none scale-90 shadow-sm z-20">
                                     NEW
