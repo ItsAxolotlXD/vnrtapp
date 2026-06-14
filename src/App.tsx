@@ -15978,20 +15978,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   layoutId="activeTabPill"
                                   className="absolute inset-0 rounded-full z-0 pointer-events-none shadow-sm"
                                   style={{
-                                    backgroundColor: tabId === "Live"
-                                      ? "rgba(239, 68, 68, 0.18)"
-                                      : tabId === "Package"
-                                      ? "rgba(250, 204, 21, 0.18)"
-                                      : tabId === "Trang chủ"
-                                      ? "rgba(74, 196, 254, 0.18)"
-                                      : "rgba(255, 255, 255, 0.25)",
-                                    border: tabId === "Live"
-                                      ? "1px solid rgba(239, 68, 68, 0.35)"
-                                      : tabId === "Package"
-                                      ? "1px solid rgba(250, 204, 21, 0.35)"
-                                      : tabId === "Trang chủ"
-                                      ? "1px solid rgba(74, 196, 254, 0.35)"
-                                      : "1px solid rgba(255, 255, 255, 0.45)",
+                                    backgroundColor: "rgba(255, 255, 255, 0.30)",
                                     backdropFilter: "blur(12px)",
                                     WebkitBackdropFilter: "blur(12px)"
                                   }}
@@ -16015,25 +16002,22 @@ const [headingBar, setHeadingBar] = useState(() => {
                                         damping: 20
                                       }
                                 }
-                                className="z-10 relative"
+                                className="z-10 relative flex items-center justify-center"
                               >
-                                {TAB_ICON_URLS[tabId] ? (
-                                  <img 
-                                    src={TAB_ICON_URLS[tabId]} 
-                                    alt={tabId} 
-                                    className="h-7 w-7 flex-shrink-0 object-contain hover:scale-110 transition-transform" 
-                                    referrerPolicy="no-referrer"
-                                  />
-                                ) : (
-                                  <Icon className="h-7 w-7 flex-shrink-0" />
-                                )}
+                                <div className={`flex items-center justify-center w-9 h-9 rounded-full shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.15),0_4px_10px_rgba(0,0,0,0.15)] backdrop-blur-xs transition-all duration-300 ${
+                                  isActive 
+                                    ? "bg-black/50 text-white scale-105 ring-1 ring-white/10" 
+                                    : "bg-black/25 text-white/80 group-hover:bg-black/40 group-hover:text-white"
+                                }`}>
+                                  <Icon className="h-4.5 w-4.5 flex-shrink-0" />
+                                </div>
                                 {(tabId === "Cài đặt" || tabId === "Settings (new)") && (
-                                  <div className="absolute -top-1 -right-3.5 px-1 py-0.2 bg-sky-400 text-[8px] text-slate-900 rounded font-black leading-none scale-90">
+                                  <div className="absolute -top-1 -right-3 px-1 py-0.2 bg-sky-400 text-[8px] text-slate-900 rounded font-black leading-none scale-90 shadow-sm z-20">
                                     NEW
                                   </div>
                                 )}
                                 {tabId === "Cài đặt" && !user && (
-                                  <div className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[9px] font-extrabold shadow-md border border-slate-900 animate-pulse">
+                                  <div className="absolute -top-1 -right-1.5 w-3 h-3 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[8px] font-extrabold shadow-md border border-slate-900 animate-pulse z-20">
                                     !
                                   </div>
                                 )}
