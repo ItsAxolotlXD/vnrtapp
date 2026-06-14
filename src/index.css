@@ -84,19 +84,19 @@ input::placeholder, textarea::placeholder {
 }
 
 .btn-vibrant-3d {
-  @apply border border-white/20 text-white px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-bold transition-all duration-300 relative isolate shadow-[0_8px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.30)];
+  @apply border border-white/35 text-white px-8 py-4 min-h-16 flex items-center justify-center rounded-full font-extrabold transition-all duration-300 relative isolate shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_2.5px_rgba(255,255,255,0.45)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.22)];
   background-color: rgba(255, 255, 255, 0.30) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   transform: translate(0, 0) !important;
 }
 .btn-vibrant-3d:hover {
-  @apply scale-[1.05];
+  @apply scale-[1.05] border-white/45;
   background-color: rgba(255, 255, 255, 0.40) !important;
   transform: translate(0, 0) !important;
 }
 .btn-vibrant-3d:active {
-  @apply scale-[1.10];
+  @apply scale-[1.08];
   background-color: rgba(255, 255, 255, 0.25) !important;
   transform: translate(0, 0) !important;
 }

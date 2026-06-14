@@ -10412,20 +10412,16 @@ function SearchContextMenu({
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
-        className={`fixed z-[1001] w-56 rounded-2xl border transition-all duration-300 font-bold ${
-          isDark 
-            ? "text-white shadow-[0_12px_45px_rgba(0,0,0,0.55)]" 
-            : "text-slate-900 shadow-[0_12px_35px_rgba(15,23,42,0.12)]"
-        }`}
+        className="fixed z-[1001] w-56 rounded-2xl border transition-all duration-300 font-bold text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
         style={{
           position: "fixed",
           top: y,
           left: x,
           padding: "6px",
-          backgroundColor: isDark ? "rgba(15, 23, 42, 0.30)" : "rgba(255, 255, 255, 0.30)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: isDark ? "1px solid rgba(255, 255, 255, 0.20)" : "1px solid rgba(15, 23, 42, 0.15)"
+          backgroundColor: "rgba(255, 255, 255, 0.20)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.35)"
         }}
       >
         {menuItems.map((item) => {
@@ -10437,8 +10433,8 @@ function SearchContextMenu({
               onClick={() => { onSelect(item.id as any); onClose(); }}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
                 isActive 
-                  ? "bg-[#4AC4FE]/20 text-[#4AC4FE]" 
-                  : isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+                  ? "bg-slate-900/10 text-slate-950 font-black" 
+                  : "hover:bg-black/10 text-slate-700 hover:text-slate-950"
               }`}
             >
               <Icon size={16} />
@@ -10491,28 +10487,22 @@ function UnifiedContextMenu({
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
-        className={`fixed z-[1001] w-60 rounded-2xl border transition-all duration-300 font-bold ${
-          isDark 
-            ? "text-white shadow-[0_12px_45px_rgba(0,0,0,0.55)]" 
-            : "text-slate-900 shadow-[0_12px_35px_rgba(15,23,42,0.12)]"
-        }`}
+        className="fixed z-[1001] w-60 rounded-2xl border transition-all duration-300 font-bold text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
         style={{
           position: "fixed",
           top: y,
           left: x,
           padding: "6px",
-          backgroundColor: isDark ? "rgba(15, 23, 42, 0.30)" : "rgba(255, 255, 255, 0.30)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: isDark ? "1px solid rgba(255, 255, 255, 0.20)" : "1px solid rgba(15, 23, 42, 0.15)"
+          backgroundColor: "rgba(255, 255, 255, 0.20)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.35)"
         }}
       >
         {/* Section 1: UI Layout */}
         <button 
           onClick={() => { setHeadingBar(!headingBar); onClose(); }} 
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
-            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
-          }`}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
         >
           {headingBar ? <EyeOff size={16} /> : <Eye size={16} />}
           <span className="text-sm font-medium">{headingBar ? "Ẩn Top bar" : "Hiện Top bar"}</span>
@@ -10520,51 +10510,43 @@ function UnifiedContextMenu({
 
         <button 
           onClick={() => { setUseSidebar(!useSidebar); onClose(); }} 
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
-            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
-          }`}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
         >
           {useSidebar ? <Smartphone size={16} /> : <Columns size={16} />}
           <span className="text-sm font-medium">{useSidebar ? "Sử dụng Bottom bar" : "Sử dụng Sidebar"}</span>
         </button>
 
-        <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1.5 mx-1`} />
+        <div className="h-[1px] bg-black/10 my-1.5 mx-1" />
 
         {/* Section 2: Time & Weather */}
         <button 
           onClick={handleToggleTimer} 
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all ${
-            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
-          }`}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
         >
           <div className="flex items-center gap-3">
             <Clock size={16} />
             <span className="text-sm font-medium">{hasClockOrDate ? "Ẩn đồng hồ và lịch" : "Hiện đồng hồ và lịch"}</span>
           </div>
-          {hasClockOrDate && <Check size={14} className="text-[#4AC4FE]" />}
+          {hasClockOrDate && <Check size={14} className="text-[#38bcfd]" />}
         </button>
 
         <button 
           onClick={() => { setShowTempInClock(!showTempInClock); onClose(); }} 
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all ${
-            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
-          }`}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
         >
           <div className="flex items-center gap-3">
             <Thermometer size={16} />
             <span className="text-sm font-medium">Hiện nhiệt độ</span>
           </div>
-          {showTempInClock && <Check size={14} className="text-[#4AC4FE]" />}
+          {showTempInClock && <Check size={14} className="text-[#38bcfd]" />}
         </button>
 
-        <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1.5 mx-1`} />
+        <div className="h-[1px] bg-black/10 my-1.5 mx-1" />
 
         {/* Section 3: App Controls */}
         <button 
           onClick={() => { window.location.reload(); }} 
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
-            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
-          }`}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
         >
           <RotateCcw size={16} />
           <span className="text-sm font-medium">Refresh</span>
@@ -10572,9 +10554,7 @@ function UnifiedContextMenu({
 
         <button 
           onClick={() => { handleOpenSettings(); onClose(); }} 
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
-            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
-          }`}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
         >
           <SettingsIcon size={16} />
           <span className="text-sm font-medium">Cài đặt</span>
@@ -12719,26 +12699,30 @@ function WidgetsDashboard({
              <AnimatePresence>
                 {contextMenu?.id && (
                   <div
-                    className={`fixed z-[1002] w-48 border rounded-2xl p-1.5 flex flex-col gap-0.5 backdrop-blur-3xl transition-all duration-300 ${
-                      isDark 
-                        ? "bg-[#181818]/60 border-white/15 text-white shadow-[0_12px_45px_rgba(0,0,0,0.55),_inset_0_1.5px_2px_rgba(255,255,255,0.18)]" 
-                        : "bg-white/60 border-slate-300/40 text-slate-900 shadow-[0_12px_35px_rgba(15,23,42,0.12),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]"
-                    }`}
-                    style={{ left: contextMenu.x, top: contextMenu.y }}
+                    className="fixed z-[1002] w-48 border rounded-2xl p-1.5 flex flex-col gap-0.5 transition-all duration-300 text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
+                    style={{ 
+                      position: "fixed",
+                      left: contextMenu.x, 
+                      top: contextMenu.y,
+                      backgroundColor: "rgba(255, 255, 255, 0.20)",
+                      backdropFilter: "blur(10px)",
+                      WebkitBackdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.35)"
+                    }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button onClick={() => moveWidget(contextMenu.id!, 'up')} className={`w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors ${isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"}`}>
+                    <button onClick={() => moveWidget(contextMenu.id!, 'up')} className="w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors hover:bg-black/10 text-slate-700 hover:text-slate-950">
                        <ArrowUp size={16} /> Move up
                     </button>
-                    <button onClick={() => moveWidget(contextMenu.id!, 'down')} className={`w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors ${isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"}`}>
+                    <button onClick={() => moveWidget(contextMenu.id!, 'down')} className="w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors hover:bg-black/10 text-slate-700 hover:text-slate-950">
                        <ArrowDown size={16} /> Move down
                     </button>
-                    <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1.5 mx-2`} />
-                    <button onClick={() => toggleLock(contextMenu.id!)} className={`w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors ${isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"}`}>
+                    <div className="h-[1px] bg-black/10 my-1.5 mx-2" />
+                    <button onClick={() => toggleLock(contextMenu.id!)} className="w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors hover:bg-black/10 text-slate-700 hover:text-slate-950">
                        {lockedWidgets.includes(contextMenu.id!) ? <Unlock size={16} /> : <Lock size={16} />} 
                        {lockedWidgets.includes(contextMenu.id!) ? "Unlock" : "Lock"}
                     </button>
-                    <button onClick={() => { removeWidget(contextMenu.id); setContextMenu(null); }} className="w-full px-3 py-2 flex items-center gap-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors">
+                    <button onClick={() => { removeWidget(contextMenu.id); setContextMenu(null); }} className="w-full px-3 py-2 flex items-center gap-3 text-sm font-medium text-red-600 hover:bg-red-500/10 rounded-xl transition-colors">
                        <Trash2 size={16} /> Remove
                     </button>
                   </div>
@@ -14786,23 +14770,19 @@ const [headingBar, setHeadingBar] = useState(() => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.12 }}
-              className={`fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold ${
-                isDark 
-                  ? "text-white shadow-[0_12px_45px_rgba(0,0,0,0.55)]" 
-                  : "text-slate-800 shadow-[0_12px_35px_rgba(15,23,42,0.12)]"
-              }`}
+              className="fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
               style={{
                 position: "fixed",
                 top: channelContextMenu.y,
                 left: channelContextMenu.x,
                 padding: "10px",
-                backgroundColor: isDark ? "rgba(15, 23, 42, 0.30)" : "rgba(255, 255, 255, 0.30)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                border: isDark ? "1px solid rgba(255, 255, 255, 0.20)" : "1px solid rgba(15, 23, 42, 0.15)"
+                backgroundColor: "rgba(255, 255, 255, 0.20)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                border: "1px solid rgba(255, 255, 255, 0.35)"
               }}
             >
-              <div className="px-3 pb-2 pt-1 border-b border-white/5 mb-1.5 text-[10px] font-black uppercase tracking-wider opacity-50 truncate max-w-[220px]">
+              <div className="px-3 pb-2 pt-1 border-b border-black/10 mb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-800 opacity-65 truncate max-w-[220px]">
                 Kênh: {channelContextMenu.ch.name}
               </div>
               
@@ -14812,9 +14792,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   toggleFavorite(channelContextMenu.ch);
                   setChannelContextMenu(null);
                 }}
-                className={`w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                  isDark ? "hover:bg-white/5 text-slate-200 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
-                }`}
+                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-black/10 text-slate-700 hover:text-slate-950"
               >
                 <Heart size={14} className={favorites.includes(channelContextMenu.ch.name) ? "text-[#E02424] fill-[#E02424] animate-pulse" : "opacity-60"} />
                 {favorites.includes(channelContextMenu.ch.name) ? "Loại bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
@@ -14826,9 +14804,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   togglePinChannel(channelContextMenu.ch);
                   setChannelContextMenu(null);
                 }}
-                className={`w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                  isDark ? "hover:bg-white/5 text-slate-200 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
-                }`}
+                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-black/10 text-slate-700 hover:text-slate-950"
               >
                 <Pin size={14} className={pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "text-[#4AC4FE] fill-[#4AC4FE]" : "opacity-60"} />
                 {pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "Bỏ ghim khỏi sidebar/nav" : "Ghim vào sidebar/nav"}
@@ -15919,13 +15895,11 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className="flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.18),_inset_0_1px_2.5px_rgba(255,255,255,0.25)] border-white/15"
+            className="flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.18),_inset_0_1px_2.5px_rgba(255,255,255,0.40)] border-white/35"
             style={{
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
-              backgroundColor: isDark 
-                ? "rgba(15, 23, 42, 0.30)" 
-                : "rgba(255, 255, 255, 0.30)"
+              backgroundColor: "rgba(255, 255, 255, 0.30)"
             }}>
             
             {/* Prev Arrow - Only shown on desktop as mobile uses gestures */}
@@ -15963,24 +15937,24 @@ const [headingBar, setHeadingBar] = useState(() => {
                         const isGlassy = liquidGlass === "glassy";
 
                         // Map tab colors individually
-                        let activeColorClass = "text-[#4AC4FE]";
+                        let activeColorClass = "text-[#4AC4FE] font-black scale-102";
                         let activeUnderlineClass = "bg-[#4AC4FE] shadow-[0_2px_8px_rgba(74,196,254,0.4)]";
 
                         if (tabId === "Live") {
-                          activeColorClass = "text-red-500";
+                          activeColorClass = "text-red-500 font-black scale-102";
                           activeUnderlineClass = "bg-red-500 shadow-[0_2px_8px_rgba(239,68,68,0.4)]";
                         } else if (tabId === "Package") {
-                          activeColorClass = "text-[#FACC15]";
+                          activeColorClass = "text-[#FACC15] font-black scale-102";
                           activeUnderlineClass = "bg-[#FACC15] shadow-[0_2px_8px_rgba(250,204,21,0.4)]";
                         } else if (tabId === "Cài đặt" || tabId === "Settings (new)") {
-                          activeColorClass = isDark ? "text-white" : "text-slate-900";
+                          activeColorClass = isDark ? "text-white font-black scale-102" : "text-slate-900 font-black scale-102";
                           activeUnderlineClass = isDark 
                             ? "bg-white shadow-[0_2px_8px_rgba(255,255,255,0.4)]" 
                             : "bg-slate-900 shadow-[0_2px_8px_rgba(15,23,42,0.4)]";
                         }
 
                         return (
-                          <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center">
+                          <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center p-1">
                             <button
                               onClick={() => {
                                 triggerNavBounce();
@@ -15993,7 +15967,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 setActiveTab(tabId);
                               }}
-                              className={`relative flex flex-col items-center justify-center px-1 py-0 h-full transition-all duration-300 group z-10 w-full ${
+                              className={`relative flex flex-col items-center justify-center px-1.5 py-0 h-10 md:h-12 rounded-full transition-all duration-300 group z-10 w-full ${
                                 isActive 
                                   ? activeColorClass
                                   : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black hover:opacity-100"
@@ -16001,15 +15975,31 @@ const [headingBar, setHeadingBar] = useState(() => {
                             >
                                {isActive && (
                                 <motion.div
-                                  layoutId="activeTabUnderline"
-                                  className={`absolute bottom-[-7px] left-1/2 -translate-x-1/2 h-[3.2px] w-7 rounded-full z-10 ${
-                                    activeUnderlineClass
-                                  }`}
-                                  transition={{ type: "spring", stiffness: 650, damping: 32 }}
+                                  layoutId="activeTabPill"
+                                  className="absolute inset-0 rounded-full z-0 pointer-events-none shadow-sm"
+                                  style={{
+                                    backgroundColor: tabId === "Live"
+                                      ? "rgba(239, 68, 68, 0.18)"
+                                      : tabId === "Package"
+                                      ? "rgba(250, 204, 21, 0.18)"
+                                      : tabId === "Trang chủ"
+                                      ? "rgba(74, 196, 254, 0.18)"
+                                      : "rgba(255, 255, 255, 0.25)",
+                                    border: tabId === "Live"
+                                      ? "1px solid rgba(239, 68, 68, 0.35)"
+                                      : tabId === "Package"
+                                      ? "1px solid rgba(250, 204, 21, 0.35)"
+                                      : tabId === "Trang chủ"
+                                      ? "1px solid rgba(74, 196, 254, 0.35)"
+                                      : "1px solid rgba(255, 255, 255, 0.45)",
+                                    backdropFilter: "blur(12px)",
+                                    WebkitBackdropFilter: "blur(12px)"
+                                  }}
+                                  transition={{ type: "spring", stiffness: 480, damping: 28 }}
                                 />
                               )}
                               <motion.div
-                                animate={isActive ? { scale: 1.15 } : { scale: 1 }}
+                                animate={isActive ? { scale: 1.12 } : { scale: 1 }}
                                 whileTap={{ scale: 0.75 }}
                                 transition={
                                   isActive
