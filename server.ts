@@ -8,16 +8,7 @@ import { GoogleGenAI } from "@google/genai";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize Gemini client with proper user agent telemetry
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      "User-Agent": "aistudio-build",
-    },
-  },
-});
-
+// Initialize Gemini client lazily inside the handler to support key updates without server restart
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -35,11 +26,21 @@ async function startServer() {
     try {
       const { prompt, history } = req.body;
       
-      if (!process.env.GEMINI_API_KEY) {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
         return res.status(200).json({ 
           text: "Xin lỗi quý khách, khóa API Gemini (GEMINI_API_KEY) chưa được thiết lập trong cài đặt của ứng dụng Vplay này. Vui lòng thiết lập khóa API để bắt đầu sử dụng trợ lý V-Intelligence." 
         });
       }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            "User-Agent": "aistudio-build",
+          },
+        },
+      });
 
       let contents: any[] = [];
       if (history && Array.isArray(history)) {

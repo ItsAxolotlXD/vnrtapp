@@ -16,7 +16,6 @@ import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc, a
 
 import { channels, Channel } from "./channels";
 import GatingLoginPage from "./components/GatingLoginPage";
-import VIntelligenceModal from "./components/VIntelligenceModal";
 
 export interface ToastMessage {
   id: string;
@@ -9961,8 +9960,11 @@ function DynamicIsland({
   onOpenVIntelligence?: () => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [aiExpanded, setAiExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const aiInputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1000);
 
   // Synchronize window resize
@@ -9973,11 +9975,25 @@ function DynamicIsland({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant", text: string }>>([
+    { role: "assistant", text: "Xin chào! Tôi là Trợ lý V-Intelligence của Vplay. Hãy đặt câu hỏi hoặc yêu cầu tìm kiếm kênh truyền hình cho tôi nhé! ✨" }
+  ]);
+  const [aiInput, setAiInput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // Auto-scroll chat history
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, aiExpanded, aiLoading]);
+
   // Close on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsExpanded(false);
+        setAiExpanded(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -9986,11 +10002,12 @@ function DynamicIsland({
     };
   }, []);
 
-  // Listen for Escape key to close the Island search
+  // Listen for Escape key to close
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setIsExpanded(false);
+        setAiExpanded(false);
         inputRef.current?.blur();
       }
     }
@@ -10000,15 +10017,57 @@ function DynamicIsland({
     };
   }, []);
 
-  // Set focus on input element as soon as dynamic island expands
+  // Set focus on input element as soon as dynamic island expands or chat opens
   useEffect(() => {
-    if (isExpanded) {
+    if (isExpanded && !aiExpanded) {
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 150);
       return () => clearTimeout(timer);
+    } else if (isExpanded && aiExpanded) {
+      const timer = setTimeout(() => {
+        aiInputRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
     }
-  }, [isExpanded]);
+  }, [isExpanded, aiExpanded]);
+
+  const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
+    if (e) e.preventDefault();
+    const queryText = (customText || aiInput).trim();
+    if (!queryText || aiLoading) return;
+
+    setAiInput("");
+    setMessages(prev => [...prev, { role: "user", text: queryText }]);
+    setAiLoading(true);
+
+    try {
+      const history = messages.map(msg => ({
+        role: msg.role === "user" ? "user" : "assistant",
+        content: msg.text
+      }));
+
+      const res = await fetch("/api/vplay/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: queryText, history })
+      });
+
+      const data = await res.json();
+      if (data && data.text) {
+        setMessages(prev => [...prev, { role: "assistant", text: data.text }]);
+      } else if (data && data.error) {
+        setMessages(prev => [...prev, { role: "assistant", text: `Lỗi kết nối: ${data.error}` }]);
+      } else {
+        setMessages(prev => [...prev, { role: "assistant", text: "Xin lỗi, V-Intelligence không nhận được phản hồi." }]);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setMessages(prev => [...prev, { role: "assistant", text: `Lỗi kết nối máy chủ: ${err.message || err}` }]);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const formattedTimeWithSeconds = currentTime.toLocaleTimeString("vi-VN", {
     hour: "2-digit",
@@ -10018,6 +10077,8 @@ function DynamicIsland({
   });
 
   const expandedWidth = windowWidth < 480 ? 290 : 380;
+  const aiCardWidth = windowWidth < 480 ? windowWidth - 24 : 440;
+  const aiCardHeight = windowWidth < 480 ? 370 : 410;
 
   return (
     <div className="flex justify-center w-full relative">
@@ -10031,13 +10092,14 @@ function DynamicIsland({
           mass: 0.8,
         }}
         animate={{
-          width: isExpanded ? expandedWidth : 132,
-          height: 38,
+          width: isExpanded ? (aiExpanded ? aiCardWidth : expandedWidth) : 132,
+          height: isExpanded ? (aiExpanded ? aiCardHeight : 38) : 38,
+          borderRadius: aiExpanded ? "28px" : "999px",
         }}
         onClick={() => {
           if (!isExpanded) setIsExpanded(true);
         }}
-        className="bg-black text-white rounded-full border border-white/12 px-4 flex items-center justify-between shadow-[0_12px_28px_rgba(0,0,0,0.65),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] cursor-pointer overflow-hidden select-none"
+        className="bg-black text-white border border-white/12 px-4 flex flex-col justify-start shadow-[0_12px_28px_rgba(0,0,0,0.65),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] cursor-pointer overflow-hidden select-none"
       >
         <AnimatePresence mode="wait">
           {!isExpanded ? (
@@ -10046,20 +10108,20 @@ function DynamicIsland({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="flex items-center justify-center w-full gap-2.5 h-full"
+              className="flex items-center justify-center w-full gap-2.5 h-[36px]"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse shrink-0" />
               <span className="font-google text-xs font-black tracking-wider text-white/95 select-none text-center">
                 {formattedTimeWithSeconds}
               </span>
             </motion.div>
-          ) : (
+          ) : !aiExpanded ? (
             <motion.div
               key="expanded-search"
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
-              className="flex items-center w-full gap-2.5 h-full"
+              className="flex items-center w-full gap-2.5 h-[36px]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="shrink-0">
@@ -10078,7 +10140,7 @@ function DynamicIsland({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onOpenVIntelligence?.();
+                    setAiExpanded(true);
                   }}
                   className="p-1 hover:bg-[#4AC4FE]/20 rounded-full transition-all cursor-pointer text-[#4AC4FE] hover:scale-110 flex items-center justify-center shrink-0"
                   title="Hỏi Trợ lý V-Intelligence AI"
@@ -10092,19 +10154,134 @@ function DynamicIsland({
                       setSearchQuery("");
                       inputRef.current?.focus();
                     }}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/60 hover:text-white"
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/60 hover:text-white flex items-center justify-center"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 ) : (
                   <button
                     onClick={() => setIsExpanded(false)}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/40 hover:text-white"
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/40 hover:text-white flex items-center justify-center"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
+            </motion.div>
+          ) : (
+            // Robust fully connected nested chatbot inside Dynamic Island!
+            <motion.div
+              key="ai-assistant-active"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full h-full flex flex-col pt-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2 px-1 text-white">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-[#4AC4FE]/20 flex items-center justify-center text-[#4AC4FE] shadow-[0_0_8px_rgba(74,196,254,0.3)]">
+                    <Brain className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-xs font-bold font-google text-white flex items-center gap-1">
+                      V-Intelligence
+                      <span className="text-[9px] bg-[#4AC4FE]/20 text-[#4AC4FE] px-1 rounded">Beta</span>
+                    </h3>
+                    <p className="text-[8px] text-white/40">Powered by Gemini AI</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  {/* Minimize back to normal search */}
+                  <button 
+                    onClick={() => setAiExpanded(false)}
+                    className="p-1 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-all text-[10px] font-bold px-2 py-0.5"
+                    title="Quay lại Tìm kiếm"
+                  >
+                    Quay lại
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setAiExpanded(false);
+                      setIsExpanded(false);
+                    }}
+                    className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-all flex items-center justify-center"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scrollable messages panel */}
+              <div 
+                ref={scrollRef}
+                className="flex-1 overflow-y-auto space-y-2.5 pr-1 py-1 text-xs no-scrollbar flex flex-col"
+              >
+                {messages.map((msg, index) => (
+                  <div 
+                    key={`ai-msg-${index}`}
+                    className={`flex w-full ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div className={`max-w-[85%] rounded-2xl px-3 py-2 leading-relaxed ${
+                      msg.role === "user" 
+                        ? "bg-[#4AC4FE] text-black font-semibold rounded-tr-sm text-right" 
+                        : "bg-white/10 text-white/95 rounded-tl-sm text-left whitespace-pre-wrap font-sans"
+                    }`}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+
+                {aiLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-white/10 text-white/70 rounded-2xl px-3 py-2 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#38bcfd] animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#38bcfd] animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#38bcfd] animate-bounce" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Suggestions quick action widgets */}
+              {messages.length === 1 && !aiLoading && (
+                <div className="py-2 flex gap-1.5 overflow-x-auto no-scrollbar scroll-smooth shrink-0 border-t border-white/5 mt-1">
+                  {[
+                    "Kênh HBO hôm nay có gì?",
+                    "Tìm kênh phim hoạt hình",
+                    "Giới thiệu tính năng Vplay"
+                  ].map((sug, sIdx) => (
+                    <button
+                      key={`sug-${sIdx}`}
+                      onClick={() => handleSendMessage(undefined, sug)}
+                      className="px-2.5 py-1 text-[10px] bg-white/5 border border-white/10 rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-all whitespace-nowrap"
+                    >
+                      {sug}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Form Input Footer */}
+              <form onSubmit={handleSendMessage} className="flex gap-1.5 border-t border-white/10 py-2 shrink-0">
+                <input
+                  ref={aiInputRef}
+                  type="text"
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                  placeholder="Hỏi V-Intelligence..."
+                  className="bg-white/10 rounded-full px-3.5 py-1.5 text-xs text-white placeholder-white/30 outline-none flex-1 border-none focus:ring-1 focus:ring-[#4AC4FE]"
+                />
+                <button
+                  type="submit"
+                  disabled={aiLoading}
+                  className="px-3 bg-[#4AC4FE] hover:bg-[#38bcfd] text-slate-900 rounded-full font-black text-xs h-8 flex items-center justify-center transition-all disabled:opacity-50"
+                >
+                  Gửi
+                </button>
+              </form>
             </motion.div>
           )}
         </AnimatePresence>
@@ -10618,16 +10795,14 @@ function SearchContextMenu({
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
-        className="fixed z-[1001] w-56 rounded-2xl border transition-all duration-300 font-bold text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
+        className="fixed z-[1001] w-56 rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-black"
         style={{
           position: "fixed",
           top: y,
           left: x,
           padding: "6px",
-          backgroundColor: "rgba(255, 255, 255, 0.20)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          border: "1px solid rgba(255, 255, 255, 0.35)"
+          backgroundColor: "#ffffff",
+          border: "1px solid rgba(0, 0, 0, 0.1)"
         }}
       >
         {menuItems.map((item) => {
@@ -10639,12 +10814,12 @@ function SearchContextMenu({
               onClick={() => { onSelect(item.id as any); onClose(); }}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
                 isActive 
-                  ? "bg-slate-900/10 text-slate-950 font-black" 
-                  : "hover:bg-black/10 text-slate-700 hover:text-slate-950"
+                  ? "bg-slate-100 text-black font-extrabold" 
+                  : "hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
               }`}
             >
-              <Icon size={16} />
-              <span className="text-sm font-medium">{item.label}</span>
+              <Icon size={16} className="text-black" />
+              <span className="text-sm">{item.label}</span>
               {isActive && <CheckCircle2 size={14} className="ml-auto text-[#4AC4FE]" />}
             </button>
           );
@@ -10695,25 +10870,23 @@ function UnifiedContextMenu({
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
-        className="fixed z-[1001] w-60 rounded-2xl border transition-all duration-300 font-bold text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
+        className="fixed z-[1001] w-60 rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-black"
         style={{
           position: "fixed",
           top: y,
           left: x,
           padding: "6px",
-          backgroundColor: "rgba(255, 255, 255, 0.20)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          border: "1px solid rgba(255, 255, 255, 0.35)"
+          backgroundColor: "#ffffff",
+          border: "1px solid rgba(0, 0, 0, 0.1)"
         }}
       >
         {/* Section 1: UI Layout */}
         <button 
           onClick={() => { setHeadingBar(!headingBar); onClose(); }} 
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
         >
-          {headingBar ? <EyeOff size={16} /> : <Eye size={16} />}
-          <span className="text-sm font-medium">
+          {headingBar ? <EyeOff size={16} className="text-black" /> : <Eye size={16} className="text-black" />}
+          <span className="text-sm">
             {featureFlags.dynamic_island 
               ? (headingBar ? "Ẩn Dynamic Island" : "Hiện Dynamic Island")
               : (headingBar ? "Ẩn Top bar" : "Hiện Top bar")}
@@ -10722,54 +10895,54 @@ function UnifiedContextMenu({
 
         <button 
           onClick={() => { setUseSidebar(!useSidebar); onClose(); }} 
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
         >
-          {useSidebar ? <Smartphone size={16} /> : <Columns size={16} />}
-          <span className="text-sm font-medium">{useSidebar ? "Sử dụng Bottom bar" : "Sử dụng Sidebar"}</span>
+          {useSidebar ? <Smartphone size={16} className="text-black" /> : <Columns size={16} className="text-black" />}
+          <span className="text-sm">{useSidebar ? "Sử dụng Bottom bar" : "Sử dụng Sidebar"}</span>
         </button>
 
-        <div className="h-[1px] bg-black/10 my-1.5 mx-1" />
+        <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
 
         {/* Section 2: Time & Weather */}
         <button 
           onClick={handleToggleTimer} 
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
         >
           <div className="flex items-center gap-3">
-            <Clock size={16} />
-            <span className="text-sm font-medium">{hasClockOrDate ? "Ẩn đồng hồ và lịch" : "Hiện đồng hồ và lịch"}</span>
+            <Clock size={16} className="text-black" />
+            <span className="text-sm">{hasClockOrDate ? "Ẩn đồng hồ và lịch" : "Hiện đồng hồ và lịch"}</span>
           </div>
           {hasClockOrDate && <Check size={14} className="text-[#38bcfd]" />}
         </button>
 
         <button 
           onClick={() => { setShowTempInClock(!showTempInClock); onClose(); }} 
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
         >
           <div className="flex items-center gap-3">
-            <Thermometer size={16} />
-            <span className="text-sm font-medium">Hiện nhiệt độ</span>
+            <Thermometer size={16} className="text-black" />
+            <span className="text-sm">Hiện nhiệt độ</span>
           </div>
           {showTempInClock && <Check size={14} className="text-[#38bcfd]" />}
         </button>
 
-        <div className="h-[1px] bg-black/10 my-1.5 mx-1" />
+        <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
 
         {/* Section 3: App Controls */}
         <button 
           onClick={() => { window.location.reload(); }} 
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
         >
-          <RotateCcw size={16} />
-          <span className="text-sm font-medium">Refresh</span>
+          <RotateCcw size={16} className="text-black" />
+          <span className="text-sm">Refresh</span>
         </button>
 
         <button 
           onClick={() => { handleOpenSettings(); onClose(); }} 
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
         >
-          <SettingsIcon size={16} />
-          <span className="text-sm font-medium">Cài đặt</span>
+          <SettingsIcon size={16} className="text-black" />
+          <span className="text-sm">Cài đặt</span>
         </button>
       </div>
     </>
@@ -14676,7 +14849,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         paddingRight: useSidebar && !isMobile && isSidebarRight 
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (!floatyBars ? 16 : 0) : (80 + (!floatyBars ? 16 : 0))) 
           : 0,
-        paddingTop: headingBar ? (floatyBars ? 56 : 76) : 0,
+        paddingTop: headingBar ? (featureFlags.dynamic_island ? 0 : (floatyBars ? 56 : 76)) : 0,
       }}
       >
       {!showSplash && headingBar && (
@@ -14776,7 +14949,6 @@ const [headingBar, setHeadingBar] = useState(() => {
         )}
       </AnimatePresence>
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} isDark={isDark} liquidGlass={liquidGlass} setIsDev={setIsDev} setUserData={setUserData} />
-      <VIntelligenceModal isOpen={isVIntelligenceModalOpen} onClose={() => setIsVIntelligenceModalOpen(false)} isDark={isDark} />
       
       <AnimatePresence>
         {showForceResetPopup && (
@@ -14999,19 +15171,17 @@ const [headingBar, setHeadingBar] = useState(() => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.12 }}
-              className="fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
+              className="fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-black"
               style={{
                 position: "fixed",
                 top: channelContextMenu.y,
                 left: channelContextMenu.x,
                 padding: "10px",
-                backgroundColor: "rgba(255, 255, 255, 0.20)",
-                backdropFilter: "blur(10px)",
-                WebkitBackdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.35)"
+                backgroundColor: "#ffffff",
+                border: "1px solid rgba(0, 0, 0, 0.1)"
               }}
             >
-              <div className="px-3 pb-2 pt-1 border-b border-black/10 mb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-800 opacity-65 truncate max-w-[220px]">
+              <div className="px-3 pb-2 pt-1 border-b border-slate-200 mb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-800 truncate max-w-[220px]">
                 Kênh: {channelContextMenu.ch.name}
               </div>
               
@@ -15021,9 +15191,9 @@ const [headingBar, setHeadingBar] = useState(() => {
                   toggleFavorite(channelContextMenu.ch);
                   setChannelContextMenu(null);
                 }}
-                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-black/10 text-slate-700 hover:text-slate-950"
+                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-slate-100 text-slate-800 hover:text-black"
               >
-                <Heart size={14} className={favorites.includes(channelContextMenu.ch.name) ? "text-[#E02424] fill-[#E02424] animate-pulse" : "opacity-60"} />
+                <Heart size={14} className={favorites.includes(channelContextMenu.ch.name) ? "text-[#E02424] fill-[#E02424] animate-pulse" : "opacity-60 text-slate-800"} />
                 {favorites.includes(channelContextMenu.ch.name) ? "Loại bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
               </button>
 
@@ -15033,9 +15203,9 @@ const [headingBar, setHeadingBar] = useState(() => {
                   togglePinChannel(channelContextMenu.ch);
                   setChannelContextMenu(null);
                 }}
-                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-black/10 text-slate-700 hover:text-slate-950"
+                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-slate-100 text-slate-800 hover:text-black"
               >
-                <Pin size={14} className={pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "text-[#4AC4FE] fill-[#4AC4FE]" : "opacity-60"} />
+                <Pin size={14} className={pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "text-[#4AC4FE] fill-[#4AC4FE]" : "opacity-60 text-slate-800"} />
                 {pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "Bỏ ghim khỏi sidebar/nav" : "Ghim vào sidebar/nav"}
               </button>
             </motion.div>
@@ -16123,7 +16293,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className="flex-1 w-full flex items-center justify-between p-2 h-14 md:h-16 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12"
+            className="flex-1 w-full flex items-center justify-between p-1 h-11 md:h-13 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12"
             style={{
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
@@ -16140,13 +16310,13 @@ const [headingBar, setHeadingBar] = useState(() => {
                   setSlideDirection(-1);
                   setNavPage((prev) => (prev - 1 + totPages) % totPages);
                 }}
-                className={`p-2 rounded-full hover:bg-black/5 transition-colors z-20 ${isDark ? "text-white/40" : "text-black/40"}`}
+                className={`p-1.5 rounded-full hover:bg-black/5 transition-colors z-20 ${isDark ? "text-white/40" : "text-black/40"}`}
               >
-                <ChevronLeft size={24} />
+                <ChevronLeft size={20} />
               </button>
             )}
 
-            <div className="flex-1 overflow-hidden relative h-12 flex items-center justify-center w-full">
+            <div className="flex-1 overflow-hidden relative h-10 flex items-center justify-center w-full">
               <AnimatePresence initial={false}>
                 <motion.div
                   key={`nav-page-${navPage}`}
@@ -16168,7 +16338,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                         let activeColorClass = "text-slate-950 font-black scale-102";
 
                         return (
-                          <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center p-1">
+                          <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center p-0.5">
                             <button
                               onClick={() => {
                                 triggerNavBounce();
@@ -16181,7 +16351,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 setActiveTab(tabId);
                               }}
-                              className={`relative flex flex-col items-center justify-center px-1.5 py-0 h-10 md:h-12 rounded-full transition-all duration-300 group z-10 w-full ${
+                              className={`relative flex flex-col items-center justify-center px-1.5 py-0 h-8 md:h-9.5 rounded-full transition-all duration-300 group z-10 w-full ${
                                 isActive 
                                   ? activeColorClass
                                   : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black/80 hover:text-black"
@@ -16200,8 +16370,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 />
                               )}
                               <motion.div
-                                animate={isActive ? { scale: 1.12 } : { scale: 1 }}
-                                whileTap={{ scale: 0.75 }}
+                                animate={isActive ? { scale: 1.08 } : { scale: 1 }}
+                                whileTap={{ scale: 0.8 }}
                                 transition={
                                   isActive
                                     ? {
@@ -16219,9 +16389,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 className="z-10 relative flex items-center justify-center"
                               >
                                 <Icon 
-                                  size={30}
-                                  filled={isActive}
-                                  className={`h-8 w-8 flex-shrink-0 transition-colors duration-300 ${
+                                  size={20}
+                                  className={`h-5.5 w-5.5 flex-shrink-0 transition-colors duration-300 ${
                                     isActive 
                                       ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.12)] stroke-[1.8px]" 
                                       : "text-black"
