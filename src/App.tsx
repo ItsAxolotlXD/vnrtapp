@@ -1950,7 +1950,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers }: { 
+function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -1977,7 +1977,11 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   isTopBarVisible?: boolean,
   useNewDesign?: boolean,
   setUseNewDesign?: (val: boolean) => void,
-  showChannelNumbers?: boolean
+  showChannelNumbers?: boolean,
+  volume?: number,
+  setVolume?: (v: number) => void,
+  isMuted?: boolean,
+  setIsMuted?: (m: boolean) => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2245,8 +2249,13 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   }, [lockPlayer]);
 
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false); // Default to sound ON
-  const [volume, setVolume] = useState(1);
+  const [localMuted, setLocalMuted] = useState(false);
+  const [localVolume, setLocalVolume] = useState(1);
+
+  const isMuted = isMutedProp !== undefined ? isMutedProp : localMuted;
+  const setIsMuted = setIsMutedProp !== undefined ? setIsMutedProp : setLocalMuted;
+  const volume = volumeProp !== undefined ? volumeProp : localVolume;
+  const setVolume = setVolumeProp !== undefined ? setVolumeProp : setLocalVolume;
   const [levels, setLevels] = useState<Hls.Level[]>([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
@@ -9949,6 +9958,13 @@ function DynamicIsland({
   user,
   handleOpenSettings,
   onOpenVIntelligence,
+  activeChannel,
+  setActiveChannel,
+  volume = 0.5,
+  setVolume,
+  isMuted = false,
+  setIsMuted,
+  setActiveTab,
 }: {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
@@ -9958,14 +9974,91 @@ function DynamicIsland({
   user?: any;
   handleOpenSettings?: () => void;
   onOpenVIntelligence?: () => void;
+  activeChannel?: Channel;
+  setActiveChannel?: (ch: Channel) => void;
+  volume?: number;
+  setVolume?: (v: number) => void;
+  isMuted?: boolean;
+  setIsMuted?: (m: boolean) => void;
+  setActiveTab?: (tab: string) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(false);
+  const [islandMode, setIslandMode] = useState<"search" | "keypad" | "volume">("search");
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const aiInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1000);
+
+  // Keypad typed state
+  const [typedNum, setTypedNum] = useState("");
+
+  const matchedChannel = React.useMemo(() => {
+    const num = parseInt(typedNum, 10);
+    if (isNaN(num) || num <= 0 || num > channels.length) return null;
+    return channels[num - 1];
+  }, [typedNum]);
+
+  // Quick favorite categories shortcuts
+  const quickCategories = ["VTV1", "VTV3", "VTV5", "HTV7", "VTV9"];
+  const quickChs = React.useMemo(() => {
+    return quickCategories.map(name => {
+      return channels.find(c => c.name.toUpperCase().includes(name));
+    }).filter(Boolean) as Channel[];
+  }, []);
+
+  // Volume interaction ref & state
+  const [isDraggingVol, setIsDraggingVol] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const handleVolInteraction = (clientY: number) => {
+    if (!trackRef.current || !setVolume) return;
+    const rect = trackRef.current.getBoundingClientRect();
+    const height = rect.height;
+    // Math distance from bottom of track
+    const relativeY = rect.bottom - clientY;
+    let pct = relativeY / height;
+    pct = Math.max(0, Math.min(1, pct));
+    setVolume(pct);
+  };
+
+  const handleVolMouseDown = (e: React.MouseEvent) => {
+    setIsDraggingVol(true);
+    handleVolInteraction(e.clientY);
+  };
+
+  const handleVolTouchStart = (e: React.TouchEvent) => {
+    setIsDraggingVol(true);
+    if (e.touches[0]) {
+      handleVolInteraction(e.touches[0].clientY);
+    }
+  };
+
+  useEffect(() => {
+    if (!isDraggingVol) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      handleVolInteraction(e.clientY);
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches[0]) {
+        handleVolInteraction(e.touches[0].clientY);
+      }
+    };
+    const handleMouseUp = () => {
+      setIsDraggingVol(false);
+    };
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleMouseUp);
+    };
+  }, [isDraggingVol]);
 
   // Synchronize window resize
   useEffect(() => {
@@ -10017,9 +10110,9 @@ function DynamicIsland({
     };
   }, []);
 
-  // Set focus on input element as soon as dynamic island expands or chat opens
+  // Set focus on input element as soon as dynamic island expands to search
   useEffect(() => {
-    if (isExpanded && !aiExpanded) {
+    if (isExpanded && !aiExpanded && islandMode === "search") {
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 150);
@@ -10030,7 +10123,7 @@ function DynamicIsland({
       }, 150);
       return () => clearTimeout(timer);
     }
-  }, [isExpanded, aiExpanded]);
+  }, [isExpanded, aiExpanded, islandMode]);
 
   const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
     if (e) e.preventDefault();
@@ -10080,6 +10173,23 @@ function DynamicIsland({
   const aiCardWidth = windowWidth < 480 ? windowWidth - 24 : 440;
   const aiCardHeight = windowWidth < 480 ? 370 : 410;
 
+  const handleKeyClick = (key: string) => {
+    if (key === "backspace") {
+      setTypedNum(prev => prev.slice(0, -1));
+    } else if (key === "enter") {
+      if (matchedChannel && setActiveChannel) {
+        setActiveChannel(matchedChannel);
+        if (setActiveTab) setActiveTab("Live");
+        setTypedNum("");
+        setIsExpanded(false);
+      }
+    } else {
+      if (typedNum.length < 3) {
+        setTypedNum(prev => prev + key);
+      }
+    }
+  };
+
   return (
     <div className="flex justify-center w-full relative">
       <motion.div
@@ -10092,9 +10202,19 @@ function DynamicIsland({
           mass: 0.8,
         }}
         animate={{
-          width: isExpanded ? (aiExpanded ? aiCardWidth : expandedWidth) : 132,
-          height: isExpanded ? (aiExpanded ? aiCardHeight : 38) : 38,
-          borderRadius: aiExpanded ? "28px" : "999px",
+          width: isExpanded 
+            ? (aiExpanded 
+                ? aiCardWidth 
+                : (islandMode === "keypad" ? 320 : islandMode === "volume" ? 220 : expandedWidth)
+              ) 
+            : 132,
+          height: isExpanded 
+            ? (aiExpanded 
+                ? aiCardHeight 
+                : (islandMode === "keypad" ? 330 : islandMode === "volume" ? 230 : 84)
+              ) 
+            : 38,
+          borderRadius: (aiExpanded || isExpanded) ? "24px" : "999px",
         }}
         onClick={() => {
           if (!isExpanded) setIsExpanded(true);
@@ -10117,55 +10237,226 @@ function DynamicIsland({
             </motion.div>
           ) : !aiExpanded ? (
             <motion.div
-              key="expanded-search"
-              initial={{ opacity: 0, x: 12 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -12 }}
-              className="flex items-center w-full gap-2.5 h-[36px]"
+              key="expanded-controls"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full flex flex-col pt-3 pb-2 h-full justify-between"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="shrink-0">
-                <SearchCustomIcon className="w-4.5 h-4.5 text-white" />
-              </div>
-              <input
-                ref={inputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search or Ask V-Intelligence"
-                className="bg-transparent text-white placeholder-white/30 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
-              />
-              <div className="flex items-center gap-1.5 shrink-0">
-                {/* V-Intelligence Brain Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setAiExpanded(true);
-                  }}
-                  className="p-1 hover:bg-[#4AC4FE]/20 rounded-full transition-all cursor-pointer text-[#4AC4FE] hover:scale-110 flex items-center justify-center shrink-0"
-                  title="Hỏi Trợ lý V-Intelligence AI"
-                >
-                  <Brain className="w-4 h-4" />
-                </button>
-
-                {searchQuery ? (
+              {/* Dynamic Island Header Option Bar */}
+              <div className="flex items-center justify-between w-full border-b border-white/10 pb-2.5 select-none shrink-0">
+                <div className="text-[10px] uppercase font-black tracking-widest text-[#4AC4FE] flex items-center gap-1.5 pl-1">
+                  {islandMode === "search" && "Tìm kiếm & AI"}
+                  {islandMode === "keypad" && "Bàn phím kênh"}
+                  {islandMode === "volume" && "Âm lượng TV"}
+                </div>
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      inputRef.current?.focus();
-                    }}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/60 hover:text-white flex items-center justify-center"
+                    onClick={() => setIslandMode("search")}
+                    className={`p-1 rounded-full transition-all ${
+                      islandMode === "search" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+                    }`}
+                    title="Tìm kiếm & AI"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <SearchCustomIcon size={13} />
                   </button>
-                ) : (
+                  <button
+                    onClick={() => setIslandMode("keypad")}
+                    className={`p-1 rounded-full transition-all ${
+                      islandMode === "keypad" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+                    }`}
+                    title="Bàn phím số & Chuyển kênh"
+                  >
+                    <LayoutGrid size={13} />
+                  </button>
+                  <button
+                    onClick={() => setIslandMode("volume")}
+                    className={`p-1 rounded-full transition-all ${
+                      islandMode === "volume" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+                    }`}
+                    title="Điều chỉnh âm lượng"
+                  >
+                    <Volume2 size={13} />
+                  </button>
                   <button
                     onClick={() => setIsExpanded(false)}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/40 hover:text-white flex items-center justify-center"
+                    className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white flex items-center justify-center ml-1"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
-                )}
+                </div>
+              </div>
+
+              {/* Dynamic Island View Content */}
+              <div className="flex-1 flex flex-col justify-center py-2.5 overflow-hidden">
+                <AnimatePresence mode="wait">
+                  {islandMode === "search" && (
+                    <motion.div
+                      key="search-v-intel"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="flex items-center w-full gap-2.5 h-[36px]"
+                    >
+                      <div className="shrink-0 pl-1">
+                        <SearchCustomIcon className="w-4.5 h-4.5 text-white" />
+                      </div>
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search or Ask V-Intelligence"
+                        className="bg-transparent text-white placeholder-white/30 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
+                      />
+                      <div className="flex items-center gap-1.5 shrink-0 pr-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAiExpanded(true);
+                          }}
+                          className="p-1 hover:bg-[#4AC4FE]/20 rounded-full transition-all cursor-pointer text-[#4AC4FE] hover:scale-110 flex items-center justify-center shrink-0"
+                          title="Hỏi Trợ lý V-Intelligence AI"
+                        >
+                          <Brain className="w-4 h-4" />
+                        </button>
+
+                        {searchQuery && (
+                          <button
+                            onClick={() => {
+                              setSearchQuery("");
+                              inputRef.current?.focus();
+                            }}
+                            className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/60 hover:text-white flex items-center justify-center"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {islandMode === "keypad" && (
+                    <motion.div
+                      key="keypad-v-intel"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="w-full flex flex-col justify-center overflow-hidden"
+                    >
+                      {/* Typed channel display indicator */}
+                      <div className="text-center pb-2 px-2 shrink-0">
+                        {typedNum ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-xs bg-cyan-500/10 border border-cyan-500/20 text-[#4AC4FE] font-black px-1.5 py-0.5 rounded-md min-w-[24px]">Kênh {typedNum}</span>
+                            <span className={`text-[11px] font-bold ${matchedChannel ? "text-emerald-400" : "text-amber-500"}`}>
+                              {matchedChannel ? matchedChannel.name : "Không tìm thấy kênh"}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] font-semibold text-white/50">Gọi kênh nhanh (1 - {channels.length})</span>
+                        )}
+                      </div>
+
+                      {/* Numeric Keypad Grid */}
+                      <div className="grid grid-cols-3 gap-1.5 w-full max-w-[210px] mx-auto shrink-0">
+                        {["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "OK"].map((char) => {
+                          let btnClass = "h-[30px] rounded-lg flex items-center justify-center font-extrabold text-xs bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-white";
+                          if (char === "⌫") {
+                            btnClass = "h-[30px] rounded-lg flex items-center justify-center font-extrabold text-xs bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 transition-all text-amber-400";
+                          } else if (char === "OK") {
+                            btnClass = "h-[30px] rounded-lg flex items-center justify-center font-black text-xs bg-[#4AC4FE] text-black hover:bg-[#38bcfd] active:scale-95 transition-all";
+                          }
+                          return (
+                            <button
+                              key={`key-${char}`}
+                              type="button"
+                              onClick={() => handleKeyClick(char === "⌫" ? "backspace" : char === "OK" ? "enter" : char)}
+                              className={btnClass}
+                            >
+                              {char}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Channel quick icons */}
+                      <div className="flex justify-center gap-1.5 shrink-0 border-t border-white/10 pt-2 mt-2 max-w-[280px] mx-auto overflow-x-auto no-scrollbar">
+                        {quickChs.map((ch) => (
+                          <button
+                            key={`quick-ch-${ch.name}`}
+                            onClick={() => {
+                              if (setActiveChannel) setActiveChannel(ch);
+                              if (setActiveTab) setActiveTab("Live");
+                              setIsExpanded(false);
+                            }}
+                            className="flex flex-col items-center gap-0.5 hover:scale-105 active:scale-95 transition-all w-9 shrink-0"
+                            title={`Mở ${ch.name}`}
+                          >
+                            <div className="w-6 h-6 rounded-full bg-white/15 p-1 border border-white/10 flex items-center justify-center overflow-hidden">
+                              <img src={ch.logo} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                            </div>
+                            <span className="text-[7.5px] font-bold text-white/60 truncate max-w-full leading-none">{ch.name.replace(/ HD$/i, "")}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {islandMode === "volume" && (
+                    <motion.div
+                      key="volume-v-intel"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="w-full flex items-center justify-center gap-5 overflow-hidden py-1 h-full"
+                    >
+                      {/* Vertical Slider Track (Wide design like iOS) */}
+                      <div className="flex flex-col items-center gap-2">
+                        <div 
+                          ref={trackRef}
+                          onMouseDown={handleVolMouseDown}
+                          onTouchStart={handleVolTouchStart}
+                          className="w-14 h-[110px] bg-white/10 rounded-2xl relative overflow-hidden flex items-end cursor-pointer active:brightness-110 shrink-0"
+                        >
+                          {/* Liquid level filler */}
+                          <motion.div 
+                            className="w-full bg-[#4AC4FE] shadow-[0_0_12px_rgba(74,196,254,0.45)]"
+                            style={{ height: `${volume * 100}%` }}
+                            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                          />
+                          
+                          {/* Mute icon overlays inside bottom of slider */}
+                          <div className="absolute inset-x-0 bottom-2.5 flex justify-center pointer-events-none text-black z-10 opacity-75">
+                            {(isMuted || volume === 0) ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Info and details panel */}
+                      <div className="flex flex-col items-start gap-1">
+                        <span className="text-3xl font-mono font-black text-white/95 leading-none">
+                          {isMuted ? "MUTE" : `${Math.round(volume * 100)}%`}
+                        </span>
+                        <div className="flex gap-2.5 mt-2">
+                          <button
+                            onClick={() => {
+                              if (setIsMuted) setIsMuted(!isMuted);
+                            }}
+                            className={`px-3 py-1.5 rounded-xl font-bold text-[10px] tracking-wide relative z-10 transition-all ${
+                              isMuted 
+                                ? "bg-red-500/20 text-red-400 border border-red-500/30" 
+                                : "bg-white/10 hover:bg-white/15 text-white border border-white/5"
+                            }`}
+                          >
+                            {isMuted ? "Bật âm thanh" : "Tắt âm thanh"}
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           ) : (
@@ -10795,13 +11086,15 @@ function SearchContextMenu({
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
-        className="fixed z-[1001] w-56 rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-black"
+        className="fixed z-[1001] w-56 rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-slate-900"
         style={{
           position: "fixed",
           top: y,
           left: x,
           padding: "6px",
-          backgroundColor: "#ffffff",
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
           border: "1px solid rgba(0, 0, 0, 0.1)"
         }}
       >
@@ -10814,8 +11107,8 @@ function SearchContextMenu({
               onClick={() => { onSelect(item.id as any); onClose(); }}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
                 isActive 
-                  ? "bg-slate-100 text-black font-extrabold" 
-                  : "hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
+                  ? "bg-black/8 text-black font-extrabold" 
+                  : "hover:bg-black/8 text-slate-800 hover:text-black font-semibold"
               }`}
             >
               <Icon size={16} className="text-black" />
@@ -10870,20 +11163,22 @@ function UnifiedContextMenu({
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
-        className="fixed z-[1001] w-60 rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-black"
+        className="fixed z-[1001] w-60 rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-slate-900"
         style={{
           position: "fixed",
           top: y,
           left: x,
           padding: "6px",
-          backgroundColor: "#ffffff",
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
           border: "1px solid rgba(0, 0, 0, 0.1)"
         }}
       >
         {/* Section 1: UI Layout */}
         <button 
           onClick={() => { setHeadingBar(!headingBar); onClose(); }} 
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/8 text-slate-800 hover:text-black font-semibold"
         >
           {headingBar ? <EyeOff size={16} className="text-black" /> : <Eye size={16} className="text-black" />}
           <span className="text-sm">
@@ -10895,13 +11190,13 @@ function UnifiedContextMenu({
 
         <button 
           onClick={() => { setUseSidebar(!useSidebar); onClose(); }} 
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-slate-100 text-slate-800 hover:text-black font-semibold"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/8 text-slate-800 hover:text-black font-semibold"
         >
           {useSidebar ? <Smartphone size={16} className="text-black" /> : <Columns size={16} className="text-black" />}
           <span className="text-sm">{useSidebar ? "Sử dụng Bottom bar" : "Sử dụng Sidebar"}</span>
         </button>
 
-        <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
+        <div className="h-[1px] bg-black/5 my-1.5 mx-1" />
 
         {/* Section 2: Time & Weather */}
         <button 
@@ -13547,7 +13842,7 @@ function App() {
     if (Math.abs(diff) > 40) {
       triggerNavBounce();
       const addPages = Math.ceil(pinnedChannels.length / maxToolbarTabs);
-      const totPages = 3 + addPages;
+      const totPages = (featureFlags.dynamic_island ? 1 : 3) + addPages;
       if (diff > 0) {
         setSlideDirection(-1);
         setNavPage((prev) => (prev - 1 + totPages) % totPages);
@@ -14063,6 +14358,8 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   }, [customColors]);
 
   const [showGeoPopup, setShowGeoPopup] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
   const [currentTime, setCurrentTime] = useState(new Date());
 const [headingBar, setHeadingBar] = useState(() => {
     const saved = localStorage.getItem("vplay_heading_bar");
@@ -14869,6 +15166,13 @@ const [headingBar, setHeadingBar] = useState(() => {
               user={user}
               handleOpenSettings={handleOpenSettings}
               onOpenVIntelligence={() => setIsVIntelligenceModalOpen(true)}
+              activeChannel={activeChannel}
+              setActiveChannel={setActiveChannel}
+              volume={volume}
+              setVolume={setVolume}
+              isMuted={isMuted}
+              setIsMuted={setIsMuted}
+              setActiveTab={setActiveTab}
             />
           ) : (
             <TopBar 
@@ -15171,17 +15475,19 @@ const [headingBar, setHeadingBar] = useState(() => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.12 }}
-              className="fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-black"
+              className="fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-slate-900"
               style={{
                 position: "fixed",
                 top: channelContextMenu.y,
                 left: channelContextMenu.x,
                 padding: "10px",
-                backgroundColor: "#ffffff",
-                border: "1px solid rgba(0, 0, 0, 0.1)"
+                backgroundColor: "rgba(255, 255, 255, 0.75)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: "1px solid rgba(0, 0, 0, 0.12)"
               }}
             >
-              <div className="px-3 pb-2 pt-1 border-b border-slate-200 mb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-800 truncate max-w-[220px]">
+              <div className="px-3 pb-2 pt-1 border-b border-black/5 mb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-800 truncate max-w-[220px]">
                 Kênh: {channelContextMenu.ch.name}
               </div>
               
@@ -15191,7 +15497,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   toggleFavorite(channelContextMenu.ch);
                   setChannelContextMenu(null);
                 }}
-                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-slate-100 text-slate-800 hover:text-black"
+                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-black/8 text-slate-900"
               >
                 <Heart size={14} className={favorites.includes(channelContextMenu.ch.name) ? "text-[#E02424] fill-[#E02424] animate-pulse" : "opacity-60 text-slate-800"} />
                 {favorites.includes(channelContextMenu.ch.name) ? "Loại bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
@@ -15203,7 +15509,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   togglePinChannel(channelContextMenu.ch);
                   setChannelContextMenu(null);
                 }}
-                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-slate-100 text-slate-800 hover:text-black"
+                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-black/8 text-slate-900"
               >
                 <Pin size={14} className={pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "text-[#4AC4FE] fill-[#4AC4FE]" : "opacity-60 text-slate-800"} />
                 {pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "Bỏ ghim khỏi sidebar/nav" : "Ghim vào sidebar/nav"}
@@ -15732,6 +16038,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                   useNewDesign={useNewDesign}
                   setUseNewDesign={setUseNewDesign}
                   showChannelNumbers={showChannelNumbers}
+                  volume={volume}
+                  setVolume={setVolume}
+                  isMuted={isMuted}
+                  setIsMuted={setIsMuted}
                 />
               )}
               {displayTab === "Package" && (
@@ -15762,6 +16072,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                   useNewDesign={useNewDesign}
                   setUseNewDesign={setUseNewDesign}
                   showChannelNumbers={showChannelNumbers}
+                  volume={volume}
+                  setVolume={setVolume}
+                  isMuted={isMuted}
+                  setIsMuted={setIsMuted}
                 />
               )}
               {displayTab === "Experiments" && (
@@ -16306,11 +16620,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                 onClick={() => {
                   triggerNavBounce();
                   const addPages = Math.ceil(pinnedChannels.length / maxToolbarTabs);
-                  const totPages = 3 + addPages;
+                  const totPages = (featureFlags.dynamic_island ? 1 : 3) + addPages;
                   setSlideDirection(-1);
                   setNavPage((prev) => (prev - 1 + totPages) % totPages);
                 }}
-                className={`p-1.5 rounded-full hover:bg-black/5 transition-colors z-20 ${isDark ? "text-white/40" : "text-black/40"}`}
+                className="p-1.5 rounded-full hover:bg-black/8 transition-colors z-20 text-black"
               >
                 <ChevronLeft size={20} />
               </button>
@@ -16409,7 +16723,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     </>
                   )}
 
-                  {navPage === 1 && (
+                  {!featureFlags.dynamic_island && navPage === 1 && (
                     <div className="flex w-full items-center gap-2 px-2.5 h-full relative">
                       {/* Search box overlay for results */}
                       <AnimatePresence>
@@ -16520,7 +16834,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     </div>
                   )}
 
-                  {navPage === 2 && (
+                  {!featureFlags.dynamic_island && navPage === 2 && (
                     <motion.div 
                       onClick={() => {
                         setIsWidgetsOpen(true);
@@ -16556,9 +16870,9 @@ const [headingBar, setHeadingBar] = useState(() => {
                     </motion.div>
                   )}
 
-                  {navPage >= 3 && (
+                  {navPage >= (featureFlags.dynamic_island ? 1 : 3) && (
                     <div className="flex w-full items-center justify-around h-full px-2">
-                      {pinnedChannels.slice((navPage - 3) * maxToolbarTabs, (navPage - 3) * maxToolbarTabs + maxToolbarTabs).map((channel, cIdx) => (
+                      {pinnedChannels.slice((navPage - (featureFlags.dynamic_island ? 1 : 3)) * maxToolbarTabs, (navPage - (featureFlags.dynamic_island ? 1 : 3)) * maxToolbarTabs + maxToolbarTabs).map((channel, cIdx) => (
                         <button
                           key={`nav-pinned-channel-${channel.name}-${cIdx}`}
                           onClick={() => {
@@ -16576,7 +16890,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           </span>
                         </button>
                       ))}
-                      {pinnedChannels.slice((navPage - 3) * maxToolbarTabs, (navPage - 3) * maxToolbarTabs + maxToolbarTabs).length === 0 && (
+                      {pinnedChannels.slice((navPage - (featureFlags.dynamic_island ? 1 : 3)) * maxToolbarTabs, (navPage - (featureFlags.dynamic_island ? 1 : 3)) * maxToolbarTabs + maxToolbarTabs).length === 0 && (
                         <span className="text-[10px] opacity-40 font-bold uppercase tracking-widest">Không có kênh ghim</span>
                       )}
                     </div>
@@ -16591,11 +16905,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                 onClick={() => {
                   triggerNavBounce();
                   const addPages = Math.ceil(pinnedChannels.length / maxToolbarTabs);
-                  const totPages = 3 + addPages;
+                  const totPages = (featureFlags.dynamic_island ? 1 : 3) + addPages;
                   setSlideDirection(1);
                   setNavPage((prev) => (prev + 1) % totPages);
                 }}
-                className={`p-2 rounded-full hover:bg-black/5 transition-colors z-20 ${isDark ? "text-white/40" : "text-black/40"}`}
+                className="p-2 rounded-full hover:bg-black/8 transition-colors z-20 text-black"
               >
                 <ChevronRight size={24} />
               </button>

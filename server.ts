@@ -61,9 +61,44 @@ async function startServer() {
         return res.status(400).json({ error: "Yêu cầu không được bỏ trống." });
       }
 
+      // Gemini multi-turn format requirements:
+      // 1. Must alternate "user" <-> "model"
+      // 2. Must start with "user"
+      let sanitizedContents: any[] = [];
+      for (const turn of contents) {
+        if (sanitizedContents.length === 0) {
+          // Skip any models or empty turns until we hit a user turn
+          if (turn.role === "user" && turn.parts[0]?.text) {
+            sanitizedContents.push(turn);
+          }
+        } else {
+          const lastTurn = sanitizedContents[sanitizedContents.length - 1];
+          if (turn.parts[0]?.text) {
+            if (lastTurn.role !== turn.role) {
+              sanitizedContents.push(turn);
+            } else {
+              // Merge adjacent turns of the same role
+              lastTurn.parts[0].text = `${lastTurn.parts[0].text}\n\n${turn.parts[0].text}`;
+            }
+          }
+        }
+      }
+
+      // Fallback if sanitization left it empty (e.g. only assistant greeting was sent)
+      if (sanitizedContents.length === 0 && prompt) {
+        sanitizedContents.push({
+          role: "user",
+          parts: [{ text: prompt }]
+        });
+      }
+
+      if (sanitizedContents.length === 0) {
+        return res.status(200).json({ text: "V-Intelligence đã sẵn sàng! Hãy hỏi tôi bất cứ điều gì nhé." });
+      }
+
       const response = await ai.models.generateContent({
         model: "gemini-3.5-flash",
-        contents: contents,
+        contents: sanitizedContents,
         config: {
           systemInstruction: "Bạn là V-Intelligence, Trợ lý Trí tuệ Nhân tạo tối tân tích hợp bên trong ứng dụng truyền hình Vplay. Hãy luôn xưng hô lịch sự, thân thiện, và chuyên nghiệp với người dùng truyền hình. Bạn biết cách trả lời tinh tế, ngắn gọn, có cấu trúc đẹp mắt bằng tiếng Việt (thường dùng font chữ sang trọng có markdown). Giới thiệu về mình là trợ lý V-Intelligence của Vplay và sử dụng công nghệ của Gemini API.",
         }
