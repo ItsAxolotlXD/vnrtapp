@@ -151,6 +151,12 @@ const EXPERIMENTS = [
     name: "Ghi màn hình",
     desc: "Cho phép ghi lại màn hình kênh truyền hình đang phát và lưu về thiết bị của bạn",
     stability: "unstable"
+  },
+  {
+    id: "dynamic_island",
+    name: "Dynamic Island",
+    desc: "Thử nghiệm thay thế thanh Top bar bằng một viên thuốc Dynamic Island co giãn đàn hồi bouncy, tích hợp hiển thị giây và thanh tìm kiếm đen tối giản.",
+    stability: "unstable"
   }
 ];
 
@@ -8092,6 +8098,25 @@ function SettingsNew(props: any) {
                   </div>
                 </div>
 
+                <div className="pt-4 border-t border-white/5">
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Dynamic Island</h4>
+                  <div className="pl-3">
+                    {renderBullet(
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-sm text-left">Thử nghiệm Dynamic Island</p>
+                          <p className="text-xs opacity-50 text-left font-normal animate-none">Thay thế thanh Top bar bằng viên thuốc Dynamic Island co giãn đàn hồi tích hợp tìm kiếm.</p>
+                        </div>
+                        <GlassToggle
+                          active={!!featureFlags.dynamic_island}
+                          onToggle={() => setFeatureFlags((prev: any) => ({ ...prev, dynamic_island: !prev.dynamic_island }))}
+                          isDark={isDark}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="pt-4 border-t border-white/5 opacity-60">
                   <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 text-left font-bold font-mono">Các tính năng khác</h4>
                   <div className="pl-3 space-y-2">
@@ -9744,7 +9769,8 @@ function OnboardingWizard({
       multiview_channels: false, 
       disable_animation: false, 
       screen_recording: false,
-      PiP_experimental: false 
+      PiP_experimental: false,
+      dynamic_island: false
     }
   });
   const [showSkipPrompt, setShowSkipPrompt] = useState(false);
@@ -9911,6 +9937,153 @@ function OnboardingWizard({
          </form>
       </div>
     </motion.div>
+  );
+}
+
+function DynamicIsland({
+  searchQuery,
+  setSearchQuery,
+  currentTime,
+  isDark,
+  onMenuClick,
+  user,
+  handleOpenSettings,
+}: {
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  currentTime: Date;
+  isDark: boolean;
+  onMenuClick?: () => void;
+  user?: any;
+  handleOpenSettings?: () => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Close on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Listen for Escape key to close the Island search
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setIsExpanded(false);
+        inputRef.current?.blur();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // Set focus on input element as soon as dynamic island expands
+  useEffect(() => {
+    if (isExpanded) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isExpanded]);
+
+  const formattedTimeWithSeconds = currentTime.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  return (
+    <div className="flex justify-center w-full relative">
+      <motion.div
+        ref={containerRef}
+        layout
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 15,
+          mass: 0.9,
+        }}
+        animate={{
+          width: isExpanded ? 360 : 132,
+          height: 38,
+        }}
+        onClick={() => {
+          if (!isExpanded) setIsExpanded(true);
+        }}
+        className="bg-black text-white rounded-full border border-white/12 px-4 flex items-center justify-between shadow-[0_12px_28px_rgba(0,0,0,0.65),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] cursor-pointer overflow-hidden select-none"
+      >
+        <AnimatePresence mode="wait">
+          {!isExpanded ? (
+            <motion.div
+              key="compact-clock"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex items-center justify-center w-full gap-2.5 h-full"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse shrink-0" />
+              <span className="font-mono text-xs font-black tracking-wider text-white/95 select-none text-center">
+                {formattedTimeWithSeconds}
+              </span>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="expanded-search"
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12 }}
+              className="flex items-center w-full gap-3 h-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="shrink-0">
+                <SearchCustomIcon className="w-4.5 h-4.5 text-white" />
+              </div>
+              <input
+                ref={inputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Start searching"
+                className="bg-transparent text-white placeholder-white/30 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
+              />
+              <div className="flex items-center gap-1 shrink-0">
+                {searchQuery ? (
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      inputRef.current?.focus();
+                    }}
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5 text-white/60 hover:text-white" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setIsExpanded(false)}
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5 text-white/40 hover:text-white" />
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
   );
 }
 
@@ -13014,7 +13187,7 @@ function App() {
 
   const [toastDuration, setToastDuration] = useState<number>(() => {
     const saved = localStorage.getItem("vplay_toast_duration");
-    return saved ? parseInt(saved, 10) : 5000;
+    return saved ? parseInt(saved, 10) : 3000;
   });
 
   const [toastMode, setToastMode] = useState<"single" | "stack">(() => {
@@ -13044,7 +13217,7 @@ function App() {
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [toastQueue, setToastQueue] = useState<ToastMessage[]>([]);
-  const toastDurationRef = useRef(5000);
+  const toastDurationRef = useRef(3000);
   const toastModeRef = useRef<"single" | "stack">("single");
 
   useEffect(() => {
@@ -13601,7 +13774,8 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
       multiview_channels: false, 
       disable_animation: false, 
       screen_recording: false,
-      PiP_experimental: false 
+      PiP_experimental: false,
+      dynamic_island: false
     };
     if (saved) {
       try {
@@ -14479,54 +14653,66 @@ const [headingBar, setHeadingBar] = useState(() => {
             : "fixed top-3 left-3 right-3 md:left-4 md:right-4 z-[9999] transition-all duration-300"
           }
         >
-          <TopBar 
-            isDark={isDark} 
-            topbarSearchType={topbarSearchType}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            searchFilterOption={searchFilterOption}
-            setSearchFilterOption={setSearchFilterOption}
-            isSearchOpen={isSearchOpen}
-            activeTab={activeTab}
-            onMenuClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-            sidebarExpanded={isSidebarExpanded}
-            useSidebar={useSidebar && !isMobile}
-            onSearchClick={() => {
-              setIsSearchOpen(true);
-            }}
-            currentTime={currentTime}
-            weather={weather}
-            showTempInClock={showTempInClock}
-            showClock={showClock}
-            showDate={showDate}
-            getTempDisplay={getTempDisplay}
-            formatTime={formatTime}
-            formatDateString={formatDateString}
-            setActiveTab={setActiveTab}
-            handleSearchContextMenu={handleSearchContextMenu}
-            onContextMenu={handleGlobalContextMenu}
-            isSearchCompact={isSearchCompact}
-            startListening={handleStartListening}
-            isListening={isListening}
-            isListeningFailed={isListeningFailed}
-            location={location}
-            onSystemTrayClick={() => {
-              setIsWidgetsOpen(true);
-              setActiveDashboardTab("widgets");
-            }}
-            user={user}
-            userData={userData}
-            name={name}
-            avatar={avatar}
-            isUserMenuOpen={isUserMenuOpen}
-            setIsUserMenuOpen={setIsUserMenuOpen}
-            showVersionInfo={showVersionInfo}
-            setShowVersionInfo={setShowVersionInfo}
-            handleLogin={handleLogin}
-            handleLogout={handleLogout}
-            handleOpenSettings={handleOpenSettings}
-            floatyBars={floatyBars}
-          />
+          {featureFlags.dynamic_island ? (
+            <DynamicIsland 
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              currentTime={currentTime}
+              isDark={isDark}
+              onMenuClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+              user={user}
+              handleOpenSettings={handleOpenSettings}
+            />
+          ) : (
+            <TopBar 
+              isDark={isDark} 
+              topbarSearchType={topbarSearchType}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              searchFilterOption={searchFilterOption}
+              setSearchFilterOption={setSearchFilterOption}
+              isSearchOpen={isSearchOpen}
+              activeTab={activeTab}
+              onMenuClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+              sidebarExpanded={isSidebarExpanded}
+              useSidebar={useSidebar && !isMobile}
+              onSearchClick={() => {
+                setIsSearchOpen(true);
+              }}
+              currentTime={currentTime}
+              weather={weather}
+              showTempInClock={showTempInClock}
+              showClock={showClock}
+              showDate={showDate}
+              getTempDisplay={getTempDisplay}
+              formatTime={formatTime}
+              formatDateString={formatDateString}
+              setActiveTab={setActiveTab}
+              handleSearchContextMenu={handleSearchContextMenu}
+              onContextMenu={handleGlobalContextMenu}
+              isSearchCompact={isSearchCompact}
+              startListening={handleStartListening}
+              isListening={isListening}
+              isListeningFailed={isListeningFailed}
+              location={location}
+              onSystemTrayClick={() => {
+                setIsWidgetsOpen(true);
+                setActiveDashboardTab("widgets");
+              }}
+              user={user}
+              userData={userData}
+              name={name}
+              avatar={avatar}
+              isUserMenuOpen={isUserMenuOpen}
+              setIsUserMenuOpen={setIsUserMenuOpen}
+              showVersionInfo={showVersionInfo}
+              setShowVersionInfo={setShowVersionInfo}
+              handleLogin={handleLogin}
+              handleLogout={handleLogout}
+              handleOpenSettings={handleOpenSettings}
+              floatyBars={floatyBars}
+            />
+          )}
         </div>
       )}
 
@@ -16229,24 +16415,29 @@ const [headingBar, setHeadingBar] = useState(() => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.9, transition: { duration: 0.12 } }}
               layout
-              className="pointer-events-auto px-4 py-2.5 rounded-2xl border flex items-start justify-between gap-3 shadow-xl backdrop-blur-md bg-slate-900/95 border-white/10 text-white"
+              className="pointer-events-auto px-4 py-3 rounded-2xl border flex items-start justify-between gap-3 shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12 text-slate-900"
+              style={{
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                backgroundColor: "rgba(255, 255, 255, 0.30)"
+              }}
             >
               <div className="flex items-start gap-2.5 min-w-0">
                 <div className="shrink-0 mt-0.5">
-                  {toast.type === "success" && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                  {toast.type === "error" && <AlertCircle className="w-4 h-4 text-red-400" />}
-                  {toast.type === "warning" && <Info className="w-4 h-4 text-amber-400" />}
-                  {toast.type === "info" && <Info className="w-4 h-4 text-sky-400" />}
+                  {toast.type === "success" && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                  {toast.type === "error" && <AlertCircle className="w-4 h-4 text-red-600" />}
+                  {toast.type === "warning" && <Info className="w-4 h-4 text-amber-600" />}
+                  {toast.type === "info" && <Info className="w-4 h-4 text-blue-600" />}
                 </div>
-                <div className="flex-1 text-xs font-normal leading-snug text-left break-words normal-case whitespace-normal">
+                <div className="flex-1 text-xs font-bold leading-snug text-left break-words normal-case whitespace-normal text-slate-900">
                   {toast.message}
                 </div>
               </div>
               <button
                 onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-                className="shrink-0 p-1 hover:bg-white/10 rounded-full transition-colors mt-0.5"
+                className="shrink-0 p-1 hover:bg-black/5 rounded-full transition-colors mt-0.5 text-black/40 hover:text-black"
               >
-                <X className="w-3.5 h-3.5 opacity-60 hover:opacity-100" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </motion.div>
           ))}
