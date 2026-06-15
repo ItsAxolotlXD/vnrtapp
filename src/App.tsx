@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
   Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain, Upload, Edit, FileText, Trash, Waves, Tornado, Package,
-  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash, Brain
+  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash, Brain, Bell
 } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -355,11 +355,9 @@ const SplashScreen = ({
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour >= 5 && hour < 10) return "Chào buổi sáng!";
-    if (hour >= 10 && hour < 13) return "Chào buổi trưa!";
-    if (hour >= 13 && hour < 17) return "Chào buổi chiều!";
-    if (hour >= 17 && hour < 23) return "Chào buổi tối!";
-    return "Chào buổi đêm!";
+    if (hour >= 5 && hour < 12) return "Chào buổi sáng!";
+    if (hour >= 12 && hour < 18) return "Chào buổi chiều!";
+    return "Chào buổi tối!";
   };
 
   return (
@@ -367,14 +365,24 @@ const SplashScreen = ({
       initial={{ opacity: 1 }}
       exit={{ opacity: 1 }}
       transition={{ duration: 0 }}
-      className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-black"
+      className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-[#06020c]"
     >
+      {/* Liquid Glass ambient colorful glowing blurs behind the glossy card */}
+      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] rounded-full bg-[#4AC4FE]/15 blur-[120px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
+      <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-pink-500/10 blur-[130px] pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-indigo-500/12 blur-[100px] pointer-events-none" />
       
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
+        initial={{ scale: 0.94, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 flex flex-col items-center gap-8"
+        className="relative z-10 flex flex-col items-center gap-8 px-8 py-10 rounded-[32px] border border-white/15 max-w-[320px] sm:max-w-xs w-full mx-4"
+        style={{
+          background: "linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%)",
+          backdropFilter: "blur(30px)",
+          WebkitBackdropFilter: "blur(30px)",
+          boxShadow: "0 24px 70px rgba(0,0,0,0.6), inset 0 1.5px 2px rgba(255,255,255,0.25), inset 0 -1px 2px rgba(255,255,255,0.05), 0 0 1px rgba(255,255,255,0.15)",
+        }}
       >
         {isReinstalling ? (
           <div className="flex flex-col items-center gap-6 text-center">
@@ -400,7 +408,7 @@ const SplashScreen = ({
                 <span className="text-white/50 text-xs md:text-sm tracking-wide select-none font-normal" style={{ fontFamily: "Montserrat, sans-serif" }}>
                   Vplay is erasing - This might take several minutes
                 </span>
-                <p className="text-white/80 text-sm md:text-base tracking-wide whitespace-nowrap font-normal" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                <p className="text-white/80 text-xs md:text-sm tracking-wide whitespace-nowrap font-normal" style={{ fontFamily: "Montserrat, sans-serif" }}>
                   Re-installing <span className="text-[#4AC4FE] font-normal">{currentFile}</span> - <span className="text-emerald-400 font-normal">{progress}%</span> complete
                 </p>
               </div>
@@ -431,7 +439,7 @@ const SplashScreen = ({
                   Sản phẩm của <span className="text-white font-normal">VNRT</span>
                 </span>
                 <span className="text-white/60 text-xs sm:text-sm font-light tracking-wide animate-pulse">
-                  Đang tải bản cập nhật
+                  Đang tải bản cập nhật {progress}%
                 </span>
               </div>
             </div>
@@ -458,11 +466,13 @@ const Sparkles2 = ({ className }: { className?: string }) => (
 );
 
 const AdminIcon = ({ className, size, strokeWidth, filled }: { className?: string, size?: number | string, strokeWidth?: number, filled?: boolean }) => <ShieldCheck className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} fill={filled ? "currentColor" : "none"} />;
+const BellIcon = ({ className, size, strokeWidth, filled }: { className?: string, size?: number | string, strokeWidth?: number, filled?: boolean }) => <Bell className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} fill={filled ? "currentColor" : "none"} />;
 
 const TAB_ICON_URLS: Record<string, string> = {
   "Trang chủ": "https://static.wikia.nocookie.net/ftv/images/b/bb/Vplay-liquid-home.png/revision/latest?cb=20260610090420&path-prefix=vi",
   "Live": "https://static.wikia.nocookie.net/ftv/images/c/cf/Vplay-liquid-tv.png/revision/latest?cb=20260610090420&path-prefix=vi",
   "Package": "https://static.wikia.nocookie.net/ftv/images/7/72/Vplay-liquid-package.png/revision/latest?cb=20260610090420&path-prefix=vi",
+  "Thông báo": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi", // Fallback URL
   "Cài đặt": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi",
   "Settings (new)": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi"
 };
@@ -472,6 +482,7 @@ const baseTabs = [
   { name: "Tìm kiếm", icon: SearchIcon, id: "Tìm kiếm" },
   { name: "Live", icon: TvIcon, id: "Live" },
   { name: "Package", icon: PackageIcon, id: "Package" },
+  { name: "Thông báo", icon: BellIcon, id: "Thông báo" },
   { name: "Settings (new)", icon: SettingsIcon, id: "Settings (new)" },
   { name: "Quản trị", icon: AdminIcon, id: "Quản trị" },
 ];
@@ -5447,6 +5458,112 @@ function MiniPlayer({
   );
 }
 
+function NotificationsContent({
+  isDark,
+  liquidGlass,
+  notifications,
+  onClearAll,
+  onRemoveNotification
+}: {
+  isDark: boolean;
+  liquidGlass: "glassy" | "tinted";
+  notifications: ToastMessage[];
+  onClearAll: () => void;
+  onRemoveNotification: (id: string) => void;
+}) {
+  return (
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 w-full max-w-4xl mx-auto flex flex-col h-full">
+      <div className="flex items-center justify-between mb-6 shrink-0">
+        <div className="flex items-center gap-3 select-none">
+          <div className={`p-2 rounded-2xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+            <Bell className={isDark ? "text-[#4AC4FE]" : "text-amber-500"} size={22} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold font-google tracking-tight text-left">Trung tâm thông báo</h2>
+            <p className={`text-xs text-left ${isDark ? "text-white/40" : "text-slate-500"}`}>Lịch sử hoạt động và thông báo hệ thống</p>
+          </div>
+        </div>
+        {notifications.length > 0 && (
+          <button
+            onClick={onClearAll}
+            className="px-4 py-2 border rounded-full text-xs font-bold transition-all border-red-500/20 text-red-500 hover:bg-red-500/10 active:scale-95 bg-transparent"
+          >
+            Xóa tất cả
+          </button>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto pr-1">
+        {notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center gap-3 h-full">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 border-dashed ${isDark ? "border-white/10 text-white/20 bg-white/2" : "border-slate-300 text-slate-300 bg-slate-50"}`}>
+              <Bell className="w-8 h-8 opacity-40 animate-pulse" />
+            </div>
+            <div>
+              <p className={`font-bold text-sm ${isDark ? "text-white/70" : "text-slate-600"}`}>Không có thông báo mới</p>
+              <p className={`text-xs ${isDark ? "text-white/30" : "text-slate-400"} mt-1`}>Mọi hoạt động và cảnh báo sẽ hiển thị tại đây.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3 pb-8">
+            <AnimatePresence initial={false}>
+              {notifications.map((toast) => (
+                <motion.div
+                  key={toast.id}
+                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className={`p-4 rounded-2xl border flex items-start gap-4 shadow-sm relative group overflow-hidden ${
+                    liquidGlass === "glassy"
+                      ? "bg-white/10 border-white/5 text-white backdrop-blur-md"
+                      : isDark
+                        ? "bg-[#181a26]/75 border-white/8 text-white"
+                        : "bg-white border-slate-200 text-slate-800"
+                  }`}
+                >
+                  {/* Left accent colorbar indicator */}
+                  <div className={`absolute top-0 bottom-0 left-0 w-1 ${
+                    toast.type === "success" ? "bg-emerald-500" :
+                    toast.type === "error" ? "bg-red-500" :
+                    toast.type === "warning" ? "bg-amber-500" : "bg-[#4AC4FE]"
+                  }`} />
+
+                  {/* Icon */}
+                  <div className="shrink-0 mt-0.5 pl-1">
+                    {toast.type === "success" && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
+                    {toast.type === "error" && <AlertCircle className="w-5 h-5 text-red-500" />}
+                    {toast.type === "warning" && <Info className="w-5 h-5 text-amber-500" />}
+                    {toast.type === "info" && <Info className="w-5 h-5 text-[#4AC4FE]" />}
+                  </div>
+
+                  {/* Message & Status */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold leading-relaxed break-words text-left">
+                      {toast.message}
+                    </p>
+                    <span className={`text-[10px] font-mono mt-1 block tracking-tight text-left opacity-50`}>
+                      Vừa xong
+                    </span>
+                  </div>
+
+                  {/* Remove button */}
+                  <button
+                    onClick={() => onRemoveNotification(toast.id)}
+                    className={`p-1.5 rounded-full hover:bg-red-500/10 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 ${isDark ? "text-white/40" : "text-slate-400"}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AdminContent({ isDark, liquidGlass }: { isDark: boolean, liquidGlass: "glassy" | "tinted" }) {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -10247,9 +10364,9 @@ function DynamicIsland({
               {/* Dynamic Island Header Option Bar */}
               <div className="flex items-center justify-between w-full border-b border-white/10 pb-2.5 select-none shrink-0">
                 <div className="text-[10px] uppercase font-black tracking-widest text-[#4AC4FE] flex items-center gap-1.5 pl-1">
-                  {islandMode === "search" && "Tìm kiếm & AI"}
-                  {islandMode === "keypad" && "Bàn phím kênh"}
-                  {islandMode === "volume" && "Âm lượng TV"}
+                  {islandMode === "search" && "Tìm kiếm"}
+                  {islandMode === "keypad" && "GỌI KÊNH NHANH"}
+                  {islandMode === "volume" && "Volume"}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -10257,7 +10374,7 @@ function DynamicIsland({
                     className={`p-1 rounded-full transition-all ${
                       islandMode === "search" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
                     }`}
-                    title="Tìm kiếm & AI"
+                    title="Tìm kiếm"
                   >
                     <SearchCustomIcon size={13} />
                   </button>
@@ -10266,7 +10383,7 @@ function DynamicIsland({
                     className={`p-1 rounded-full transition-all ${
                       islandMode === "keypad" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
                     }`}
-                    title="Bàn phím số & Chuyển kênh"
+                    title="GỌI KÊNH NHANH"
                   >
                     <LayoutGrid size={13} />
                   </button>
@@ -10275,7 +10392,7 @@ function DynamicIsland({
                     className={`p-1 rounded-full transition-all ${
                       islandMode === "volume" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
                     }`}
-                    title="Điều chỉnh âm lượng"
+                    title="Volume"
                   >
                     <Volume2 size={13} />
                   </button>
@@ -10307,21 +10424,10 @@ function DynamicIsland({
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search or Ask V-Intelligence"
-                        className="bg-transparent text-white placeholder-white/30 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
+                        placeholder="Start searching"
+                        className="bg-transparent text-white placeholder-white/40 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
                       />
                       <div className="flex items-center gap-1.5 shrink-0 pr-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setAiExpanded(true);
-                          }}
-                          className="p-1 hover:bg-[#4AC4FE]/20 rounded-full transition-all cursor-pointer text-[#4AC4FE] hover:scale-110 flex items-center justify-center shrink-0"
-                          title="Hỏi Trợ lý V-Intelligence AI"
-                        >
-                          <Brain className="w-4 h-4" />
-                        </button>
-
                         {searchQuery && (
                           <button
                             onClick={() => {
@@ -10348,11 +10454,19 @@ function DynamicIsland({
                       {/* Typed channel display indicator */}
                       <div className="text-center pb-2 px-2 shrink-0">
                         {typedNum ? (
-                          <div className="flex items-center justify-center gap-2">
-                            <span className="text-xs bg-cyan-500/10 border border-cyan-500/20 text-[#4AC4FE] font-black px-1.5 py-0.5 rounded-md min-w-[24px]">Kênh {typedNum}</span>
-                            <span className={`text-[11px] font-bold ${matchedChannel ? "text-emerald-400" : "text-amber-500"}`}>
-                              {matchedChannel ? matchedChannel.name : "Không tìm thấy kênh"}
+                          <div className="flex items-center justify-center gap-3">
+                            <span className="text-sm bg-white/15 border border-white/20 text-white font-mono font-black px-2 py-0.5 rounded-md min-w-[36px]">
+                              {typedNum.padStart(3, "0")}
                             </span>
+                            {matchedChannel ? (
+                              <div className="w-14 h-8 bg-white/10 rounded-lg p-1 border border-white/20 flex items-center justify-center overflow-hidden shrink-0 animate-in fade-in zoom-in-95">
+                                <img src={matchedChannel.logo} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                              </div>
+                            ) : (
+                              <span className="text-[11px] font-bold text-amber-500">
+                                Không tìm thấy
+                              </span>
+                            )}
                           </div>
                         ) : (
                           <span className="text-[10px] font-semibold text-white/50">Gọi kênh nhanh (1 - {channels.length})</span>
@@ -10410,49 +10524,42 @@ function DynamicIsland({
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="w-full flex items-center justify-center gap-5 overflow-hidden py-1 h-full"
+                      className="w-full flex flex-col items-center justify-center overflow-hidden h-full pb-1"
                     >
-                      {/* Vertical Slider Track (Wide design like iOS) */}
-                      <div className="flex flex-col items-center gap-2">
+                      <div className="flex flex-col items-center gap-2 relative">
                         <div 
                           ref={trackRef}
                           onMouseDown={handleVolMouseDown}
                           onTouchStart={handleVolTouchStart}
-                          className="w-14 h-[110px] bg-white/10 rounded-2xl relative overflow-hidden flex items-end cursor-pointer active:brightness-110 shrink-0"
+                          className="w-14 h-[110px] bg-white/10 rounded-2xl relative overflow-hidden flex items-end cursor-pointer active:brightness-110 shrink-0 border border-white/5"
                         >
-                          {/* Liquid level filler */}
                           <motion.div 
-                            className="w-full bg-[#4AC4FE] shadow-[0_0_12px_rgba(74,196,254,0.45)]"
+                            className="w-full bg-white animate-in"
                             style={{ height: `${volume * 100}%` }}
                             transition={{ type: "spring", stiffness: 350, damping: 25 }}
                           />
                           
-                          {/* Mute icon overlays inside bottom of slider */}
-                          <div className="absolute inset-x-0 bottom-2.5 flex justify-center pointer-events-none text-black z-10 opacity-75">
+                          <div className="absolute inset-x-0 bottom-2.5 flex justify-center pointer-events-none text-white mix-blend-difference z-20">
                             {(isMuted || volume === 0) ? <VolumeX size={15} /> : <Volume2 size={15} />}
                           </div>
-                        </div>
-                      </div>
 
-                      {/* Info and details panel */}
-                      <div className="flex flex-col items-start gap-1">
-                        <span className="text-3xl font-mono font-black text-white/95 leading-none">
-                          {isMuted ? "MUTE" : `${Math.round(volume * 100)}%`}
-                        </span>
-                        <div className="flex gap-2.5 mt-2">
-                          <button
-                            onClick={() => {
-                              if (setIsMuted) setIsMuted(!isMuted);
-                            }}
-                            className={`px-3 py-1.5 rounded-xl font-bold text-[10px] tracking-wide relative z-10 transition-all ${
-                              isMuted 
-                                ? "bg-red-500/20 text-red-400 border border-red-500/30" 
-                                : "bg-white/10 hover:bg-white/15 text-white border border-white/5"
-                            }`}
-                          >
-                            {isMuted ? "Bật âm thanh" : "Tắt âm thanh"}
-                          </button>
+                          <div className="absolute inset-0 flex items-center justify-center font-mono font-black text-xs text-white mix-blend-difference pointer-events-none z-10 select-none">
+                            {isMuted ? "MUTE" : `${Math.round(volume * 100)}%`}
+                          </div>
                         </div>
+
+                        <button
+                          onClick={() => {
+                            if (setIsMuted) setIsMuted(!isMuted);
+                          }}
+                          className={`w-14 py-1 mt-1 rounded-xl font-bold text-[10px] tracking-wide relative z-10 transition-all text-center border ${
+                            isMuted 
+                              ? "bg-red-500/20 text-red-400 border-red-500/30" 
+                              : "bg-white/10 hover:bg-white/15 text-white border-white/5"
+                          }`}
+                        >
+                          Mute
+                        </button>
                       </div>
                     </motion.div>
                   )}
@@ -13687,7 +13794,7 @@ function App() {
 
   const [toastDuration, setToastDuration] = useState<number>(() => {
     const saved = localStorage.getItem("vplay_toast_duration");
-    return saved ? parseInt(saved, 10) : 3000;
+    return saved ? parseInt(saved, 10) : 2000;
   });
 
   const [toastMode, setToastMode] = useState<"single" | "stack">(() => {
@@ -13717,7 +13824,8 @@ function App() {
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [toastQueue, setToastQueue] = useState<ToastMessage[]>([]);
-  const toastDurationRef = useRef(3000);
+  const [notifications, setNotifications] = useState<ToastMessage[]>([]);
+  const toastDurationRef = useRef(2000);
   const toastModeRef = useRef<"single" | "stack">("single");
 
   useEffect(() => {
@@ -13739,6 +13847,9 @@ function App() {
           type: customEvent.detail.type || "success"
         };
         
+        // Push to notification center tab list
+        setNotifications(prev => [newToast, ...prev]);
+
         if (toastModeRef.current === "stack") {
           setToasts(prev => [...prev, newToast]);
           setTimeout(() => {
@@ -15152,8 +15263,8 @@ const [headingBar, setHeadingBar] = useState(() => {
       {!showSplash && headingBar && (
         <div 
           className={floatyBars 
-            ? "fixed top-0 left-0 right-0 w-full z-[9999] transition-all duration-300"
-            : "fixed top-3 left-3 right-3 md:left-4 md:right-4 z-[9999] transition-all duration-300"
+            ? "fixed top-0 left-0 right-0 w-full z-[9999] transition-all duration-300 pt-[env(safe-area-inset-top,10px)]"
+            : "fixed top-3 left-3 right-3 md:left-4 md:right-4 z-[9999] transition-all duration-300 mt-[env(safe-area-inset-top,10px)]"
           }
         >
           {featureFlags.dynamic_island ? (
@@ -15173,6 +15284,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               isMuted={isMuted}
               setIsMuted={setIsMuted}
               setActiveTab={setActiveTab}
+              toasts={toasts}
             />
           ) : (
             <TopBar 
@@ -16160,6 +16272,15 @@ const [headingBar, setHeadingBar] = useState(() => {
                   </div>
                 </div>
               )}
+              {displayTab === "Thông báo" && (
+                <NotificationsContent 
+                  isDark={isDark}
+                  liquidGlass={liquidGlass}
+                  notifications={notifications}
+                  onClearAll={() => setNotifications([])}
+                  onRemoveNotification={(id) => setNotifications(prev => prev.filter(n => n.id !== id))}
+                />
+              )}
               {displayTab === "Update Logs" && (
                 <UpdateLogsContent isDark={isDark} onBack={() => handleOpenSettings()} featureFlags={featureFlags} loadingTreatment={loadingTreatment} handleOpenSettings={handleOpenSettings} />
               )}
@@ -16496,6 +16617,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                               !
                             </div>
                           )}
+                          {tab.id === "Thông báo" && notifications.length > 0 && (
+                            <div className="absolute -top-1.5 -right-1.5 min-w-[14px] h-3.5 px-1 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] font-black shadow-md border border-slate-900 animate-pulse z-20">
+                              {notifications.length}
+                            </div>
+                          )}
                         </div>
                         {(isSidebarExpanded && !isCompactMode) && (
                           <span className={`font-medium text-sm whitespace-nowrap ${isActive ? `font-bold ${activeColorClass}` : ""}`}>{tab.name}</span>
@@ -16642,7 +16768,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 >
                   {navPage === 0 && (
                     <>
-                      {baseTabs.filter(t => ["Trang chủ", "Live", "Package", "Cài đặt", "Settings (new)"].includes(t.id || t.name)).map((tab) => {
+                      {baseTabs.filter(t => ["Trang chủ", "Live", "Package", "Thông báo", "Cài đặt", "Settings (new)"].includes(t.id || t.name)).map((tab) => {
                         const Icon = tab.icon;
                         const tabId = tab.id || tab.name;
                         const isActive = activeTab === tabId;
@@ -16674,7 +16800,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                {isActive && (
                                 <motion.div
                                   layoutId="activeTabPill"
-                                  className="absolute inset-0 rounded-full z-0 pointer-events-none shadow-sm"
+                                  className="absolute inset-y-0 left-2.5 right-2.5 rounded-full z-0 pointer-events-none shadow-sm"
                                   style={{
                                     backgroundColor: "rgba(255, 255, 255, 0.30)",
                                     backdropFilter: "blur(12px)",
@@ -16713,6 +16839,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 {tabId === "Cài đặt" && !user && (
                                   <div className="absolute -top-1 -right-1.5 w-3 h-3 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[8px] font-extrabold shadow-md border border-slate-900 animate-pulse z-20">
                                     !
+                                  </div>
+                                )}
+                                {tabId === "Thông báo" && notifications.length > 0 && (
+                                  <div className="absolute -top-1 -right-1.5 min-w-[14px] px-0.5 h-3.5 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] font-black shadow-md border border-slate-900 z-20 animate-pulse">
+                                    {notifications.length}
                                   </div>
                                 )}
                               </motion.div>
