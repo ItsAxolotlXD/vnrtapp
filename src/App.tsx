@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
   Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain, Upload, Edit, FileText, Trash, Waves, Tornado, Package,
-  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash
+  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash, Brain
 } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -16,6 +16,7 @@ import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc, a
 
 import { channels, Channel } from "./channels";
 import GatingLoginPage from "./components/GatingLoginPage";
+import VIntelligenceModal from "./components/VIntelligenceModal";
 
 export interface ToastMessage {
   id: string;
@@ -9948,6 +9949,7 @@ function DynamicIsland({
   onMenuClick,
   user,
   handleOpenSettings,
+  onOpenVIntelligence,
 }: {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
@@ -9956,10 +9958,20 @@ function DynamicIsland({
   onMenuClick?: () => void;
   user?: any;
   handleOpenSettings?: () => void;
+  onOpenVIntelligence?: () => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1000);
+
+  // Synchronize window resize
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Close on click outside
   useEffect(() => {
@@ -10005,6 +10017,8 @@ function DynamicIsland({
     hour12: false,
   });
 
+  const expandedWidth = windowWidth < 480 ? 290 : 380;
+
   return (
     <div className="flex justify-center w-full relative">
       <motion.div
@@ -10012,12 +10026,12 @@ function DynamicIsland({
         layout
         transition={{
           type: "spring",
-          stiffness: 260,
-          damping: 15,
-          mass: 0.9,
+          stiffness: 300,
+          damping: 18,
+          mass: 0.8,
         }}
         animate={{
-          width: isExpanded ? 360 : 132,
+          width: isExpanded ? expandedWidth : 132,
           height: 38,
         }}
         onClick={() => {
@@ -10035,7 +10049,7 @@ function DynamicIsland({
               className="flex items-center justify-center w-full gap-2.5 h-full"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse shrink-0" />
-              <span className="font-mono text-xs font-black tracking-wider text-white/95 select-none text-center">
+              <span className="font-google text-xs font-black tracking-wider text-white/95 select-none text-center">
                 {formattedTimeWithSeconds}
               </span>
             </motion.div>
@@ -10045,7 +10059,7 @@ function DynamicIsland({
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
-              className="flex items-center w-full gap-3 h-full"
+              className="flex items-center w-full gap-2.5 h-full"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="shrink-0">
@@ -10056,26 +10070,38 @@ function DynamicIsland({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Start searching"
+                placeholder="Search or Ask V-Intelligence"
                 className="bg-transparent text-white placeholder-white/30 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
               />
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
+                {/* V-Intelligence Brain Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenVIntelligence?.();
+                  }}
+                  className="p-1 hover:bg-[#4AC4FE]/20 rounded-full transition-all cursor-pointer text-[#4AC4FE] hover:scale-110 flex items-center justify-center shrink-0"
+                  title="Hỏi Trợ lý V-Intelligence AI"
+                >
+                  <Brain className="w-4 h-4" />
+                </button>
+
                 {searchQuery ? (
                   <button
                     onClick={() => {
                       setSearchQuery("");
                       inputRef.current?.focus();
                     }}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/60 hover:text-white"
                   >
-                    <X className="w-3.5 h-3.5 text-white/60 hover:text-white" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 ) : (
                   <button
                     onClick={() => setIsExpanded(false)}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/40 hover:text-white"
                   >
-                    <X className="w-3.5 h-3.5 text-white/40 hover:text-white" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -10643,7 +10669,8 @@ function UnifiedContextMenu({
   setShowDate, 
   showTempInClock, 
   setShowTempInClock, 
-  handleOpenSettings 
+  handleOpenSettings,
+  featureFlags = {}
 }: {
   x: number, y: number, onClose: () => void, isDark: boolean,
   headingBar: boolean, setHeadingBar: (v: boolean) => void,
@@ -10652,6 +10679,7 @@ function UnifiedContextMenu({
   showDate: boolean, setShowDate: (v: boolean) => void,
   showTempInClock: boolean, setShowTempInClock: (v: boolean) => void,
   handleOpenSettings: () => void,
+  featureFlags?: any,
   key?: any
 }) {
   const hasClockOrDate = showClock || showDate;
@@ -10685,7 +10713,11 @@ function UnifiedContextMenu({
           className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-black/10 text-slate-700 hover:text-slate-950"
         >
           {headingBar ? <EyeOff size={16} /> : <Eye size={16} />}
-          <span className="text-sm font-medium">{headingBar ? "Ẩn Top bar" : "Hiện Top bar"}</span>
+          <span className="text-sm font-medium">
+            {featureFlags.dynamic_island 
+              ? (headingBar ? "Ẩn Dynamic Island" : "Hiện Dynamic Island")
+              : (headingBar ? "Ẩn Top bar" : "Hiện Top bar")}
+          </span>
         </button>
 
         <button 
@@ -13374,6 +13406,7 @@ function App() {
 
   const isResizing = useRef(false);
   const [showSplash, setShowSplash] = useState(false);
+  const [isVIntelligenceModalOpen, setIsVIntelligenceModalOpen] = useState(false);
   const [isReinstalling, setIsReinstalling] = useState(false);
   const [splashDuration, setSplashDuration] = useState(5000);
 
@@ -14662,6 +14695,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               onMenuClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
               user={user}
               handleOpenSettings={handleOpenSettings}
+              onOpenVIntelligence={() => setIsVIntelligenceModalOpen(true)}
             />
           ) : (
             <TopBar 
@@ -14742,6 +14776,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         )}
       </AnimatePresence>
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} isDark={isDark} liquidGlass={liquidGlass} setIsDev={setIsDev} setUserData={setUserData} />
+      <VIntelligenceModal isOpen={isVIntelligenceModalOpen} onClose={() => setIsVIntelligenceModalOpen(false)} isDark={isDark} />
       
       <AnimatePresence>
         {showForceResetPopup && (
@@ -14949,6 +14984,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             showTempInClock={showTempInClock}
             setShowTempInClock={setShowTempInClock}
             handleOpenSettings={handleOpenSettings}
+            featureFlags={featureFlags}
           />
         )}
         {channelContextMenu && (
@@ -15053,7 +15089,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                 >
                   <div className="flex items-center gap-3">
                     {headingBar ? <EyeOff size={18} /> : <Eye size={18} />}
-                    <span className="text-sm font-semibold">{headingBar ? "Ẩn thanh trượt trên (Top bar)" : "Hiện thanh trượt trên (Top bar)"}</span>
+                    <span className="text-sm font-semibold">
+                      {featureFlags.dynamic_island 
+                        ? (headingBar ? "Ẩn Dynamic Island" : "Hiện Dynamic Island")
+                        : (headingBar ? "Ẩn thanh trượt trên (Top bar)" : "Hiện thanh trượt trên (Top bar)")}
+                    </span>
                   </div>
                   {headingBar && <Check size={16} className="text-[#4AC4FE]" />}
                 </button>
