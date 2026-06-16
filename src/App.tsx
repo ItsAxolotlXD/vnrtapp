@@ -818,10 +818,12 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px)"
             : "repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px)"
         }}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[1.5px] backdrop-blur-md ${
-          isDark 
-            ? "bg-white/[0.07] text-white" 
-            : "bg-white/65 text-slate-900"
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[1.5px] ${
+          liquidGlass === "glassy"
+            ? "bg-white/10 dark:bg-white/[0.08] backdrop-blur-[24px] border-white/20 dark:border-white/15 text-white shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+            : (isDark 
+                ? "bg-white/[0.07] backdrop-blur-md border-white/10 text-white" 
+                : "bg-white/65 backdrop-blur-md border-slate-200/40 text-slate-900")
         } ${
           isLargeLayout
             ? (isActuallyActive 
@@ -1556,7 +1558,7 @@ function HomeContent({
                       isDark={isDark} 
                       favorites={favorites} 
                       toggleFavorite={toggleFavorite} 
-                      liquidGlass={liquidGlass}
+                      liquidGlass="glassy"
                       onContextMenu={onChannelContextMenu}
                       useNewDesign={useNewDesign}
                       activeChannelName={activeChannelName}
@@ -1594,7 +1596,7 @@ function HomeContent({
                     isDark={isDark} 
                     favorites={favorites} 
                     toggleFavorite={toggleFavorite} 
-                    liquidGlass={liquidGlass}
+                    liquidGlass="glassy"
                     onContextMenu={onChannelContextMenu}
                     useNewDesign={useNewDesign}
                     activeChannelName={activeChannelName}
@@ -2376,7 +2378,6 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         const matchesType = filterType === "Tất cả" 
           || (filterType === "Hoạt động" && ch.status !== "maintenance")
           || (filterType === "Bảo trì" && ch.status === "maintenance")
-          || (filterType === "Thử nghiệm" && ch.name === "VTV6")
           || (filterType === "Thiết yếu" && (ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")))
           || (filterType === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(ch.name))
           || (filterType === "VTVcab" && ch.name.includes("ON"))
@@ -2399,16 +2400,13 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       });
   }, [displayChannelsList, searchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"];
+  const LIVE_CATEGORIES = ["Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
       return cats.length > 0 ? cats : ["Kênh tự thêm"];
     }
     return LIVE_CATEGORIES.filter(cat => {
-      if (cat === "Thử nghiệm") {
-        return filteredChannels.some(c => c.name === "VTV6");
-      }
       if (cat === "Thiết yếu") {
         return filteredChannels.some(c => 
           c.name === "VTV1" || 
@@ -2835,7 +2833,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   );
 
   return (
-    <div className="flex-1 p-0 md:p-6 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-0 md:px-12 overflow-x-hidden">
+    <div className="flex-1 p-0 w-full max-w-full mx-auto px-0 overflow-x-hidden">
       {/* Liquid Modal for Channel Selection */}
       <LiquidModal
         isOpen={!!showChannelSelector}
@@ -2901,7 +2899,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       </LiquidModal>
 
       {/* MAIN WATCH AREA WITH SIDEBAR SCHEDULE */}
-      <div className={`w-full md:max-w-4xl lg:max-w-6xl xl:max-w-[1280px] mx-auto flex flex-col lg:block gap-4 md:gap-6 mb-4 md:mb-6 relative z-10 transition-all duration-300 ${
+      <div className={`w-full max-w-full mx-auto flex flex-col lg:block gap-4 md:gap-6 mb-4 md:mb-6 relative z-10 transition-all duration-300 ${
         isDark ? "bg-vplay-background md:bg-transparent text-white" : "bg-white md:bg-transparent text-black"
       } lg:pr-[344px] xl:pr-[389px] pt-0 pb-0 md:py-0 md:px-0 px-0`}>
         
@@ -4219,7 +4217,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           <div className="flex flex-col md:flex-row gap-6 mb-8 w-full">
             {/* Desktop Filter Row */}
             <div className={`hidden md:flex gap-6 overflow-x-auto pb-3 md:pb-3 no-scrollbar flex-1 border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => (
+              {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => (
                 <button
                   key={type}
                   onClick={() => setFilterType(type)}
@@ -4276,7 +4274,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
                         >
-                          {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => (
+                          {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => (
                             <button
                               key={type}
                               onClick={() => {
@@ -4442,10 +4440,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               {filteredCategories.map((cat, catIdx) => {
                 let playlistChannels = liveSubTab === "custom"
                   ? filteredChannels.filter(c => c.category === cat || (!c.category && cat === "Kênh tự thêm"))
-                  : (cat === "Thử nghiệm"
-                      ? filteredChannels.filter(c => c.name === "VTV6")
-                      : cat === "Thiết yếu" 
-                          ? filteredChannels.filter(c => c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN"))
+                  : (cat === "Thiết yếu" 
+                      ? filteredChannels.filter(c => c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN"))
                       : cat === "VTV"
                         ? filteredChannels.filter(c => ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name))
                         : cat === "VTVcab"
@@ -7235,16 +7231,10 @@ function RejuvenatedSettings(props: any) {
             </div>
             <input 
               type="text" 
-              placeholder="Tìm cài đặt..."
+              placeholder="Search settings"
               value={activeSearchQuery}
               onChange={(e) => activeSetSearchQuery(e.target.value)}
-              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1.5px_2px_rgba(255,255,255,0.18)] focus:shadow-[0_8px_24px_rgba(74,196,254,0.35)] ${
-                frostedGlassWidgets
-                  ? "bg-white/10 border-white/5 text-white placeholder:text-white/45"
-                  : (isDark 
-                      ? "bg-white/5 border-white/4 text-white placeholder:text-white/20" 
-                      : "bg-white border-slate-200/40 focus:border-slate-300 placeholder:text-slate-300")
-              }`}
+              className="w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1.5px_2px_rgba(255,255,255,0.18)] focus:shadow-[0_8px_24px_rgba(74,196,254,0.35)] bg-white/10 border-white/10 text-white placeholder:text-white"
             />
           </div>
         </div>
@@ -7540,10 +7530,8 @@ function SettingsNew(props: any) {
             type="text"
             value={settingsSearchQuery}
             onChange={(e) => setSettingsSearchQuery(e.target.value)}
-            placeholder="Tìm cài đặt..."
-            className={`bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold font-google ${
-              isDark ? "text-white placeholder-slate-500" : "text-slate-800 placeholder-black/35"
-            }`}
+            placeholder="Search settings"
+            className="bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold font-google text-white placeholder-white placeholder:text-white"
           />
           {settingsSearchQuery && (
             <button onClick={() => setSettingsSearchQuery("")} className="p-1 hover:bg-black/10 rounded-full transition-all">
@@ -10401,10 +10389,10 @@ function DynamicIsland({
             : isExpanded 
               ? (aiExpanded 
                   ? aiCardHeight 
-                  : (islandMode === "keypad" ? 330 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 260 : islandMode === "vtv5" ? 220 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 84)
+                  : (islandMode === "search" && searchQuery ? 270 : islandMode === "keypad" ? 330 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 260 : islandMode === "vtv5" ? 220 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 84)
                 ) 
               : 38,
-          borderRadius: (activeToast || aiExpanded || isExpanded) ? "50px" : "999px",
+          borderRadius: (activeToast || aiExpanded || isExpanded) ? "30px" : "999px",
         }}
         onClick={() => {
           if (!activeToast && !isExpanded) setIsExpanded(true);
@@ -10468,13 +10456,7 @@ function DynamicIsland({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Dynamic Island Header Option Bar */}
-              <div className="flex items-center justify-between w-full border-b border-white/10 pb-2.5 select-none shrink-0">
-                <div className="text-[10px] uppercase font-black tracking-widest text-[#4AC4FE] flex items-center gap-1.5 pl-1">
-                  {islandMode === "search" && "Tìm kiếm"}
-                  {islandMode === "keypad" && "GỌI KÊNH NHANH"}
-                  {islandMode === "volume" && "Volume"}
-                  {islandMode === "notifications" && "Thông báo"}
-                </div>
+              <div className="flex items-center justify-center w-full border-b border-white/10 pb-2.5 select-none shrink-0 relative">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIslandMode("search")}
@@ -10515,17 +10497,17 @@ function DynamicIsland({
                       <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
                     )}
                   </button>
-                  <button
-                    onClick={() => setIsExpanded(false)}
-                    className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white flex items-center justify-center ml-1"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
                 </div>
+                <button
+                  onClick={() => setIsExpanded(false)}
+                  className="absolute right-1 top-[4px] p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white flex items-center justify-center"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
 
               {/* Dynamic Island View Content */}
-              <div className="flex-1 flex flex-col justify-center py-2.5 overflow-hidden">
+              <div className="flex-1 flex flex-col justify-start py-2.5 overflow-hidden">
                 <AnimatePresence mode="wait">
                   {islandMode === "search" && (
                     <motion.div
@@ -10533,32 +10515,88 @@ function DynamicIsland({
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="flex items-center w-full gap-2.5 h-[36px]"
+                      className="flex flex-col w-full h-[210px]"
                     >
-                      <div className="shrink-0 pl-1">
-                        <SearchCustomIcon className="w-4.5 h-4.5 text-white" />
+                      <div className="flex items-center w-full gap-2.5 h-[36px] shrink-0">
+                        <div className="shrink-0 pl-1">
+                          <SearchCustomIcon className="w-4.5 h-4.5 text-white" />
+                        </div>
+                        <input
+                          ref={inputRef}
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Tìm kiếm kênh..."
+                          className="bg-transparent text-white placeholder-white/40 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
+                        />
+                        <div className="flex items-center gap-1.5 shrink-0 pr-1">
+                          {searchQuery && (
+                            <button
+                              onClick={() => {
+                                setSearchQuery("");
+                                inputRef.current?.focus();
+                              }}
+                              className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/60 hover:text-white flex items-center justify-center"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Start searching"
-                        className="bg-transparent text-white placeholder-white/40 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
-                      />
-                      <div className="flex items-center gap-1.5 shrink-0 pr-1">
-                        {searchQuery && (
-                          <button
-                            onClick={() => {
-                              setSearchQuery("");
-                              inputRef.current?.focus();
-                            }}
-                            className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/60 hover:text-white flex items-center justify-center"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
+
+                      {searchQuery && (
+                        <div className="flex-1 overflow-y-auto mt-2 border-t border-white/10 pt-2 space-y-1 pr-1 custom-scrollbar">
+                          {(() => {
+                            const query = searchQuery.toLowerCase().trim();
+                            const matches = channels.filter(ch => 
+                              ch.name.toLowerCase().includes(query) || 
+                              ch.category.toLowerCase().includes(query)
+                            ).slice(0, 4);
+
+                            if (matches.length === 0) {
+                              return (
+                                <div className="text-[10px] text-white/40 font-bold uppercase tracking-wider text-center py-6">
+                                  Kênh không tồn tại
+                                </div>
+                              );
+                            }
+
+                            return matches.map((ch) => {
+                              const isSelected = activeChannel?.name === ch.name;
+                              return (
+                                <button
+                                  key={ch.name}
+                                  onClick={() => {
+                                    if (setActiveChannel) {
+                                      setActiveChannel(ch);
+                                      if (setActiveTab) setActiveTab("Live");
+                                      setIsExpanded(false);
+                                    }
+                                  }}
+                                  className={`w-full text-left px-3 py-2 text-[10px] font-black tracking-wider uppercase rounded-xl transition-all flex items-center justify-between border ${
+                                    isSelected
+                                      ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/30 text-[#4AC4FE]"
+                                      : "bg-white/5 border-transparent hover:bg-white/10 text-slate-300 hover:text-white"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 truncate">
+                                    {ch.logo && (
+                                      <img 
+                                        src={ch.logo} 
+                                        alt="" 
+                                        className="w-4.5 h-4.5 rounded-md object-contain bg-white/10 shrink-0"
+                                        referrerPolicy="no-referrer"
+                                      />
+                                    )}
+                                    <span className="truncate">{ch.name}</span>
+                                  </div>
+                                  <span className="text-[8px] bg-[#4AC4FE]/10 text-[#4AC4FE] px-1.5 py-0.5 rounded font-black tracking-widest uppercase shrink-0">BẬT</span>
+                                </button>
+                              );
+                            });
+                          })()}
+                        </div>
+                      )}
                     </motion.div>
                   )}
 
@@ -10801,7 +10839,7 @@ function DynamicIsland({
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
-                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => {
+                        {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => {
                           const isSelected = currentFilter === type;
                           return (
                             <button
@@ -14178,14 +14216,17 @@ function App() {
       const nextToast = toastQueue[0];
       setToastQueue(prev => prev.slice(1));
       setToasts([nextToast]);
-      
-      const timer = setTimeout(() => {
-        setToasts([]);
-      }, 2000);
-      
-      return () => clearTimeout(timer);
     }
   }, [toastMode, toasts, toastQueue]);
+
+  useEffect(() => {
+    if (toastMode === "single" && toasts.length > 0) {
+      const timer = setTimeout(() => {
+        setToasts([]);
+      }, toastDurationRef.current || 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [toasts, toastMode]);
 
 
   const [settingsActivePage, setSettingsActivePage] = useState<number>(1);
@@ -17252,16 +17293,14 @@ const [headingBar, setHeadingBar] = useState(() => {
                                       : activeTab === "Khám phá" 
                                         ? "Khám phá nội dung..." 
                                         : activeTab === "Cài đặt" 
-                                          ? "Tìm cài đặt..." 
+                                          ? "Search settings" 
                                           : "Tìm kiếm ..."
                             }
                             value={searchQuery}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setTimeout(() => setIsSearchFocused(false), 250)}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className={`bg-transparent border-none outline-none text-xs w-full font-bold font-google ${
-                              liquidGlass === "glassy" ? "text-white placeholder-white/40" : isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-black/40"
-                            }`}
+                            className="bg-transparent border-none outline-none text-xs w-full font-bold font-google text-white placeholder-white placeholder:text-white"
                           />
                           <button
                             onClick={handleStartListening}
