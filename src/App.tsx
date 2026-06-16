@@ -21,6 +21,7 @@ export interface ToastMessage {
   id: string;
   message: string;
   type: "success" | "error" | "info" | "warning";
+  description?: string;
 }
 
 export function showToast(message: string, type: "success" | "error" | "info" | "warning" = "success") {
@@ -781,7 +782,10 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
     if (isVTV5Card) {
       e.stopPropagation();
       e.preventDefault();
-      setShowVTV5Dropdown(prev => !prev);
+      // Trigger VTV5 overflow menu on Dynamic Island
+      window.dispatchEvent(new CustomEvent("vplay-island", {
+        detail: { mode: "vtv5", active: true }
+      }));
     } else {
       onClick();
     }
@@ -805,55 +809,6 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
     >
       {/* Background glow when hover (no glow for active) */}
       <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-none z-0 ${isDark ? "bg-white/2" : "bg-slate-500/5"}`} />
-      
-      {showVTV5Dropdown && (
-        <div 
-          className="fixed inset-0 z-[190]" 
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowVTV5Dropdown(false);
-          }}
-        />
-      )}
-
-      <AnimatePresence>
-        {showVTV5Dropdown && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className={`absolute left-1/2 -translate-x-1/2 bottom-[110%] w-[184px] rounded-2xl border p-1 border-slate-200/85 shadow-2xl z-[200] flex flex-col gap-1 backdrop-blur-md ${
-              isDark 
-                ? "bg-[#18181b]/95 border-white/5 text-white" 
-                : "bg-white/95 border-slate-200 text-slate-800"
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {v5Variants.map((item, index) => {
-              const isSelected = activeChannelName === item.target.name;
-              return (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => {
-                    onClick(item.target);
-                    setShowVTV5Dropdown(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-3 text-[10px] font-black tracking-[0.05em] uppercase rounded-xl transition-all flex items-center justify-between ${
-                    isSelected
-                      ? "bg-[#4AC4FE]/15 text-[#4AC4FE]"
-                      : isDark ? "hover:bg-white/5 text-slate-355" : "hover:bg-slate-100 text-slate-700"
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  {isSelected && <Check size={13} strokeWidth={3} className="text-[#4AC4FE]" />}
-                </button>
-              );
-            })}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <motion.button
         whileTap={{ scale: 0.98 }}
@@ -2273,6 +2228,42 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   const [filterType, setFilterType] = useState<string>("Tất cả");
   const [streamError, setStreamError] = useState<string | null>(null);
 
+  // Sync states and listen for filter & sort selections from DynamicIsland
+  useEffect(() => {
+    const handleRequestSync = () => {
+      window.dispatchEvent(new CustomEvent("vplay-sync-state", {
+        detail: { filterType, sortOrder }
+      }));
+    };
+
+    const handleSetFilter = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      if (customEvent.detail !== undefined) {
+        setFilterType(customEvent.detail);
+      }
+    };
+
+    const handleSetSort = (e: Event) => {
+      const customEvent = e as CustomEvent<"default" | "az" | "za">;
+      if (customEvent.detail !== undefined) {
+        setSortOrder(customEvent.detail);
+      }
+    };
+
+    window.addEventListener("vplay-request-sync", handleRequestSync);
+    window.addEventListener("vplay-set-filter", handleSetFilter);
+    window.addEventListener("vplay-set-sort", handleSetSort);
+
+    // Initial trigger
+    handleRequestSync();
+
+    return () => {
+      window.removeEventListener("vplay-request-sync", handleRequestSync);
+      window.removeEventListener("vplay-set-filter", handleSetFilter);
+      window.removeEventListener("vplay-set-sort", handleSetSort);
+    };
+  }, [filterType, sortOrder, setSortOrder]);
+
   useEffect(() => {
     if (streamError) {
       showToast("Lỗi luồng phát kênh", "error");
@@ -2394,7 +2385,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                !(ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")) &&
                !["VTV2", "VTV3", "VTV4", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ"].includes(ch.name) &&
                !ch.name.includes("ON") &&
-               !ch.name.startsWith("HTV")
+               !ch.name.startsWith("HTV") &&
+               ch.category !== "SCTV" &&
+               !ch.name.toUpperCase().startsWith("SCTV")
              ))
           || ch.category === filterType;
         return matchesSearch && matchesType;
@@ -2406,7 +2399,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       });
   }, [displayChannelsList, searchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "HTV", "Các kênh địa phương"];
+  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
@@ -2435,13 +2428,17 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       if (cat === "HTV") {
         return filteredChannels.some(c => c.name.startsWith("HTV"));
       }
+      if (cat === "SCTV") {
+        return filteredChannels.some(c => c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV"));
+      }
       if (cat === "Các kênh địa phương") {
         return filteredChannels.some(c => {
           const isThietYeu = c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN");
           const isVTV = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name);
           const isVTVcab = c.name.includes("ON");
           const isHTV = c.name.startsWith("HTV");
-          return !isThietYeu && !isVTV && !isVTVcab && !isHTV;
+          const isSCTV = c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV");
+          return !isThietYeu && !isVTV && !isVTVcab && !isHTV && !isSCTV;
         });
       }
       return false;
@@ -3237,11 +3234,11 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           {featureFlags.quick_channel_switch && (
                             <button 
                               onClick={() => {
-                                setIsRemoteOpen(true);
-                                setRemoteInput("");
+                                window.dispatchEvent(new CustomEvent("vplay-enable-island"));
+                                window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "keypad", active: true } }));
                               }}
                               className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
-                                isRemoteOpen
+                                false
                                   ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
                                   : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black animate-pulse" : "bg-white/5 border-white/10 text-white animate-pulse"
                               }`}
@@ -4086,11 +4083,11 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             </button>
             <button
               onClick={() => {
-                setIsRemoteOpen(true);
-                setRemoteInput("");
+                window.dispatchEvent(new CustomEvent("vplay-enable-island"));
+                window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "keypad", active: true } }));
               }}
               className={`p-3.5 rounded-full transition-all flex items-center justify-center text-xs font-extrabold active:scale-110 hover:scale-105 cursor-pointer ${
-                isRemoteOpen
+                false
                   ? "bg-[#4AC4FE] text-slate-950 shadow-lg animate-none"
                   : "text-slate-900 hover:text-black hover:bg-white/10"
               }`}
@@ -4222,7 +4219,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           <div className="flex flex-col md:flex-row gap-6 mb-8 w-full">
             {/* Desktop Filter Row */}
             <div className={`hidden md:flex gap-6 overflow-x-auto pb-3 md:pb-3 no-scrollbar flex-1 border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "HTV", "Các kênh địa phương"].map((type) => (
+              {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => (
                 <button
                   key={type}
                   onClick={() => setFilterType(type)}
@@ -4250,7 +4247,14 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 {/* Mobile Filter Dropdown */}
                 <div className="relative flex-1">
                   <button
-                    onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }}
+                    onClick={() => {
+                      if (featureFlags.dynamic_island) {
+                        window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "filter", active: true } }));
+                      } else {
+                        setShowFilterMenu(!showFilterMenu); 
+                        setShowSortMenu(false);
+                      }
+                    }}
                     className={`w-full p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2 bg-white/5 border-white/5 text-white ${liquidGlass ? "backdrop-blur-md" : ""}`}
                   >
                     <div className="flex items-center gap-2">
@@ -4263,7 +4267,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   </button>
 
                   <AnimatePresence>
-                    {showFilterMenu && (
+                    {!featureFlags.dynamic_island && showFilterMenu && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setShowFilterMenu(false)} />
                         <motion.div
@@ -4272,7 +4276,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
                         >
-                          {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "HTV", "Các kênh địa phương"].map((type) => (
+                          {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => (
                             <button
                               key={type}
                               onClick={() => {
@@ -4297,7 +4301,14 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 {/* Mobile Sort Dropdown */}
                 <div className="relative flex-1">
                   <button
-                    onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }}
+                    onClick={() => {
+                      if (featureFlags.dynamic_island) {
+                        window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "sort", active: true } }));
+                      } else {
+                        setShowSortMenu(!showSortMenu); 
+                        setShowFilterMenu(false);
+                      }
+                    }}
                     className={`w-full p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2 bg-white/5 border-white/5 text-white ${liquidGlass ? "backdrop-blur-md" : ""}`}
                   >
                     <div className="flex items-center gap-2">
@@ -4310,7 +4321,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   </button>
 
                   <AnimatePresence>
-                    {showSortMenu && (
+                    {!featureFlags.dynamic_island && showSortMenu && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setShowSortMenu(false)} />
                         <motion.div
@@ -4441,13 +4452,16 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           ? filteredChannels.filter(c => c.name.includes("ON"))
                           : cat === "HTV"
                             ? filteredChannels.filter(c => c.name.startsWith("HTV"))
-                            : filteredChannels.filter(c => {
-                                const isThietYeu = c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN");
-                                const isVTV = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name);
-                                const isVTVcab = c.name.includes("ON");
-                                const isHTV = c.name.startsWith("HTV");
-                                return !isThietYeu && !isVTV && !isVTVcab && !isHTV;
-                              }));
+                            : cat === "SCTV"
+                              ? filteredChannels.filter(c => c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV"))
+                              : filteredChannels.filter(c => {
+                                  const isThietYeu = c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN");
+                                  const isVTV = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name);
+                                  const isVTVcab = c.name.includes("ON");
+                                  const isHTV = c.name.startsWith("HTV");
+                                  const isSCTV = c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV");
+                                  return !isThietYeu && !isVTV && !isVTVcab && !isHTV && !isSCTV;
+                                }));
 
                 if (cat === "Các kênh địa phương" && liveSubTab === "vplay") {
                   const thvlChannels = playlistChannels.filter(c => c.name.toUpperCase().includes("VĨNH LONG") || c.name.toUpperCase().includes("THVL"));
@@ -9896,7 +9910,7 @@ function OnboardingWizard({
       disable_animation: false, 
       screen_recording: false,
       PiP_experimental: false,
-      dynamic_island: false
+      dynamic_island: true
     }
   });
   const [showSkipPrompt, setShowSkipPrompt] = useState(false);
@@ -10082,6 +10096,9 @@ function DynamicIsland({
   isMuted = false,
   setIsMuted,
   setActiveTab,
+  toasts,
+  notifications = [],
+  setNotifications,
 }: {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
@@ -10098,15 +10115,44 @@ function DynamicIsland({
   isMuted?: boolean;
   setIsMuted?: (m: boolean) => void;
   setActiveTab?: (tab: string) => void;
+  toasts?: ToastMessage[];
+  notifications?: ToastMessage[];
+  setNotifications?: React.Dispatch<React.SetStateAction<ToastMessage[]>>;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(false);
-  const [islandMode, setIslandMode] = useState<"search" | "keypad" | "volume">("search");
+  const [islandMode, setIslandMode] = useState<"search" | "keypad" | "volume" | "notifications" | "vtv5" | "filter" | "sort">("search");
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const aiInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1000);
+
+  const [currentFilter, setCurrentFilter] = useState("Tất cả");
+  const [currentSort, setCurrentSort] = useState("default");
+
+  // Sync state between DynamicIsland and TVContent
+  useEffect(() => {
+    const handleSyncState = (e: Event) => {
+      const customEvent = e as CustomEvent<{ filterType?: string; sortOrder?: "default" | "az" | "za" }>;
+      if (customEvent.detail) {
+        if (customEvent.detail.filterType !== undefined) {
+          setCurrentFilter(customEvent.detail.filterType);
+        }
+        if (customEvent.detail.sortOrder !== undefined) {
+          setCurrentSort(customEvent.detail.sortOrder);
+        }
+      }
+    };
+    window.addEventListener("vplay-sync-state", handleSyncState);
+    
+    // Request initial sync
+    window.dispatchEvent(new CustomEvent("vplay-request-sync"));
+
+    return () => {
+      window.removeEventListener("vplay-sync-state", handleSyncState);
+    };
+  }, []);
 
   // Keypad typed state
   const [typedNum, setTypedNum] = useState("");
@@ -10183,6 +10229,27 @@ function DynamicIsland({
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Custom global triggers for Dynamic Island
+  useEffect(() => {
+    const handleIslandTrigger = (e: Event) => {
+      const customEvent = e as CustomEvent<{ mode: "search" | "keypad" | "volume" | "notifications" | "vtv5" | "filter" | "sort"; active?: boolean }>;
+      if (customEvent.detail) {
+        if (customEvent.detail.mode) {
+          setIslandMode(customEvent.detail.mode);
+        }
+        if (customEvent.detail.active !== undefined) {
+          setIsExpanded(customEvent.detail.active);
+        } else {
+          setIsExpanded(true);
+        }
+      }
+    };
+    window.addEventListener("vplay-island", handleIslandTrigger);
+    return () => {
+      window.removeEventListener("vplay-island", handleIslandTrigger);
+    };
   }, []);
 
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant", text: string }>>([
@@ -10307,6 +10374,8 @@ function DynamicIsland({
     }
   };
 
+  const activeToast = toasts && toasts.length > 0 ? toasts[0] : null;
+
   return (
     <div className="flex justify-center w-full relative">
       <motion.div
@@ -10319,27 +10388,64 @@ function DynamicIsland({
           mass: 0.8,
         }}
         animate={{
-          width: isExpanded 
-            ? (aiExpanded 
-                ? aiCardWidth 
-                : (islandMode === "keypad" ? 320 : islandMode === "volume" ? 220 : expandedWidth)
-              ) 
-            : 132,
-          height: isExpanded 
-            ? (aiExpanded 
-                ? aiCardHeight 
-                : (islandMode === "keypad" ? 330 : islandMode === "volume" ? 230 : 84)
-              ) 
-            : 38,
-          borderRadius: (aiExpanded || isExpanded) ? "24px" : "999px",
+          width: activeToast 
+            ? (windowWidth < 480 ? 300 : 360)
+            : isExpanded 
+              ? (aiExpanded 
+                  ? aiCardWidth 
+                  : (islandMode === "keypad" ? 320 : islandMode === "volume" ? 220 : islandMode === "notifications" ? (windowWidth < 480 ? 300 : 380) : islandMode === "vtv5" ? (windowWidth < 480 ? 300 : 330) : islandMode === "filter" ? (windowWidth < 480 ? 300 : 360) : islandMode === "sort" ? (windowWidth < 480 ? 300 : 330) : expandedWidth)
+                ) 
+              : 132,
+          height: activeToast
+            ? 50
+            : isExpanded 
+              ? (aiExpanded 
+                  ? aiCardHeight 
+                  : (islandMode === "keypad" ? 330 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 260 : islandMode === "vtv5" ? 220 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 84)
+                ) 
+              : 38,
+          borderRadius: (activeToast || aiExpanded || isExpanded) ? "50px" : "999px",
         }}
         onClick={() => {
-          if (!isExpanded) setIsExpanded(true);
+          if (!activeToast && !isExpanded) setIsExpanded(true);
         }}
         className="bg-black text-white border border-white/12 px-4 flex flex-col justify-start shadow-[0_12px_28px_rgba(0,0,0,0.65),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] cursor-pointer overflow-hidden select-none"
       >
         <AnimatePresence mode="wait">
-          {!isExpanded ? (
+          {activeToast ? (
+            <motion.div
+              key="active-toast"
+              initial={{ opacity: 0, scale: 0.9, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              className="flex items-center gap-3 w-full h-[48px] px-1 text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <div className={`p-1.5 rounded-full shrink-0 ${
+                activeToast.type === "success" ? "bg-emerald-500/20 text-emerald-400" :
+                activeToast.type === "error" ? "bg-rose-500/20 text-rose-400" :
+                activeToast.type === "warning" ? "bg-amber-500/20 text-amber-400" :
+                "bg-[#4AC4FE]/20 text-[#4AC4FE]"
+              }`}>
+                {activeToast.type === "success" && <CheckCircle2 size={15} />}
+                {activeToast.type === "error" && <AlertCircle size={15} />}
+                {activeToast.type === "warning" && <AlertCircle size={15} />}
+                {(!activeToast.type || activeToast.type === "info") && <Info size={15} />}
+              </div>
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <span className="text-[11px] font-black tracking-wide truncate max-w-full block">
+                  {activeToast.message}
+                </span>
+                {activeToast.description && (
+                  <span className="text-[9px] text-white/50 block font-medium truncate max-w-full">
+                    {activeToast.description}
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          ) : !isExpanded ? (
             <motion.div
               key="compact-clock"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -10367,6 +10473,7 @@ function DynamicIsland({
                   {islandMode === "search" && "Tìm kiếm"}
                   {islandMode === "keypad" && "GỌI KÊNH NHANH"}
                   {islandMode === "volume" && "Volume"}
+                  {islandMode === "notifications" && "Thông báo"}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -10395,6 +10502,18 @@ function DynamicIsland({
                     title="Volume"
                   >
                     <Volume2 size={13} />
+                  </button>
+                  <button
+                    onClick={() => setIslandMode("notifications")}
+                    className={`p-1 rounded-full transition-all relative ${
+                      islandMode === "notifications" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+                    }`}
+                    title="Thông báo"
+                  >
+                    <Bell size={13} />
+                    {notifications && notifications.length > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                    )}
                   </button>
                   <button
                     onClick={() => setIsExpanded(false)}
@@ -10560,6 +10679,192 @@ function DynamicIsland({
                         >
                           Mute
                         </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {islandMode === "notifications" && (
+                    <motion.div
+                      key="notifications-v-intel"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="w-full flex flex-col h-[200px]"
+                    >
+                      <div className="flex items-center justify-between px-1.5 pb-1.5 shrink-0 border-b border-white/10">
+                        <span className="text-[10px] font-bold text-white/80">Lịch sử thông báo</span>
+                        {notifications && notifications.length > 0 && (
+                          <button
+                            onClick={() => setNotifications && setNotifications([])}
+                            className="text-[9px] font-bold text-red-400 hover:text-red-300 transition-colors bg-transparent border-none cursor-pointer"
+                          >
+                            Xóa hết
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
+                        {!notifications || notifications.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-6 text-center h-full gap-1">
+                            <Bell className="w-5 h-5 text-white/30 animate-pulse" />
+                            <span className="text-[10px] text-white/40 font-bold">Không có thông báo mới</span>
+                          </div>
+                        ) : (
+                          notifications.map((notif) => (
+                            <div 
+                              key={notif.id} 
+                              className="p-2 rounded-xl bg-white/5 border border-white/5 flex items-start gap-2 text-left relative"
+                            >
+                              <div className={`w-1 self-stretch rounded-full ${
+                                notif.type === "success" ? "bg-emerald-500" :
+                                notif.type === "error" ? "bg-red-500" :
+                                notif.type === "warning" ? "bg-amber-500" : "bg-[#4AC4FE]"
+                              }`} />
+                              <div className="flex-1 min-w-0 pr-2">
+                                <p className="text-[10px] font-black leading-tight text-white/90 break-words">{notif.message}</p>
+                                {notif.description && (
+                                  <p className="text-[8px] text-white/50 mt-0.5 break-words font-medium">{notif.description}</p>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => setNotifications && setNotifications(prev => prev.filter(n => n.id !== notif.id))}
+                                className="shrink-0 p-0.5 hover:bg-white/10 rounded-full transition-colors text-white/40 hover:text-white"
+                              >
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {islandMode === "vtv5" && (
+                    <motion.div
+                      key="vtv5-variants"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="w-full flex flex-col h-[160px]"
+                    >
+                      <div className="flex items-center justify-between px-1.5 pb-1.5 shrink-0 border-b border-white/10">
+                        <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">Phân bản VTV5</span>
+                        <span className="text-[8px] bg-[#4AC4FE]/20 text-[#4AC4FE] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Chọn luồng</span>
+                      </div>
+                      
+                      <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
+                        {[
+                          { label: "VTV5 Quốc gia", target: "VTV5" },
+                          { label: "VTV5 Tây Nam Bộ", target: "VTV5 Tây Nam Bộ" },
+                          { label: "VTV5 Tây Nguyên", target: "VTV5 Tây Nguyên" }
+                        ].map((variant) => {
+                          const isSelected = activeChannel?.name === variant.target;
+                          return (
+                            <button
+                              key={variant.target}
+                              onClick={() => {
+                                if (setActiveChannel) {
+                                  const targetCh = channels.find(c => c.name === variant.target);
+                                  if (targetCh) {
+                                    setActiveChannel(targetCh);
+                                    if (setActiveTab) setActiveTab("Live");
+                                    setIsExpanded(false);
+                                  }
+                                }
+                              }}
+                              className={`w-full text-left px-3.5 py-2.5 text-[10px] font-black tracking-wider uppercase rounded-xl transition-all flex items-center justify-between border ${
+                                isSelected
+                                  ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/30 text-[#4AC4FE]"
+                                  : "bg-white/5 border-transparent hover:bg-white/10 text-slate-300 hover:text-white"
+                              }`}
+                            >
+                              <span>{variant.label}</span>
+                              {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE]" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {islandMode === "filter" && (
+                    <motion.div
+                      key="live-filters"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="w-full flex flex-col h-[230px]"
+                    >
+                      <div className="flex items-center justify-between px-1.5 pb-1.5 shrink-0 border-b border-white/10">
+                        <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">Phân loại kênh</span>
+                        <span className="text-[8px] bg-white/10 text-slate-300 font-black px-1.5 py-0.5 rounded">{currentFilter}</span>
+                      </div>
+                      
+                      <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
+                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => {
+                          const isSelected = currentFilter === type;
+                          return (
+                            <button
+                              key={type}
+                              onClick={() => {
+                                window.dispatchEvent(new CustomEvent("vplay-set-filter", { detail: type }));
+                                setCurrentFilter(type);
+                              }}
+                              className={`w-full text-left px-3.5 py-2 text-[10px] font-black tracking-wider uppercase rounded-xl transition-all flex items-center justify-between border ${
+                                isSelected
+                                  ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/30 text-[#4AC4FE]"
+                                  : "bg-white/5 border-transparent hover:bg-white/10 text-slate-300 hover:text-white"
+                              }`}
+                            >
+                              <span>{type}</span>
+                              {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE]" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {islandMode === "sort" && (
+                    <motion.div
+                      key="live-sort"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="w-full flex flex-col h-[160px]"
+                    >
+                      <div className="flex items-center justify-between px-1.5 pb-1.5 shrink-0 border-b border-white/10">
+                        <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">Sắp xếp kênh</span>
+                        <span className="text-[8px] bg-white/10 text-slate-350 font-black px-1.5 py-0.5 rounded font-mono">
+                          {currentSort === "default" ? "Mặc định" : currentSort === "az" ? "A-Z" : "Z-A"}
+                        </span>
+                      </div>
+                      
+                      <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
+                        {[
+                          { id: "default", label: "Mặc định" },
+                          { id: "az", label: "Sắp xếp A-Z" },
+                          { id: "za", label: "Sắp xếp Z-A" }
+                        ].map((opt) => {
+                          const isSelected = currentSort === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              onClick={() => {
+                                window.dispatchEvent(new CustomEvent("vplay-set-sort", { detail: opt.id }));
+                                setCurrentSort(opt.id);
+                              }}
+                              className={`w-full text-left px-3.5 py-2.5 text-[10px] font-black tracking-wider uppercase rounded-xl transition-all flex items-center justify-between border ${
+                                isSelected
+                                  ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/30 text-[#4AC4FE]"
+                                  : "bg-white/5 border-transparent hover:bg-white/10 text-slate-300 hover:text-white"
+                              }`}
+                            >
+                              <span>{opt.label}</span>
+                              {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE]" />}
+                            </button>
+                          );
+                        })}
                       </div>
                     </motion.div>
                   )}
@@ -13838,13 +14143,14 @@ function App() {
 
   useEffect(() => {
     const handleToast = (e: Event) => {
-      const customEvent = e as CustomEvent<{ message: string; type?: "success" | "error" | "info" | "warning" }>;
+      const customEvent = e as CustomEvent<{ message: string; type?: "success" | "error" | "info" | "warning"; description?: string }>;
       if (customEvent.detail) {
         const id = Math.random().toString(36).substring(2, 9);
         const newToast: ToastMessage = {
           id,
           message: customEvent.detail.message,
-          type: customEvent.detail.type || "success"
+          type: customEvent.detail.type || "success",
+          description: customEvent.detail.description
         };
         
         // Push to notification center tab list
@@ -13854,7 +14160,7 @@ function App() {
           setToasts(prev => [...prev, newToast]);
           setTimeout(() => {
             setToasts(prev => prev.filter(t => t.id !== id));
-          }, toastDurationRef.current);
+          }, 2000);
         } else {
           setToastQueue(prev => [...prev, newToast]);
         }
@@ -13875,11 +14181,11 @@ function App() {
       
       const timer = setTimeout(() => {
         setToasts([]);
-      }, toastDuration);
+      }, 2000);
       
       return () => clearTimeout(timer);
     }
-  }, [toastMode, toasts, toastQueue, toastDuration]);
+  }, [toastMode, toasts, toastQueue]);
 
 
   const [settingsActivePage, setSettingsActivePage] = useState<number>(1);
@@ -14403,6 +14709,16 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   useEffect(() => {
     localStorage.setItem("vplay_feature_flags", JSON.stringify(featureFlags));
   }, [featureFlags]);
+
+  useEffect(() => {
+    const handleEnableIsland = () => {
+      setFeatureFlags(prev => ({ ...prev, dynamic_island: true }));
+    };
+    window.addEventListener("vplay-enable-island", handleEnableIsland);
+    return () => {
+      window.removeEventListener("vplay-enable-island", handleEnableIsland);
+    };
+  }, []);
 
   const paginate = (newDirection: number) => {
     setDirection(newDirection);
@@ -15285,6 +15601,8 @@ const [headingBar, setHeadingBar] = useState(() => {
               setIsMuted={setIsMuted}
               setActiveTab={setActiveTab}
               toasts={toasts}
+              notifications={notifications}
+              setNotifications={setNotifications}
             />
           ) : (
             <TopBar 
@@ -16575,6 +16893,12 @@ const [headingBar, setHeadingBar] = useState(() => {
                             if (isMobile) setIsSidebarExpanded(false);
                             return;
                           }
+                          if (tab.id === "Thông báo") {
+                            setFeatureFlags(prev => ({ ...prev, dynamic_island: true }));
+                            window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "notifications", active: true } }));
+                            if (isMobile) setIsSidebarExpanded(false);
+                            return;
+                          }
                           if (tab.id === "Live" && isBroadcastingLocked) {
                             setIsLockModalOpen(true);
                             return;
@@ -16782,6 +17106,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                             <button
                               onClick={() => {
                                 triggerNavBounce();
+                                if (tabId === "Thông báo") {
+                                  setFeatureFlags(prev => ({ ...prev, dynamic_island: true }));
+                                  window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "notifications", active: true } }));
+                                  return;
+                                }
                                 if (tabId === "Live" && isBroadcastingLocked) {
                                   setIsLockModalOpen(true);
                                   return;
@@ -17060,9 +17389,10 @@ const [headingBar, setHeadingBar] = useState(() => {
       )}
 
       {/* Floating Notification Toasts at the bottom of the screen */}
-      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 w-80 max-w-[calc(100vw-2rem)] pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
+      {!featureFlags.dynamic_island && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 w-80 max-w-[calc(100vw-2rem)] pointer-events-none">
+          <AnimatePresence>
+            {toasts.map((toast) => (
             <motion.div
               key={toast.id}
               initial={{ opacity: 0, y: 15, scale: 0.95 }}
@@ -17097,6 +17427,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           ))}
         </AnimatePresence>
       </div>
+      )}
     </div>
   </MotionConfig>
 );
