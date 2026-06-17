@@ -472,6 +472,7 @@ const BellIcon = ({ className, size, strokeWidth, filled }: { className?: string
 const TAB_ICON_URLS: Record<string, string> = {
   "Trang chủ": "https://static.wikia.nocookie.net/ftv/images/b/bb/Vplay-liquid-home.png/revision/latest?cb=20260610090420&path-prefix=vi",
   "Live": "https://static.wikia.nocookie.net/ftv/images/c/cf/Vplay-liquid-tv.png/revision/latest?cb=20260610090420&path-prefix=vi",
+  "Live (mới)": "https://static.wikia.nocookie.net/ftv/images/c/cf/Vplay-liquid-tv.png/revision/latest?cb=20260610090420&path-prefix=vi",
   "Package": "https://static.wikia.nocookie.net/ftv/images/7/72/Vplay-liquid-package.png/revision/latest?cb=20260610090420&path-prefix=vi",
   "Thông báo": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi", // Fallback URL
   "Cài đặt": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi",
@@ -482,6 +483,7 @@ const baseTabs = [
   { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
   { name: "Tìm kiếm", icon: SearchIcon, id: "Tìm kiếm" },
   { name: "Live", icon: TvIcon, id: "Live" },
+  { name: "Live (mới)", icon: TvIcon, id: "Live (mới)" },
   { name: "Package", icon: PackageIcon, id: "Package" },
   { name: "Thông báo", icon: BellIcon, id: "Thông báo" },
   { name: "Settings (new)", icon: SettingsIcon, id: "Settings (new)" },
@@ -11339,7 +11341,7 @@ function TopBar({
     if (isListening) return "Speak something, I'm listening...";
     if (isListeningFailed) return "I couldn't hear you. Let's try again";
     if (activeTab === "Trang chủ") return "Search Home";
-    if (activeTab === "Live") return "Search Live";
+    if (activeTab === "Live" || activeTab === "Live (mới)") return "Search Live";
     if (activeTab === "Cài đặt") return "Search for options";
     return "Find and explore";
   };
@@ -15302,7 +15304,7 @@ const [headingBar, setHeadingBar] = useState(() => {
   useEffect(() => {
     let lastScrollTop = 0;
     const handleCaptureScroll = (e: any) => {
-      if (activeTab !== "Live" && activeTab !== "Package") return;
+      if (activeTab !== "Live" && activeTab !== "Live (mới)" && activeTab !== "Package") return;
       const target = e.target;
       if (!target || typeof target.scrollTop === "undefined") return;
       const scrollTop = target.scrollTop;
@@ -15808,7 +15810,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         paddingRight: useSidebar && !isMobile && isSidebarRight 
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (!floatyBars ? 16 : 0) : (80 + (!floatyBars ? 16 : 0))) 
           : "env(safe-area-inset-right, 10px)",
-        paddingTop: headingBar ? (featureFlags.dynamic_island ? 0 : (floatyBars ? 56 : 76)) : 0,
+        paddingTop: headingBar ? (featureFlags.dynamic_island ? (floatyBars ? "calc(48px + env(safe-area-inset-top, 0px))" : "calc(64px + env(safe-area-inset-top, 0px))") : (floatyBars ? 56 : 76)) : 0,
       }}
       >
       {!showSplash && headingBar && (
@@ -16604,7 +16606,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             }
             lastScrollY.current = scrollTop;
           }}
-          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)") ? (useSidebar ? "pb-0" : "pb-32") : displayTab === "Live" ? (useSidebar ? "pb-0" : "pb-12") : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
+          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)") ? (useSidebar ? "pb-0" : "pb-32") : (displayTab === "Live" || displayTab === "Live (mới)") ? (useSidebar ? "pb-0" : "pb-12") : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
         >
           <motion.div
             key={displayTab}
@@ -16612,7 +16614,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className={`h-full flex flex-col ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live") ? "pt-0" : "pt-4 md:pt-8"}`}
+            className={`h-full flex flex-col ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live" || displayTab === "Live (mới)") ? "pt-0" : "pt-4 md:pt-8"}`}
           >
               {displayTab === "Trang chủ" && (
                 <HomeContent 
@@ -16676,6 +16678,40 @@ const [headingBar, setHeadingBar] = useState(() => {
                 />
               )}
               {displayTab === "Live" && (
+                <TVContent 
+                  mode="live"
+                  active={activeChannel} 
+                  setActive={handleChannelSelect} 
+                  isDark={isDark} 
+                  favorites={favorites} 
+                  toggleFavorite={toggleFavorite} 
+                  user={user}
+                  onLogin={handleLogin}
+                  isDev={isDev}
+                  liquidGlass={liquidGlass}
+                  sortOrder={sortOrder}
+                  setSortOrder={setSortOrder}
+                  showSplash={showSplash}
+                  featureFlags={featureFlags}
+                  searchQuery={searchQuery}
+                  bypassed={bypassed}
+                  setIsPlayerInView={setIsPlayerInView}
+                  loadingTreatment={loadingTreatment}
+                  currentTime={currentTime}
+                  onChannelContextMenu={onChannelContextMenu}
+                  pinnedChannels={pinnedChannels}
+                  togglePinChannel={togglePinChannel}
+                  isTopBarVisible={isTopBarVisible}
+                  useNewDesign={useNewDesign}
+                  setUseNewDesign={setUseNewDesign}
+                  showChannelNumbers={showChannelNumbers}
+                  volume={volume}
+                  setVolume={setVolume}
+                  isMuted={isMuted}
+                  setIsMuted={setIsMuted}
+                />
+              )}
+              {displayTab === "Live (mới)" && (
                 <TVContent 
                   mode="live"
                   active={activeChannel} 
@@ -17026,7 +17062,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   const isActive = activeTab === (tab.id || tab.name) || 
                                    (tab.id === "Widgets" && isWidgetsOpen && activeDashboardTab === "widgets") ||
                                    (tab.id === "Cài đặt" && isWidgetsOpen && activeDashboardTab === "settings");
-                  const isLiveTab = (tab.id || tab.name) === "Live";
+                  const isLiveTab = (tab.id || tab.name) === "Live" || (tab.id || tab.name) === "Live (mới)";
                   const activeColorClass = isLiveTab ? "text-red-500" : "text-[#4AC4FE]";
                   const activeBgClass = isLiveTab 
                     ? (isDark ? "bg-red-500/10 text-red-500 border border-red-500/20" : "bg-red-500/10 text-red-500 shadow-sm") 
@@ -17136,7 +17172,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                             if (isMobile) setIsSidebarExpanded(false);
                             return;
                           }
-                          if (tab.id === "Live" && isBroadcastingLocked) {
+                          if ((tab.id === "Live" || tab.id === "Live (mới)") && isBroadcastingLocked) {
                             setIsLockModalOpen(true);
                             return;
                           }
@@ -17329,7 +17365,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 >
                   {navPage === 0 && (
                     <>
-                      {baseTabs.filter(t => ["Trang chủ", "Live", "Package", "Thông báo", "Cài đặt", "Settings (new)"].includes(t.id || t.name)).map((tab) => {
+                      {baseTabs.filter(t => ["Trang chủ", "Live", "Live (mới)", "Package", "Thông báo", "Cài đặt", "Settings (new)"].includes(t.id || t.name)).map((tab) => {
                         const Icon = tab.icon;
                         const tabId = tab.id || tab.name;
                         const isActive = activeTab === tabId;
@@ -17348,7 +17384,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "notifications", active: true } }));
                                   return;
                                 }
-                                if (tabId === "Live" && isBroadcastingLocked) {
+                                if ((tabId === "Live" || tabId === "Live (mới)") && isBroadcastingLocked) {
                                   setIsLockModalOpen(true);
                                   return;
                                 }
@@ -17614,7 +17650,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           <FloatingTooltip text={hoveredTab || ""} show={!!hoveredTab} targetRect={hoveredTabRect} />
         </motion.div>
       </div>
-      {activeChannel && featureFlags.PiP_experimental && !pipExplicitlyClosed && (activeTab !== "Live" || !isPlayerInView) && (
+      {activeChannel && featureFlags.PiP_experimental && !pipExplicitlyClosed && (activeTab !== "Live" && activeTab !== "Live (mới)" || !isPlayerInView) && (
         <MiniPlayer 
           channel={activeChannel} 
           isDark={isDark} 
