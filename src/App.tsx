@@ -840,6 +840,15 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             isDark ? "bg-[#18181c]/90 text-[#4AC4FE] border border-white/5" : "bg-white/90 text-blue-600 border border-slate-200"
           }`}>
             {(() => {
+              try {
+                const saved = localStorage.getItem("vplay_custom_channel_numbers");
+                if (saved) {
+                  const parsed = JSON.parse(saved);
+                  if (parsed[ch.name] !== undefined) {
+                    return String(parsed[ch.name]).padStart(3, '0');
+                  }
+                }
+              } catch (e) {}
               const channelIndex = channels.findIndex(c => c.name === ch.name);
               const num = channelIndex !== -1 ? channelIndex + 1 : null;
               return num ? String(num).padStart(3, '0') : "000";
@@ -4959,10 +4968,23 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 <span className={`text-[10px] font-bold mt-1.5 min-h-[14px] truncate max-w-full text-center ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                   {(() => {
                     const chNum = parseInt(remoteInput, 10);
-                    if (isNaN(chNum) || chNum < 1 || chNum > channels.length) {
+                    if (isNaN(chNum) || chNum <= 0) {
                       return remoteInput ? "Không tìm thấy kênh" : "Nhập số kênh từ 0-9";
                     }
-                    return `Mục tiêu: ${channels[chNum - 1].name}`;
+                    let localCustoms: Record<string, number> = {};
+                    try {
+                      const saved = localStorage.getItem("vplay_custom_channel_numbers");
+                      if (saved) localCustoms = JSON.parse(saved);
+                    } catch (e) {}
+
+                    const foundCustom = channels.find(ch => localCustoms[ch.name] === chNum);
+                    if (foundCustom) return `Mục tiêu: ${foundCustom.name}`;
+
+                    const defaultCh = channels[chNum - 1];
+                    if (defaultCh && (localCustoms[defaultCh.name] === undefined || localCustoms[defaultCh.name] === chNum)) {
+                      return `Mục tiêu: ${defaultCh.name}`;
+                    }
+                    return "Không tìm thấy kênh";
                   })()}
                 </span>
               </div>
@@ -5014,10 +5036,30 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 <button
                   onClick={() => {
                     const targetNum = parseInt(remoteInput, 10);
-                    if (isNaN(targetNum) || targetNum < 1 || targetNum > channels.length) {
+                    if (isNaN(targetNum) || targetNum <= 0) {
+                      showToast("Vui lòng nhập vị trí số kênh hợp lệ!", "error");
+                      return;
+                    }
+
+                    const matchedCh = (() => {
+                      let localCustoms: Record<string, number> = {};
+                      try {
+                        const saved = localStorage.getItem("vplay_custom_channel_numbers");
+                        if (saved) localCustoms = JSON.parse(saved);
+                      } catch (e) {}
+
+                      const foundCustom = channels.find(ch => localCustoms[ch.name] === targetNum);
+                      if (foundCustom) return foundCustom;
+                      const defaultCh = channels[targetNum - 1];
+                      if (defaultCh && (localCustoms[defaultCh.name] === undefined || localCustoms[defaultCh.name] === targetNum)) {
+                        return defaultCh;
+                      }
+                      return null;
+                    })();
+
+                    if (!matchedCh) {
                       showToast("Vui lòng nhập vị trí số kênh hợp lệ!", "error");
                     } else {
-                      const matchedCh = channels[targetNum - 1];
                       setActive(matchedCh);
                       setIsRemoteOpen(false);
                       setRemoteInput("");
@@ -6238,7 +6280,7 @@ function RejuvenatedSettings(props: any) {
                 </div>
                 <div className="flex justify-between items-center py-2.5 border-b border-white/5">
                   <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Version</span>
-                  <span className="text-sm md:text-base font-bold text-[#4AC4FE]">26.7.0</span>
+                  <span className="text-sm md:text-base font-bold text-[#4AC4FE]">26.7_08</span>
                 </div>
                 <div className="flex justify-between items-center py-2.5">
                   <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Compiled</span>
@@ -6875,123 +6917,6 @@ function RejuvenatedSettings(props: any) {
           </div>
         );
       }
-      case "WidgetsBoard": {
-        const showPosition = shouldShowSetting("Vị trí Widgets board", "Cấu hình vị trí xuất hiện của bảng tiện ích (bên trái hoặc bên phải màn hình)", ["widgets", "board", "bảng tiện ích", "vị trí", "trái", "phải"]);
-        const showSidebarSetting = shouldShowSetting("Ẩn sidebar trong Widgets", "Đang ẩn thanh điều khiển bên trong bảng tiện ích để tăng diện tích hiển thị", ["widgets", "sidebar", "ẩn", "thanh bên"]);
-        const showFullScreen = shouldShowSetting("Chế độ toàn màn hình", "Mở bảng tiện ích dạng toàn màn hình (Full-screen mode)", ["toàn màn hình", "full-screen", "flyout", "tiện ích"]);
-        const showFrosted = shouldShowSetting("Hiệu ứng Frosted Glass", "Đang bật hiệu ứng phủ mờ kính (Frosted Glass) cho toàn bộ Widgets board", ["frosted glass", "mờ kính", "kính", "text trắng"]);
-        const showColorSetting = shouldShowSetting("Tô màu tiện ích", "Hiển thị màu sắc sinh động, rực rỡ riêng cho từng ô tiện ích trong bảng", ["tô màu", "màu tiện ích", "color widgets", "màu sắc"]);
-        const showExpEmbed = shouldShowSetting("Experimental Features inside widgets", "Phòng thí nghiệm tiến hóa đã được di chuyển vào đây", ["thử nghiệm", "experimental", "labs", "phòng thí nghiệm"]);
-
-        if (!showPosition && !showSidebarSetting && !showFullScreen && !showFrosted && !showColorSetting && !showExpEmbed) return null;
-        return (
-          <div className="space-y-6 text-left animate-in fade-in duration-300">
-             {/* Position of Widgets Board */}
-             {showPosition && (
-               <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-                 <div className="flex items-center gap-5 mb-6">
-                   <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}>
-                     <LayoutGrid size={24} />
-                   </div>
-                   <div className="text-left">
-                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Vị trí Widgets board</h4>
-                     <p className="text-sm opacity-50 font-medium tracking-tight">Cấu hình vị trí xuất hiện của bảng tiện ích (bên trái hoặc bên phải màn hình)</p>
-                   </div>
-                 </div>
-                 <div className="grid grid-cols-2 gap-4">
-                   <button 
-                     onClick={() => setWidgetsBoardPosition("left")}
-                     className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${widgetsBoardPosition === "left" ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
-                   >
-                     Trái
-                   </button>
-                   <button 
-                     onClick={() => setWidgetsBoardPosition("right")}
-                     className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${widgetsBoardPosition === "right" ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
-                   >
-                     Phải
-                   </button>
-                 </div>
-               </div>
-             )}
-
-             {/* Hide Sidebar in Widgets */}
-             {showSidebarSetting && (
-               <RejuvenatedSettingsItem 
-                 icon={Columns} 
-                 title="Ẩn sidebar trong Widgets" 
-                 description={hideSidebarInWidgets ? "Đang ẩn thanh điều khiển bên trong bảng tiện ích để tăng diện tích hiển thị" : "Hiển thị đầy đủ thanh điều khiển bên trong bảng tiện ích"}
-                 onClick={() => setHideSidebarInWidgets(!hideSidebarInWidgets)}
-                 isDark={isDark}
-                 isToggleable={true}
-                 isToggled={hideSidebarInWidgets}
-               />
-             )}
-
-             {/* Full Screen Mode */}
-             {showFullScreen && (
-               <RejuvenatedSettingsItem 
-                 icon={Maximize2} 
-                 title="Chế độ toàn màn hình" 
-                 description={fullScreenWidgets ? "Mở bảng tiện ích dạng toàn màn hình (Full-screen mode)" : "Mở bảng tiện ích dưới dạng một cửa sổ trượt (Flyout panel)"}
-                 onClick={() => setFullScreenWidgets(!fullScreenWidgets)}
-                 isDark={isDark}
-                 isToggleable={true}
-                 isToggled={fullScreenWidgets}
-               />
-             )}
-
-             {/* Hiệu ứng Frosted Glass */}
-             {showFrosted && (
-               <RejuvenatedSettingsItem 
-                 icon={Droplet} 
-                 title="Hiệu ứng Frosted Glass" 
-                 description={frostedGlassWidgets ? "Đang bật hiệu ứng phủ mờ kính (Frosted Glass) cho toàn bộ Widgets board, đồng thời đổi toàn bộ text thành màu trắng" : "Bật hiệu ứng mờ kính cho toàn bộ bảng tiện ích"}
-                 onClick={() => setFrostedGlassWidgets(!frostedGlassWidgets)}
-                 isDark={isDark}
-                 isToggleable={true}
-                 isToggled={frostedGlassWidgets}
-               />
-             )}
-
-             {/* Tô màu tiện ích */}
-             {showColorSetting && (
-               <RejuvenatedSettingsItem 
-                 icon={Palette} 
-                 title="Tô màu tiện ích" 
-                 description={colorWidgets ? "Hiển thị màu sắc sinh động, rực rỡ riêng cho từng ô tiện ích trong bảng" : "Bảng tiện ích hiển thị với màu sắc trung tính mặc định"}
-                 onClick={() => setColorWidgets(!colorWidgets)}
-                 isDark={isDark}
-                 isToggleable={true}
-                 isToggled={colorWidgets}
-               />
-             )}
-
-             {/* Experimental Features embedded inside widget settings */}
-             {showExpEmbed && (
-               <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"} mt-8`}>
-                 <div className="flex items-center gap-5 mb-8 border-b border-black/5 pb-4">
-                   <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-amber-400" : "bg-amber-50 text-amber-600"}`}>
-                     <Flask size={24} />
-                   </div>
-                   <div className="text-left">
-                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Features (Tính năng thử nghiệm)</h4>
-                     <p className="text-xs opacity-50 font-bold tracking-tight">Phòng thí nghiệm tiến hóa đã được di chuyển vào đây</p>
-                   </div>
-                 </div>
-                 <ExperimentalContent 
-                   isDark={isDark} 
-                   featureFlags={featureFlags} 
-                   setFeatureFlags={setFeatureFlags || (() => {})} 
-                   liquidGlass={liquidGlass || "glassy"} 
-                   loadingTreatment={loadingTreatment || "shimmer"}
-                   setLoadingTreatment={setLoadingTreatment || (() => {})}
-                 />
-               </div>
-             )}
-          </div>
-        );
-      }
       default:
         return null;
     }
@@ -7057,7 +6982,7 @@ function RejuvenatedSettings(props: any) {
                       </div>
                       <div className="flex justify-between items-center text-sm">
                         <span className={`${isDark ? "text-white/60" : "text-slate-400"} font-medium`}>Version:</span>
-                        <span className={`${isDark ? "text-white" : "text-slate-800"} font-bold`}>26.7.0</span>
+                        <span className={`${isDark ? "text-white" : "text-slate-800"} font-bold`}>26.7_08</span>
                       </div>
                       <div className="flex justify-between items-center text-sm col-span-1">
                         <span className={`${isDark ? "text-white/60" : "text-slate-400"} font-medium whitespace-nowrap mr-2`}>Compiled:</span>
@@ -7331,10 +7256,18 @@ function SettingsNew(props: any) {
     toastMode, setToastMode,
     setActiveTab, settingsActivePage, setSettingsActivePage,
     floatyBars, setFloatyBars,
-    showChannelNumbers, setShowChannelNumbers
+    showChannelNumbers, setShowChannelNumbers,
+    customChannelNumbers, setCustomChannelNumbers
   } = props;
 
   const [localActivePage, setLocalActivePage] = useState<number>(1);
+  const [editingChSearch, setEditingChSearch] = useState("");
+  const [chNumbersTemp, setChNumbersTemp] = useState<Record<string, number | "">>({});
+  const [conflictModal, setConflictModal] = useState<{
+    targetChannel: any;
+    conflictingChannel: any;
+    desiredNumber: number;
+  } | null>(null);
   const activePage = settingsActivePage !== undefined ? settingsActivePage : localActivePage;
   const setActivePage = setSettingsActivePage !== undefined ? setSettingsActivePage : setLocalActivePage;
   const [settingsSearchQuery, setSettingsSearchQuery] = useState("");
@@ -7810,7 +7743,7 @@ function SettingsNew(props: any) {
                     {renderBullet(
                       <div className="flex items-center justify-between">
                         <span className="opacity-70 font-semibold">Thông tin phiên bản Vplay:</span>
-                        <span className="font-semibold text-xs text-sky-400">v26.7_03 Liquid Glass Edition</span>
+                        <span className="font-semibold text-xs text-sky-400">v26.7_08 Liquid Glass Edition</span>
                       </div>
                     )}
                   </div>
@@ -8277,8 +8210,256 @@ function SettingsNew(props: any) {
                     )}
                   </div>
                 </div>
+
+                <div className="border-t border-white/5 pt-6 text-left">
+                  <h4 className="text-xs uppercase tracking-widest opacity-40 mb-3 font-bold font-mono">Tùy chỉnh số kênh</h4>
+                  <p className="text-xs opacity-50 mb-4 font-normal">Điều chỉnh vị trí số kênh phát sóng. Số kênh được sử dụng khi gõ số trên Dynamic Island hoặc Remote.</p>
+                  
+                  {/* Search for Channel */}
+                  <div className="relative mb-4">
+                    <SearchCustomIcon size={14} className="absolute left-3 top-2.5 opacity-40" />
+                    <input
+                      type="text"
+                      placeholder="Tìm kênh để sửa số..."
+                      value={editingChSearch}
+                      onChange={(e) => setEditingChSearch(e.target.value)}
+                      className={`w-full text-xs font-semibold pl-9 pr-4 py-2.5 rounded-xl border outline-none transition-all ${
+                        isDark 
+                          ? "bg-[#18181c]/50 border-white/10 text-white focus:border-[#4AC4FE]/40" 
+                          : "bg-slate-50 border-slate-200 text-slate-800 focus:border-blue-500/40"
+                      }`}
+                    />
+                  </div>
+
+                  {/* Channel Edit List */}
+                  <div className="space-y-2.5 max-h-[300px] overflow-y-auto custom-scrollbar pr-1.5">
+                    {channels
+                      .filter(ch => ch.name.toLowerCase().includes(editingChSearch.toLowerCase()))
+                      .slice(0, 30) // limit to avoid list bloat
+                      .map(ch => {
+                        const defaultNum = channels.findIndex(c => c.name === ch.name) + 1;
+                        const currentCustom = customChannelNumbers[ch.name];
+                        const displayNum = currentCustom !== undefined ? currentCustom : defaultNum;
+                        
+                        return (
+                          <div 
+                            key={ch.name} 
+                            className={`flex items-center justify-between p-3 rounded-2xl ${
+                              isDark ? "bg-[#18181c]/30 border border-white/5" : "bg-slate-50/50 border border-slate-100"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <img 
+                                src={ch.logo} 
+                                className="w-8 h-8 object-contain rounded-lg bg-black/10 p-0.5 shrink-0" 
+                                referrerPolicy="no-referrer" 
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = `https://placehold.co/100x100?text=${ch.name.substring(0,3)}`;
+                                }}
+                              />
+                              <div className="min-w-0">
+                                <p className="font-bold text-xs truncate">{ch.name}</p>
+                                <p className="text-[10px] opacity-45">Số mặc định: {defaultNum}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] opacity-40 shrink-0 font-bold font-mono">SỐ KÊNH:</span>
+                              <input
+                                type="number"
+                                min="1"
+                                max="999"
+                                value={chNumbersTemp[ch.name] !== undefined ? chNumbersTemp[ch.name] : displayNum}
+                                onChange={(e) => {
+                                  const valStr = e.target.value;
+                                  const val = valStr === "" ? "" : parseInt(valStr, 10);
+                                  setChNumbersTemp(prev => ({
+                                    ...prev,
+                                    [ch.name]: val
+                                  }));
+                                }}
+                                onBlur={(e) => {
+                                  const valStr = e.target.value;
+                                  if (valStr === "") {
+                                    // reset temp
+                                    setChNumbersTemp(prev => {
+                                      const copy = {...prev};
+                                      delete copy[ch.name];
+                                      return copy;
+                                    });
+                                    return;
+                                  }
+                                  const val = parseInt(valStr, 10);
+                                  if (isNaN(val) || val <= 0) {
+                                    onAlert("Lỗi", "Số kênh phải lớn hơn 0!");
+                                    return;
+                                  }
+
+                                  // Find conflicts
+                                  const conflictingCH = channels.find(c => {
+                                    if (c.name === ch.name) return false;
+                                    const cCustom = customChannelNumbers[c.name];
+                                    const cDefault = channels.findIndex(x => x.name === c.name) + 1;
+                                    const cActive = cCustom !== undefined ? cCustom : cDefault;
+                                    return cActive === val;
+                                  });
+
+                                  if (conflictingCH) {
+                                    setConflictModal({
+                                      targetChannel: ch,
+                                      conflictingChannel: conflictingCH,
+                                      desiredNumber: val
+                                    });
+                                  } else {
+                                    setCustomChannelNumbers(prev => ({
+                                      ...prev,
+                                      [ch.name]: val
+                                    }));
+                                    window.dispatchEvent(new CustomEvent("vplay-toast", {
+                                      detail: {
+                                        message: `Đã đổi số kênh ${ch.name} thành ${val}`,
+                                        type: "success"
+                                      }
+                                    }));
+                                  }
+                                }}
+                                className={`w-16 text-center text-xs font-black p-1.5 rounded-lg border outline-none font-mono ${
+                                  isDark 
+                                    ? "bg-[#18181c]/70 border-white/10 text-[#4AC4FE] focus:border-[#4AC4FE]/40" 
+                                    : "bg-white border-slate-200 text-blue-600 focus:border-blue-500/40"
+                                }`}
+                              />
+                              
+                              {currentCustom !== undefined && (
+                                <button
+                                  onClick={() => {
+                                    setCustomChannelNumbers(prev => {
+                                      const copy = {...prev};
+                                      delete copy[ch.name];
+                                      return copy;
+                                    });
+                                    setChNumbersTemp(prev => {
+                                      const copy = {...prev};
+                                      delete copy[ch.name];
+                                      return copy;
+                                    });
+                                    window.dispatchEvent(new CustomEvent("vplay-toast", {
+                                      detail: {
+                                        message: `Đã khôi phục số kênh mặc định cho ${ch.name}`,
+                                        type: "info"
+                                      }
+                                    }));
+                                  }}
+                                  className={`p-1.5 rounded-lg text-red-500 transition-colors ${
+                                    isDark ? "hover:bg-red-500/10" : "hover:bg-red-50"
+                                  }`}
+                                  title="Khôi phục mặc định"
+                                >
+                                  <RotateCcw size={12} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
               </div>
             )}
+
+            {/* Conflict Resolution Modal overlay */}
+            <AnimatePresence>
+              {conflictModal && (
+                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                    transition={{ type: "spring", duration: 0.4 }}
+                    className={`w-full max-w-sm rounded-[28px] p-6 shadow-2xl relative border text-left ${
+                      isDark ? "bg-[#18181c] border-white/5 text-white" : "bg-white border-slate-200 text-slate-800"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3.5 mb-4">
+                      <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500 shrink-0">
+                        <AlertCircle size={22} />
+                      </div>
+                      <div>
+                        <h5 className="font-extrabold text-sm mb-1">Trùng lặp số kênh!</h5>
+                        <p className="text-xs opacity-70 leading-relaxed">
+                          Số kênh <span className="font-mono font-bold text-amber-400">#{conflictModal.desiredNumber}</span> hiện đang được sử dụng ở kênh:
+                          <br />
+                          <span className="font-extrabold text-slate-200 dark:text-amber-300">{conflictModal.conflictingChannel.name}</span>.
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="text-xs opacity-50 mb-6 leading-relaxed">
+                      Để thiết lập phát sóng, bạn được yêu cầu đổi số ở kênh đang tồn tại này. Hãy chọn một tùy chọn xử lý:
+                    </p>
+
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => {
+                          const targetCh = conflictModal.targetChannel;
+                          const conflictCh = conflictModal.conflictingChannel;
+                          const desiredNum = conflictModal.desiredNumber;
+                          
+                          const targetDefault = channels.findIndex(c => c.name === targetCh.name) + 1;
+                          const targetCurrent = customChannelNumbers[targetCh.name] !== undefined ? customChannelNumbers[targetCh.name] : targetDefault;
+
+                          setCustomChannelNumbers(prev => ({
+                            ...prev,
+                            [targetCh.name]: desiredNum,
+                            [conflictCh.name]: targetCurrent
+                          }));
+
+                          setChNumbersTemp({});
+                          setConflictModal(null);
+
+                          window.dispatchEvent(new CustomEvent("vplay-toast", {
+                            detail: {
+                              message: `Đổi số: ${targetCh.name} -> #${desiredNum}, ${conflictCh.name} -> #${targetCurrent}`,
+                              type: "success"
+                            }
+                          }));
+                        }}
+                        className="w-full py-3 px-4 rounded-xl text-xs font-bold transition-all bg-[#4AC4FE] text-black hover:bg-[#4AC4FE]/90 focus:scale-98"
+                      >
+                        Đổi số cả 2 kênh (Hoán đổi vị trí)
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const conflictCh = conflictModal.conflictingChannel;
+                          setEditingChSearch(conflictCh.name);
+                          setConflictModal(null);
+                          window.dispatchEvent(new CustomEvent("vplay-toast", {
+                            detail: {
+                              message: `Vui lòng đặt vị trí số mới cho ${conflictCh.name}`,
+                              type: "info"
+                            }
+                          }));
+                        }}
+                        className="w-full py-3 px-4 rounded-xl text-xs font-bold transition-all bg-white/5 border border-white/10 hover:bg-white/10 focus:scale-98"
+                      >
+                        Chỉnh sửa số của {conflictModal.conflictingChannel.name} trước
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setChNumbersTemp({});
+                          setConflictModal(null);
+                        }}
+                        className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-center opacity-65 hover:opacity-100 transition-opacity"
+                      >
+                        Hủy bỏ
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
         </AnimatePresence>
@@ -8476,7 +8657,7 @@ function SettingsContent({
                   <span className={`text-[9px] md:text-[10px] font-bold tracking-[0.4em] ${isDark ? "text-white/40" : "text-slate-400"}`}>June 2026 Update</span>
                   <div className="flex items-center gap-1.5 md:gap-2">
                     <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">26M6</span>
-                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Version 26.7.0</span>
+                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Version 26.7_08</span>
                   </div>
                 </div>
               </div>
@@ -8494,7 +8675,7 @@ function SettingsContent({
                    <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>June 2026 Update</p>
                  </div>
                </div>
-               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Version 26.7.0</span>
+               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Version 26.7_08</span>
              </div>
 
              <div className="grid grid-cols-2 gap-3 md:gap-4">
@@ -9649,7 +9830,7 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
                 What's new <span className="text-[#4AC4FE] block sm:inline">in Vplay Dev</span>
               </h2>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] text-[9px] md:text-[10px] font-bold tracking-widest uppercase border border-[#4AC4FE]/20">Version 26.7.0</span>
+                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] text-[9px] md:text-[10px] font-bold tracking-widest uppercase border border-[#4AC4FE]/20">Version 26.7_08</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stable Beta</span>
               </div>
@@ -10147,8 +10328,34 @@ function DynamicIsland({
 
   const matchedChannel = React.useMemo(() => {
     const num = parseInt(typedNum, 10);
-    if (isNaN(num) || num <= 0 || num > channels.length) return null;
-    return channels[num - 1];
+    if (isNaN(num) || num <= 0) return null;
+    
+    // Check custom assigned numbers
+    try {
+      const saved = localStorage.getItem("vplay_custom_channel_numbers");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const found = channels.find(ch => parsed[ch.name] === num);
+        if (found) return found;
+      }
+    } catch (e) {}
+
+    // Fall back to default number (index + 1)
+    const defaultCh = channels[num - 1];
+    if (defaultCh) {
+      // Check if this default channel was moved somewhere else
+      try {
+        const saved = localStorage.getItem("vplay_custom_channel_numbers");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed[defaultCh.name] !== undefined && parsed[defaultCh.name] !== num) {
+            return null; // was moved, so it no longer lives on its default number
+          }
+        }
+      } catch (e) {}
+      return defaultCh;
+    }
+    return null;
   }, [typedNum]);
 
   // Quick favorite categories shortcuts
@@ -10341,7 +10548,7 @@ function DynamicIsland({
     hour12: false,
   });
 
-  const expandedWidth = windowWidth < 480 ? 290 : 380;
+  const expandedWidth = windowWidth < 480 ? 345 : 380;
   const aiCardWidth = windowWidth < 480 ? windowWidth - 24 : 440;
   const aiCardHeight = windowWidth < 480 ? 370 : 410;
 
@@ -10381,7 +10588,7 @@ function DynamicIsland({
             : isExpanded 
               ? (aiExpanded 
                   ? aiCardWidth 
-                  : (islandMode === "keypad" ? 320 : islandMode === "volume" ? 220 : islandMode === "notifications" ? (windowWidth < 480 ? 300 : 380) : islandMode === "vtv5" ? (windowWidth < 480 ? 300 : 330) : islandMode === "filter" ? (windowWidth < 480 ? 300 : 360) : islandMode === "sort" ? (windowWidth < 480 ? 300 : 330) : expandedWidth)
+                  : (islandMode === "keypad" ? 320 : islandMode === "volume" ? 220 : islandMode === "notifications" ? (windowWidth < 480 ? 320 : 380) : islandMode === "vtv5" ? (windowWidth < 480 ? 310 : 330) : islandMode === "filter" ? (windowWidth < 480 ? 320 : 360) : islandMode === "sort" ? (windowWidth < 480 ? 310 : 330) : expandedWidth)
                 ) 
               : 132,
           height: activeToast
@@ -10389,7 +10596,7 @@ function DynamicIsland({
             : isExpanded 
               ? (aiExpanded 
                   ? aiCardHeight 
-                  : (islandMode === "search" && searchQuery ? 270 : islandMode === "keypad" ? 330 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 260 : islandMode === "vtv5" ? 220 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 84)
+                  : (islandMode === "search" ? (searchQuery ? 315 : 130) : islandMode === "keypad" ? 340 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 270 : islandMode === "vtv5" ? 230 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 130)
                 ) 
               : 38,
           borderRadius: (activeToast || aiExpanded || isExpanded) ? "30px" : "999px",
@@ -10515,7 +10722,7 @@ function DynamicIsland({
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="flex flex-col w-full h-[210px]"
+                      className="flex flex-col w-full h-full"
                     >
                       <div className="flex items-center w-full gap-2.5 h-[36px] shrink-0">
                         <div className="shrink-0 pl-1">
@@ -10551,7 +10758,7 @@ function DynamicIsland({
                             const matches = channels.filter(ch => 
                               ch.name.toLowerCase().includes(query) || 
                               ch.category.toLowerCase().includes(query)
-                            ).slice(0, 4);
+                            );
 
                             if (matches.length === 0) {
                               return (
@@ -10590,7 +10797,6 @@ function DynamicIsland({
                                     )}
                                     <span className="truncate">{ch.name}</span>
                                   </div>
-                                  <span className="text-[8px] bg-[#4AC4FE]/10 text-[#4AC4FE] px-1.5 py-0.5 rounded font-black tracking-widest uppercase shrink-0">BẬT</span>
                                 </button>
                               );
                             });
@@ -11446,7 +11652,7 @@ function TopBar({
                         </div>
                         <div className="flex justify-between items-center text-[11px]">
                           <span className="opacity-50">Version</span>
-                          <span className="font-bold text-[#4AC4FE]">26.7.0</span>
+                          <span className="font-bold text-[#4AC4FE]">26.7_08</span>
                         </div>
                         <div className="flex justify-between items-center text-[11px]">
                           <span className="opacity-50">Compiled</span>
@@ -12764,37 +12970,7 @@ function WidgetsDashboard({
              {!hideSidebarInWidgets && (
                <div className={`${isDashSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:relative left-0 top-0 bottom-0 z-[1001] md:z-auto w-24 ${frostedGlassWidgets ? "bg-slate-950/40" : "bg-[#f0f2f5]"} flex flex-col items-center py-6 gap-6 shrink-0 transition-transform duration-300 md:transition-none border-none`}>
                 <div className="flex flex-col items-center gap-6 w-full overflow-y-auto scrollbar-hide flex-1 pb-4">
-                  <button 
-                    onClick={() => { setActiveDashboardTab("widgets"); setIsDashSidebarOpen(false); }}
-                    className={`relative w-20 h-20 flex flex-col items-center justify-center gap-1.5 rounded-2xl transition-all duration-300 group ${
-                      activeDashboardTab === "widgets"
-                        ? (frostedGlassWidgets 
-                            ? "bg-white/10 border border-white/10 scale-105 text-white shadow-[0_8px_32px_rgba(0,0,0,0.12)] font-normal" 
-                            : "bg-white border border-slate-200/60 scale-105 text-[#4AC4FE] shadow-md font-normal")
-                        : (frostedGlassWidgets 
-                            ? "text-white/60 hover:text-white hover:bg-white/[0.04]" 
-                            : "text-slate-400 hover:text-slate-700 hover:bg-slate-100")
-                    }`}
-                  >
-                    {activeDashboardTab === "widgets" && (
-                      <motion.div 
-                        layoutId="active-indicator" 
-                        className={`absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-8 ${frostedGlassWidgets ? "bg-teal-300 shadow-[0_0_12px_rgba(94,234,212,0.8)]" : "bg-[#4AC4FE]"} rounded-r-md`} 
-                      />
-                    )}
-                    {!widgetsIconError ? (
-                      <img 
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Microsoft_Fluent_UI_%E2%80%93_ic_fluent_apps_32_color.svg/960px-Microsoft_Fluent_UI_%E2%80%93_ic_fluent_apps_32_color.svg.png?_=20241223132923" 
-                        alt="Widgets" 
-                        referrerPolicy="no-referrer"
-                        onError={() => setWidgetsIconError(true)}
-                        className={`w-7 h-7 object-contain transition-all duration-300 ${activeDashboardTab === "widgets" ? "saturate-100 opacity-100 scale-105" : "saturate-50 opacity-75 group-hover:saturate-100 group-hover:opacity-100"}`}
-                      />
-                    ) : (
-                      <WidgetsIcon size={28} />
-                    )}
-                    <span className="text-[11px] font-normal tracking-tight">Widgets</span>
-                  </button>
+
 
                   <button 
                     onClick={() => { setActiveDashboardTab("changelogs"); setIsDashSidebarOpen(false); }}
@@ -13263,7 +13439,7 @@ function WidgetsDashboard({
                                                                   <div className="text-4xl font-black text-slate-900 tracking-tighter bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent my-1">
                                                                     {formatTime(currentTime)}
                                                                   </div>
-                                                                  <span className="text-[9px] text-slate-400 font-semibold">Công nghệ đồng bộ tần số VNRT - 26.7.0</span>
+                                                                  <span className="text-[9px] text-slate-400 font-semibold">Công nghệ đồng bộ tần số VNRT - 26.7_08</span>
                                                                 </div>
 
                                                                 {/* Custom formatted calendar row showing we have full grid style calendar view */}
@@ -13324,7 +13500,7 @@ function WidgetsDashboard({
                                                           </div>
                                                           <div className="flex justify-between items-center text-[10px]">
                                                             <span className="opacity-50">Version</span>
-                                                            <span className="font-bold text-[#4AC4FE]">26.7.0</span>
+                                                            <span className="font-bold text-[#4AC4FE]">26.7_08</span>
                                                           </div>
                                                           <div className="flex justify-between items-center text-[10px]">
                                                             <span className="opacity-50">Compiled</span>
@@ -13657,7 +13833,7 @@ function WidgetsDashboard({
                           </button>
                         </div>
                         <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
-                          <UpdateLogsContent isDark={false} onBack={() => setActiveDashboardTab("widgets")} loadingTreatment={loadingTreatment || "shimmer"} />
+                          <UpdateLogsContent isDark={false} onBack={() => setActiveDashboardTab("settings")} loadingTreatment={loadingTreatment || "shimmer"} />
                         </div>
                       </div>
                     )}
@@ -14149,6 +14325,19 @@ function App() {
     return localStorage.getItem("vplay_show_channel_numbers") === "true";
   });
 
+  const [customChannelNumbers, setCustomChannelNumbers] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem("vplay_custom_channel_numbers");
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_custom_channel_numbers", JSON.stringify(customChannelNumbers));
+  }, [customChannelNumbers]);
+
   useEffect(() => {
     localStorage.setItem("vplay_max_toolbar_tabs", maxToolbarTabs.toString());
   }, [maxToolbarTabs]);
@@ -14355,7 +14544,7 @@ function App() {
   };
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isWidgetsOpen, setIsWidgetsOpen] = useState(false);
-  const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs" | "settings">("widgets");
+  const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs" | "settings">("settings");
   const [activeTab, setActiveTab] = useState("Trang chủ");
   const [navBounce, setNavBounce] = useState(false);
   const triggerNavBounce = useCallback(() => {
@@ -15508,10 +15697,10 @@ const [headingBar, setHeadingBar] = useState(() => {
   useEffect(() => {
     const handleWhatsNew = async () => {
       const lastVersion = localStorage.getItem("vplay_version");
-      const currentVersion = "26.7.0";
+      const currentVersion = "26.7_08";
       
       if (lastVersion !== currentVersion) {
-        if (currentVersion !== "26.7.0" && currentVersion !== "26603") {
+        if (currentVersion !== "26.7_08" && currentVersion !== "26603") {
           setShowWhatsNew(true);
         }
         localStorage.setItem("vplay_version", currentVersion);
@@ -15610,10 +15799,10 @@ const [headingBar, setHeadingBar] = useState(() => {
       style={{
         paddingLeft: useSidebar && !isMobile && !isSidebarRight 
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (!floatyBars ? 16 : 0) : (80 + (!floatyBars ? 16 : 0))) 
-          : 0,
+          : "env(safe-area-inset-left, 10px)",
         paddingRight: useSidebar && !isMobile && isSidebarRight 
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (!floatyBars ? 16 : 0) : (80 + (!floatyBars ? 16 : 0))) 
-          : 0,
+          : "env(safe-area-inset-right, 10px)",
         paddingTop: headingBar ? (featureFlags.dynamic_island ? 0 : (floatyBars ? 56 : 76)) : 0,
       }}
       >
@@ -15679,7 +15868,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               location={location}
               onSystemTrayClick={() => {
                 setIsWidgetsOpen(true);
-                setActiveDashboardTab("widgets");
+                setActiveDashboardTab("settings");
               }}
               user={user}
               userData={userData}
@@ -16410,7 +16599,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             }
             lastScrollY.current = scrollTop;
           }}
-          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live") ? (useSidebar ? "pb-0" : "pb-32") : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
+          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)") ? (useSidebar ? "pb-0" : "pb-32") : displayTab === "Live" ? (useSidebar ? "pb-0" : "pb-12") : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
         >
           <motion.div
             key={displayTab}
@@ -16627,6 +16816,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setFloatyBars={setFloatyBars}
                       showChannelNumbers={showChannelNumbers}
                       setShowChannelNumbers={setShowChannelNumbers}
+                      customChannelNumbers={customChannelNumbers}
+                      setCustomChannelNumbers={setCustomChannelNumbers}
                     />
                   </div>
                 </div>
@@ -16876,7 +17067,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                               <div className="text-[10px] uppercase font-bold px-3 py-1 tracking-widest text-[#4AC4FE]">
                                 Kênh kết quả ({searchResults.length})
                               </div>
-                              {searchResults.slice(0, 10).map((ch, sIdx) => (
+                              {searchResults.map((ch, sIdx) => (
                                 <button
                                   key={`sidebar-inline-search-res-${ch.name}-${sIdx}`}
                                   onMouseDown={() => {
@@ -16914,7 +17105,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           triggerNavBounce();
                           if (tab.id === "Widgets") {
                             setIsWidgetsOpen(true);
-                            setActiveDashboardTab("widgets");
+                            setActiveDashboardTab("settings");
                             if (isMobile) setIsSidebarExpanded(false);
                             return;
                           }
@@ -17337,7 +17528,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     <motion.div 
                       onClick={() => {
                         setIsWidgetsOpen(true);
-                        setActiveDashboardTab("widgets");
+                        setActiveDashboardTab("settings");
                       }}
                       className="flex items-center justify-center gap-3 h-full cursor-pointer hover:opacity-85 transition-all active:scale-95"
                       initial={{ scale: 0.9, opacity: 0 }}
