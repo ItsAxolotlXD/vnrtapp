@@ -662,15 +662,18 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isShrunk = alt.includes("THVL") || alt.includes("Vĩnh Long") || alt.includes("QNgTV") || alt.includes("Quảng Ngãi");
   const isHTVGroup = (category === "HTV" || alt.includes("HTV")) && alt !== "HTV Thể Thao";
   const isLocalGroup = category === "Địa phương";
-  const scaleClass = isVTVcab 
-    ? "scale-[1.1]" 
-    : isVTV
-      ? "scale-[1.12]"
-      : isShrunk 
-        ? "scale-[1.0]" 
-        : (isHTVGroup || isLocalGroup)
-          ? "scale-[1.25]"
-          : "scale-[1.35]";
+  const isSCTV = category === "SCTV" || alt.includes("SCTV");
+  const scaleClass = isSCTV
+    ? "scale-[0.95]"
+    : isVTVcab 
+      ? "scale-[1.1]" 
+      : isVTV
+        ? "scale-[1.12]"
+        : isShrunk 
+          ? "scale-[1.0]" 
+          : (isHTVGroup || isLocalGroup)
+            ? "scale-[1.25]"
+            : "scale-[1.35]";
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
   const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
@@ -8235,7 +8238,6 @@ function SettingsNew(props: any) {
                   <div className="space-y-2.5 max-h-[300px] overflow-y-auto custom-scrollbar pr-1.5">
                     {channels
                       .filter(ch => ch.name.toLowerCase().includes(editingChSearch.toLowerCase()))
-                      .slice(0, 30) // limit to avoid list bloat
                       .map(ch => {
                         const defaultNum = channels.findIndex(c => c.name === ch.name) + 1;
                         const currentCustom = customChannelNumbers[ch.name];
@@ -8259,19 +8261,22 @@ function SettingsNew(props: any) {
                               />
                               <div className="min-w-0">
                                 <p className="font-bold text-xs truncate">{ch.name}</p>
-                                <p className="text-[10px] opacity-45">Số mặc định: {defaultNum}</p>
+                                <p className="text-[10px] opacity-45">Số mặc định: {String(defaultNum).padStart(3, '0')}</p>
                               </div>
                             </div>
                             
                             <div className="flex items-center gap-2">
                               <span className="text-[10px] opacity-40 shrink-0 font-bold font-mono">SỐ KÊNH:</span>
                               <input
-                                type="number"
-                                min="1"
-                                max="999"
-                                value={chNumbersTemp[ch.name] !== undefined ? chNumbersTemp[ch.name] : displayNum}
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                value={chNumbersTemp[ch.name] !== undefined 
+                                  ? (chNumbersTemp[ch.name] === "" ? "" : String(chNumbersTemp[ch.name]).padStart(3, '0')) 
+                                  : String(displayNum).padStart(3, '0')
+                                }
                                 onChange={(e) => {
-                                  const valStr = e.target.value;
+                                  const valStr = e.target.value.replace(/\D/g, "");
                                   const val = valStr === "" ? "" : parseInt(valStr, 10);
                                   setChNumbersTemp(prev => ({
                                     ...prev,
@@ -8279,7 +8284,7 @@ function SettingsNew(props: any) {
                                   }));
                                 }}
                                 onBlur={(e) => {
-                                  const valStr = e.target.value;
+                                  const valStr = e.target.value.replace(/\D/g, "");
                                   if (valStr === "") {
                                     // reset temp
                                     setChNumbersTemp(prev => {
@@ -8317,7 +8322,7 @@ function SettingsNew(props: any) {
                                     }));
                                     window.dispatchEvent(new CustomEvent("vplay-toast", {
                                       detail: {
-                                        message: `Đã đổi số kênh ${ch.name} thành ${val}`,
+                                        message: `Đã đổi số kênh ${ch.name} thành ${String(val).padStart(3, '0')}`,
                                         type: "success"
                                       }
                                     }));
@@ -8387,7 +8392,7 @@ function SettingsNew(props: any) {
                       <div>
                         <h5 className="font-extrabold text-sm mb-1">Trùng lặp số kênh!</h5>
                         <p className="text-xs opacity-70 leading-relaxed">
-                          Số kênh <span className="font-mono font-bold text-amber-400">#{conflictModal.desiredNumber}</span> hiện đang được sử dụng ở kênh:
+                          Số kênh <span className="font-mono font-bold text-amber-400">#{String(conflictModal.desiredNumber).padStart(3, '0')}</span> hiện đang được sử dụng ở kênh:
                           <br />
                           <span className="font-extrabold text-slate-200 dark:text-amber-300">{conflictModal.conflictingChannel.name}</span>.
                         </p>
@@ -8419,7 +8424,7 @@ function SettingsNew(props: any) {
 
                           window.dispatchEvent(new CustomEvent("vplay-toast", {
                             detail: {
-                              message: `Đổi số: ${targetCh.name} -> #${desiredNum}, ${conflictCh.name} -> #${targetCurrent}`,
+                              message: `Đổi số: ${targetCh.name} -> #${String(desiredNum).padStart(3, '0')}, ${conflictCh.name} -> #${String(targetCurrent).padStart(3, '0')}`,
                               type: "success"
                             }
                           }));
