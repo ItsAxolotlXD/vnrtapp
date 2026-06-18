@@ -162,7 +162,7 @@ const rawChannels: Channel[] = [
   { category: "SCTV", name: "SCTV20 HD", logo: "https://static.wikia.nocookie.net/logos/images/b/b1/SCTV20.png/revision/latest/scale-to-width-down/1000?cb=20210821042852&path-prefix=vi", stream: "https://hoiquan.dpdns.org/VTVGo/?sctv20" },
   { category: "SCTV", name: "SCTV21 HD", logo: "https://static.wikia.nocookie.net/logos/images/9/9f/SCTV21.png/revision/latest/scale-to-width-down/1000?cb=20210821043405&path-prefix=vi", stream: "https://hoiquan.dpdns.org/VTVGo/?sctv21" },
   { category: "SCTV", name: "SCTV22 HD", logo: "https://static.wikia.nocookie.net/logos/images/5/5f/SCTV22.png/revision/latest/scale-to-width-down/1000?cb=20210821035512&path-prefix=vi", stream: "https://hoiquan.dpdns.org/VTVGo/?sctv22" },
-  { category: "SCTV", name: "SCTV Phim HD", logo: "https://static.wikia.nocookie.net/logos/images/4/47/SCTV22.png/revision/latest/scale-to-width-down/1000?cb=20210821043823&path-prefix=vi", stream: "https://hoiquan.dpdns.org/VTVGo/?sctvphim" },
+  { category: "SCTV", name: "SCTV Phim", logo: "https://static.wikia.nocookie.net/logos/images/1/12/SCTV_Phim_T%E1%BB%95ng_h%E1%BB%A3p_2020.png/revision/latest?cb=20230323070113&path-prefix=vi", stream: "https://hoiquan.dpdns.org/VTVGo/?sctvphim" },
 
 ];
 

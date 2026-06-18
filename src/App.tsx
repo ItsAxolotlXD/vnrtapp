@@ -664,7 +664,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isLocalGroup = category === "Địa phương";
   const isSCTV = category === "SCTV" || alt.includes("SCTV");
   const scaleClass = isSCTV
-    ? "scale-[0.95]"
+    ? "scale-[0.83]"
     : isVTVcab 
       ? "scale-[1.1]" 
       : isVTV
@@ -1584,6 +1584,74 @@ function HomeContent({
                 </div>
               </motion.div>
             </AnimatePresence>
+          </div>
+        </div>
+      )}
+
+      {/* Promoted / Suggested Channels Horizontal Slider */}
+      {randomChannels && randomChannels.length > 0 && (
+        <div className="space-y-6 max-w-6xl mx-auto w-full select-none">
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#4AC4FE]/10 flex items-center justify-center text-[#4AC4FE]">
+                <Radio size={18} className="animate-pulse" />
+              </div>
+              <h3 className={`text-2xl md:text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+                Kênh Đề Xuất Cho Bạn
+              </h3>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={scrollPrev} 
+                disabled={startIndex === 0} 
+                className="p-2 rounded-full border border-white/10 hover:bg-white/5 disabled:opacity-30 text-[#4AC4FE] transition-all cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button 
+                onClick={scrollNext} 
+                disabled={startIndex >= randomChannels.length - activeVisibleCount} 
+                className="p-2 rounded-full border border-white/10 hover:bg-white/5 disabled:opacity-30 text-[#4AC4FE] transition-all cursor-pointer"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+          <div className="relative w-full overflow-hidden py-2">
+            <motion.div 
+              animate={{ x: -startIndex * (itemConfig.width + itemConfig.gap) }}
+              transition={{ type: "spring", stiffness: 220, damping: 26 }}
+              className="flex"
+              style={{ gap: `${itemConfig.gap}px` }}
+            >
+              {randomChannels.map((ch) => (
+                <div 
+                  key={`promo-ch-${ch.name}`}
+                  style={{ width: `${itemConfig.width}px` }}
+                  className="shrink-0 group/card-wrapper cursor-pointer"
+                  onClick={() => {
+                    setActiveChannel(ch);
+                    setActiveTab("Live");
+                  }}
+                >
+                  <div className={`p-4 rounded-3xl border transition-all duration-300 flex flex-col items-center gap-4 text-center h-[175px] justify-between ${
+                    isDark 
+                      ? "bg-white/[0.03] border-white/5 hover:border-[#4AC4FE]/30 hover:bg-white/[0.05]" 
+                      : "bg-[#4AC4FE]/5 border-[#4AC4FE]/10 hover:border-[#4AC4FE]/40 hover:bg-[#4AC4FE]/10 shadow-sm"
+                  }`}>
+                    <div className={`w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-2xl border-[1.5px] transition-transform duration-300 group-hover/card-wrapper:scale-110 ${
+                      isDark ? "bg-white/[0.05] border-white/10" : "bg-white border-slate-200"
+                    }`}>
+                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[70%] object-contain scale-[1.2]" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className={`text-xs font-black truncate max-w-full ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
+                      <span className="text-[9px] font-bold opacity-50 uppercase tracking-widest">{ch.category}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
           </div>
         </div>
       )}
@@ -2808,7 +2876,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   );
 
   return (
-    <div className="flex-1 p-0 w-full max-w-full mx-auto px-0 overflow-x-hidden">
+    <div className="flex-1 p-0 w-full max-w-full mx-auto px-4 xs:px-6 md:px-8 xl:px-12 overflow-x-hidden">
       {/* Liquid Modal for Channel Selection */}
       <LiquidModal
         isOpen={!!showChannelSelector}
@@ -2882,18 +2950,21 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         {isScrolledPast && (
           <div className="w-full aspect-video md:hidden shrink-0" id="player-scroll-placeholder" />
         )}
-        <div 
-          ref={containerRef}
-          className={`bg-black flex items-center justify-center border-y md:border shadow-2xl overflow-hidden group w-full transition-all duration-300 ${
-            isScrolledPast 
-              ? "fixed top-14 left-0 right-0 z-[120] md:sticky md:top-20 md:z-30 shadow-2xl border-b border-slate-800/40" 
-              : "relative md:sticky md:top-20 md:z-30"
-          } ${
-            isMultiview ? "aspect-auto min-h-[300px] md:min-h-[400px]" : "aspect-video"
-          } ${
-            liquidGlass ? "rounded-none md:rounded-2xl" : "rounded-none md:rounded-lg"
-          } ${isDark ? "border-slate-800/40 md:border-slate-800" : "border-slate-300"}`}
-        >
+        <div className="relative w-full group/player-wrap">
+          {/* Ambient Player Backlight Glow (Ambilight) */}
+          <div className="absolute inset-[-12px] md:inset-[-24px] pointer-events-none opacity-40 blur-[50px] saturate-[200%] transition-opacity duration-700 bg-gradient-to-r from-[#4AC4FE]/20 via-indigo-500/15 to-purple-500/15 rounded-3xl -z-10 group-hover/player-wrap:opacity-60" />
+          <div 
+            ref={containerRef}
+            className={`bg-black flex items-center justify-center border-y md:border shadow-2xl overflow-hidden group w-full transition-all duration-300 ${
+              isScrolledPast 
+                ? "fixed top-14 left-0 right-0 z-[120] md:sticky md:top-20 md:z-30 shadow-2xl border-b border-slate-800/40" 
+                : "relative md:sticky md:top-20 md:z-30"
+            } ${
+              isMultiview ? "aspect-auto min-h-[300px] md:min-h-[400px]" : "aspect-video"
+            } ${
+              liquidGlass ? "rounded-none md:rounded-2xl" : "rounded-none md:rounded-lg"
+            } ${isDark ? "border-slate-800/40 md:border-slate-800" : "border-slate-300"}`}
+          >
         {!user && !isDev && !bypassed ? (
           <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/40 p-6 text-center ${
             liquidGlass ? "backdrop-blur-xl" : "backdrop-blur-none"
@@ -3252,6 +3323,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             )}
           </>
         )}
+        </div>
         </div>
 
         {/* LỊCH PHÁT SÓNG SECTION */}
@@ -15265,14 +15337,18 @@ const [headingBar, setHeadingBar] = useState(() => {
   useEffect(() => {
     let lastScrollTop = 0;
     const handleCaptureScroll = (e: any) => {
-      if (activeTab !== "Live" && activeTab !== "Package") return;
-      const target = e.target;
-      if (!target || typeof target.scrollTop === "undefined") return;
-      const scrollTop = target.scrollTop;
+      let scrollTop = 0;
+      if (e.target === window || e.target === document || e.target === document.documentElement || e.target === document.body) {
+        scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      } else {
+        const target = e.target;
+        if (!target || typeof target.scrollTop === "undefined") return;
+        scrollTop = target.scrollTop;
+      }
       
-      if (scrollTop > lastScrollTop && scrollTop > 50) {
+      if (scrollTop > lastScrollTop && scrollTop > 40) {
         setIsNavVisible(false);
-      } else if (scrollTop < lastScrollTop) {
+      } else if (scrollTop < lastScrollTop || scrollTop < 15) {
         setIsNavVisible(true);
       }
       lastScrollTop = scrollTop;
@@ -15282,7 +15358,7 @@ const [headingBar, setHeadingBar] = useState(() => {
     return () => {
       window.removeEventListener("scroll", handleCaptureScroll, true);
     };
-  }, [activeTab]);
+  }, []);
 
   const [navPage, setNavPage] = useState<number>(() => {
     return Number(localStorage.getItem("vplay_nav_page")) || 0;
@@ -17249,7 +17325,9 @@ const [headingBar, setHeadingBar] = useState(() => {
         <motion.div 
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex flex-col items-center gap-0 pointer-events-auto w-full max-w-lg px-4"
+          className={`flex flex-col items-center gap-0 pointer-events-auto w-full px-4 transition-all duration-500 ease-out ${
+            isNavVisible ? "max-w-lg scale-100" : "max-w-[280px] xs:max-w-sm md:max-w-md scale-95"
+          }`}
         >
           <motion.nav 
             key="bottom-nav-stable"
@@ -17266,22 +17344,6 @@ const [headingBar, setHeadingBar] = useState(() => {
               backgroundColor: "rgba(255, 255, 255, 0.30)"
             }}>
             
-            {/* Prev Arrow - Only shown on desktop as mobile uses gestures */}
-            {!isMobile && (
-              <button 
-                onClick={() => {
-                  triggerNavBounce();
-                  const addPages = Math.ceil(pinnedChannels.length / maxToolbarTabs);
-                  const totPages = (featureFlags.dynamic_island ? 1 : 3) + addPages;
-                  setSlideDirection(-1);
-                  setNavPage((prev) => (prev - 1 + totPages) % totPages);
-                }}
-                className="p-1.5 rounded-full hover:bg-black/8 transition-colors z-20 text-black"
-              >
-                <ChevronLeft size={20} />
-              </button>
-            )}
-
             <div className={`flex-1 overflow-hidden relative flex items-center justify-center w-full transition-all duration-300 ${isNavVisible ? "h-14" : "h-10"}`}>
               <AnimatePresence initial={false}>
                 <motion.div
@@ -17350,8 +17412,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 className="z-10 relative flex flex-col items-center justify-center w-full"
                               >
                                 <Icon 
-                                  size={18}
-                                  className={`h-5 w-5 flex-shrink-0 transition-colors duration-300 ${
+                                  size={23}
+                                  className={`h-6 w-6 flex-shrink-0 transition-colors duration-300 ${
                                     isActive 
                                       ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.12)] stroke-[1.8px]" 
                                       : "text-black"
@@ -17562,22 +17624,6 @@ const [headingBar, setHeadingBar] = useState(() => {
                 </motion.div>
               </AnimatePresence>
             </div>
-
-            {/* Next Arrow - Only shown on desktop as mobile uses gestures */}
-            {!isMobile && (
-              <button 
-                onClick={() => {
-                  triggerNavBounce();
-                  const addPages = Math.ceil(pinnedChannels.length / maxToolbarTabs);
-                  const totPages = (featureFlags.dynamic_island ? 1 : 3) + addPages;
-                  setSlideDirection(1);
-                  setNavPage((prev) => (prev + 1) % totPages);
-                }}
-                className="p-2 rounded-full hover:bg-black/8 transition-colors z-20 text-black"
-              >
-                <ChevronRight size={24} />
-              </button>
-            )}
           </motion.nav>
 
           <FloatingTooltip text={hoveredTab || ""} show={!!hoveredTab} targetRect={hoveredTabRect} />
