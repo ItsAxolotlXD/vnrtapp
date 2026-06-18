@@ -472,7 +472,6 @@ const BellIcon = ({ className, size, strokeWidth, filled }: { className?: string
 const TAB_ICON_URLS: Record<string, string> = {
   "Trang chủ": "https://static.wikia.nocookie.net/ftv/images/b/bb/Vplay-liquid-home.png/revision/latest?cb=20260610090420&path-prefix=vi",
   "Live": "https://static.wikia.nocookie.net/ftv/images/c/cf/Vplay-liquid-tv.png/revision/latest?cb=20260610090420&path-prefix=vi",
-  "Live (mới)": "https://static.wikia.nocookie.net/ftv/images/c/cf/Vplay-liquid-tv.png/revision/latest?cb=20260610090420&path-prefix=vi",
   "Package": "https://static.wikia.nocookie.net/ftv/images/7/72/Vplay-liquid-package.png/revision/latest?cb=20260610090420&path-prefix=vi",
   "Thông báo": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi", // Fallback URL
   "Cài đặt": "https://static.wikia.nocookie.net/ftv/images/6/62/Vplay-liquid-settings.png/revision/latest?cb=20260610090419&path-prefix=vi",
@@ -483,7 +482,6 @@ const baseTabs = [
   { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
   { name: "Tìm kiếm", icon: SearchIcon, id: "Tìm kiếm" },
   { name: "Live", icon: TvIcon, id: "Live" },
-  { name: "Live (mới)", icon: TvIcon, id: "Live (mới)" },
   { name: "Package", icon: PackageIcon, id: "Package" },
   { name: "Thông báo", icon: BellIcon, id: "Thông báo" },
   { name: "Settings (new)", icon: SettingsIcon, id: "Settings (new)" },
@@ -824,11 +822,9 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             : "repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px)"
         }}
         className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[1.5px] ${
-          liquidGlass === "glassy"
-            ? "bg-white/10 dark:bg-white/[0.08] backdrop-blur-[24px] border-white/20 dark:border-white/15 text-white shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
-            : (isDark 
-                ? "bg-white/[0.07] backdrop-blur-md border-white/10 text-white" 
-                : "bg-white/65 backdrop-blur-md border-slate-200/40 text-slate-900")
+          isDark 
+            ? "bg-white/[0.08] backdrop-blur-2xl border-white/15 text-white shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]" 
+            : "bg-white/45 backdrop-blur-2xl border-white/30 text-slate-900 shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]"
         } ${
           isLargeLayout
             ? (isActuallyActive 
@@ -1118,10 +1114,25 @@ function HomeContent({
   showChannelNumbers?: boolean
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
+  const [suggestedChannel, setSuggestedChannel] = useState<Channel | null>(null);
   
   useEffect(() => {
     const shuffled = [...channels].sort(() => 0.5 - Math.random());
     setRandomChannels(shuffled.slice(0, 16));
+    
+    if (channels.length > 0) {
+      setSuggestedChannel(channels[Math.floor(Math.random() * channels.length)]);
+      
+      const interval = setInterval(() => {
+        setSuggestedChannel(prev => {
+          const available = prev ? channels.filter(c => c.name !== prev.name) : channels;
+          const nextCh = available[Math.floor(Math.random() * available.length)] || channels[0];
+          return nextCh;
+        });
+      }, 5000);
+      
+      return () => clearInterval(interval);
+    }
   }, []);
 
   const [startIndex, setStartIndex] = useState(0);
@@ -1500,132 +1511,82 @@ function HomeContent({
         </div>
       </motion.div>
 
-      {/* Suggested Section - Moved up */}
-      <div className="space-y-6 md:space-y-10">
-        <div className="flex flex-col gap-2 px-2">
-          <div className="flex items-center gap-3">
+      {/* Premium Random Channel Highlight Banner - refreshed every 5s */}
+      {suggestedChannel && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 px-2">
             <div className="w-8 h-8 rounded-full bg-[#4AC4FE]/10 flex items-center justify-center text-[#4AC4FE]">
-              <Sparkles size={18} />
+              <Sparkles size={18} className="animate-spin-slow" />
             </div>
-            <h1 className={`text-xl md:text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
-              Gợi ý cho bạn
-            </h1>
+            <h2 className={`text-xl md:text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+              Đề xuất cho bạn
+            </h2>
           </div>
-        </div>
 
-        <div className="relative">
-          {/* On Desktop/Larger Screens: Beautiful interactive sliding Carousel */}
-          <div className="hidden md:block relative group/carousel">
-            {/* Arrow Left */}
-            {startIndex > 0 && (
-              <button 
-                onClick={scrollPrev}
-                className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-30 p-3 rounded-full shadow-lg border backdrop-blur-md transition-all active:scale-95 ${
+          <div className="relative overflow-hidden w-full h-auto rounded-3xl md:rounded-[36px] transition-all duration-300">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`suggested-banner-${suggestedChannel.name}`}
+                initial={{ opacity: 0, scale: 0.98, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: -15 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                onClick={() => {
+                  setActiveChannel(suggestedChannel);
+                  setActiveTab("Live");
+                }}
+                className={`relative w-full overflow-hidden p-6 xs:p-8 md:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 md:gap-10 border cursor-pointer group hover:shadow-2xl transition-all duration-500 ${
                   isDark 
-                    ? "bg-slate-900/90 border-white/10 text-white hover:bg-slate-800" 
-                    : "bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50"
+                    ? "bg-[#1f2937]/35 border-white/8 text-white hover:border-[#4AC4FE]/40" 
+                    : "bg-white/55 border-slate-200/50 text-slate-900 hover:border-[#4AC4FE]/40 shadow-sm"
                 }`}
               >
-                <ChevronLeft size={20} />
-              </button>
-            )}
+                {/* Visual accent flows */}
+                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-tr from-[#4AC4FE]/15 to-transparent blur-[80px]" />
+                <div className="absolute bottom-0 left-0 w-60 h-60 bg-gradient-to-bl from-blue-500/10 to-transparent blur-[60px]" />
 
-            {/* Arrow Right */}
-            {startIndex < Math.max(0, randomChannels.length - activeVisibleCount) && (
-              <button 
-                onClick={scrollNext}
-                className={`absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-30 p-3 rounded-full shadow-lg border backdrop-blur-md transition-all active:scale-95 ${
-                  isDark 
-                    ? "bg-slate-900/90 border-white/10 text-white hover:bg-slate-800" 
-                    : "bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50"
-                }`}
-              >
-                <ChevronRight size={20} />
-              </button>
-            )}
-
-            {/* Carousel Viewport */}
-            <div className="overflow-hidden px-1 py-4">
-              <motion.div 
-                animate={{ x: -startIndex * (itemConfig.width + itemConfig.gap) }}
-                transition={{ type: "spring", stiffness: 220, damping: 26 }}
-                className="flex font-sans"
-                style={{ gap: `${itemConfig.gap}px` }}
-              >
-                {randomChannels.map((ch, idx) => (
-                  <motion.div 
-                    key={`home-random-${ch.name}-${idx}`} 
-                    initial={{ opacity: 0, x: 50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ type: "spring", stiffness: 100, damping: 15, delay: idx * 0.05 }}
-                    style={{ width: `${itemConfig.width}px` }}
-                    className="shrink-0 group relative"
-                  >
-                    <ChannelCard 
-                      ch={ch} 
-                      className="hover:scale-105"
-                      onClick={(targetCh) => {
-                        setActiveChannel(targetCh || ch);
-                        setActiveTab("Live");
-                      }} 
+                <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 md:gap-8 flex-1 w-full text-center sm:text-left">
+                  {/* Glass logo container */}
+                  <div className={`relative shrink-0 w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center rounded-2xl border-[1.5px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-105 ${
+                    isDark 
+                      ? "bg-white/[0.08] backdrop-blur-2xl border-white/15" 
+                      : "bg-white/65 backdrop-blur-2xl border-slate-200/40"
+                  }`}>
+                    <ChannelLogo 
+                      src={suggestedChannel.logo} 
+                      alt={suggestedChannel.name} 
                       isDark={isDark} 
-                      favorites={favorites} 
-                      toggleFavorite={toggleFavorite} 
-                      liquidGlass="glassy"
-                      onContextMenu={onChannelContextMenu}
-                      useNewDesign={useNewDesign}
-                      activeChannelName={activeChannelName}
-                      quickSwitchEnabled={featureFlags?.quick_channel_switch}
-                      showChannelNumbers={showChannelNumbers}
+                      status={suggestedChannel.status} 
+                      category={suggestedChannel.category}
+                      className="max-h-[70%] object-contain scale-[1.2]"
                     />
-                    <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-300" : "text-slate-400"}`}>
-                      {ch.name}
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-          </div>
-
-          {/* On Mobile/Tablet Screens: Perfectly responsive, horizontally scrollable rail with snap support */}
-          <div className="block md:hidden">
-            <div className="flex overflow-x-auto gap-4 px-1 pb-6 scrollbar-hide snap-x touch-pan-x">
-              {randomChannels.map((ch, idx) => (
-                <motion.div 
-                  key={`home-mobile-suggested-${ch.name}-${idx}`} 
-                  initial={{ opacity: 0, x: 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ type: "spring", stiffness: 100, damping: 15, delay: idx * 0.05 }}
-                  className="shrink-0 w-[140px] xs:w-[155px] snap-center group relative"
-                >
-                  <ChannelCard 
-                    ch={ch} 
-                    className="hover:scale-105"
-                    onClick={(targetCh) => {
-                      setActiveChannel(targetCh || ch);
-                      setActiveTab("Live");
-                    }} 
-                    isDark={isDark} 
-                    favorites={favorites} 
-                    toggleFavorite={toggleFavorite} 
-                    liquidGlass="glassy"
-                    onContextMenu={onChannelContextMenu}
-                    useNewDesign={useNewDesign}
-                    activeChannelName={activeChannelName}
-                    quickSwitchEnabled={featureFlags?.quick_channel_switch}
-                    showChannelNumbers={showChannelNumbers}
-                  />
-                  <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
-                    {ch.name}
                   </div>
-                </motion.div>
-              ))}
-            </div>
+
+                  <div className="space-y-2 md:space-y-3 flex-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-wider bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                      <Radio size={10} className="animate-pulse" /> ĐỀ XUẤT TRỰC TUYẾN
+                    </div>
+                    
+                    <h3 className={`text-2xl md:text-3.5xl font-black tracking-tight leading-none ${isDark ? "text-white" : "text-slate-900"}`}>
+                      {suggestedChannel.name}
+                    </h3>
+                    
+                    <p className={`text-xs md:text-sm font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      Kênh {suggestedChannel.category || "Truyền hình"} đặc sắc, trải nghiệm hình ảnh sắc nét và âm thanh sống động mượt mà hoàn toàn không giật lag.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative z-10 shrink-0 w-full sm:w-auto">
+                  <button className="w-full sm:w-auto px-6 py-3.5 md:px-8 md:py-4 bg-[#4AC4FE] hover:bg-[#3db8f2] text-xs md:text-sm font-black tracking-widest text-slate-950 rounded-xl transition-all duration-300 shadow-[0_12px_24px_rgba(74,196,254,0.25)] hover:shadow-[0_16px_32px_rgba(74,196,254,0.4)] flex items-center justify-center gap-2 group-hover:scale-105 active:scale-95 uppercase">
+                    Xem Ngay <Play size={14} fill="currentColor" />
+                  </button>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Premium Guest Loyalty Banner - Replaced with Explore Style */}
       {!user && !bypassed && (
@@ -11341,7 +11302,7 @@ function TopBar({
     if (isListening) return "Speak something, I'm listening...";
     if (isListeningFailed) return "I couldn't hear you. Let's try again";
     if (activeTab === "Trang chủ") return "Search Home";
-    if (activeTab === "Live" || activeTab === "Live (mới)") return "Search Live";
+    if (activeTab === "Live") return "Search Live";
     if (activeTab === "Cài đặt") return "Search for options";
     return "Find and explore";
   };
@@ -15304,7 +15265,7 @@ const [headingBar, setHeadingBar] = useState(() => {
   useEffect(() => {
     let lastScrollTop = 0;
     const handleCaptureScroll = (e: any) => {
-      if (activeTab !== "Live" && activeTab !== "Live (mới)" && activeTab !== "Package") return;
+      if (activeTab !== "Live" && activeTab !== "Package") return;
       const target = e.target;
       if (!target || typeof target.scrollTop === "undefined") return;
       const scrollTop = target.scrollTop;
@@ -16606,7 +16567,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             }
             lastScrollY.current = scrollTop;
           }}
-          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)") ? (useSidebar ? "pb-0" : "pb-32") : (displayTab === "Live" || displayTab === "Live (mới)") ? (useSidebar ? "pb-0" : "pb-12") : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
+          className={`flex-1 overflow-y-auto ${(displayTab === "Cài đặt" || displayTab === "Settings (new)") ? (useSidebar ? "pb-0" : "pb-32") : (displayTab === "Live") ? (useSidebar ? "pb-0" : "pb-12") : "pb-32"} flex flex-col w-full max-w-full overflow-x-hidden bg-transparent`}
         >
           <motion.div
             key={displayTab}
@@ -16614,7 +16575,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className={`h-full flex flex-col ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live" || displayTab === "Live (mới)") ? "pt-0" : "pt-4 md:pt-8"}`}
+            className={`h-full flex flex-col ${(displayTab === "Cài đặt" || displayTab === "Settings (new)" || displayTab === "Live") ? "pt-0" : "pt-4 md:pt-8"}`}
           >
               {displayTab === "Trang chủ" && (
                 <HomeContent 
@@ -16678,72 +16639,40 @@ const [headingBar, setHeadingBar] = useState(() => {
                 />
               )}
               {displayTab === "Live" && (
-                <TVContent 
-                  mode="live"
-                  active={activeChannel} 
-                  setActive={handleChannelSelect} 
-                  isDark={isDark} 
-                  favorites={favorites} 
-                  toggleFavorite={toggleFavorite} 
-                  user={user}
-                  onLogin={handleLogin}
-                  isDev={isDev}
-                  liquidGlass={liquidGlass}
-                  sortOrder={sortOrder}
-                  setSortOrder={setSortOrder}
-                  showSplash={showSplash}
-                  featureFlags={featureFlags}
-                  searchQuery={searchQuery}
-                  bypassed={bypassed}
-                  setIsPlayerInView={setIsPlayerInView}
-                  loadingTreatment={loadingTreatment}
-                  currentTime={currentTime}
-                  onChannelContextMenu={onChannelContextMenu}
-                  pinnedChannels={pinnedChannels}
-                  togglePinChannel={togglePinChannel}
-                  isTopBarVisible={isTopBarVisible}
-                  useNewDesign={useNewDesign}
-                  setUseNewDesign={setUseNewDesign}
-                  showChannelNumbers={showChannelNumbers}
-                  volume={volume}
-                  setVolume={setVolume}
-                  isMuted={isMuted}
-                  setIsMuted={setIsMuted}
-                />
-              )}
-              {displayTab === "Live (mới)" && (
-                <TVContent 
-                  mode="live"
-                  active={activeChannel} 
-                  setActive={handleChannelSelect} 
-                  isDark={isDark} 
-                  favorites={favorites} 
-                  toggleFavorite={toggleFavorite} 
-                  user={user}
-                  onLogin={handleLogin}
-                  isDev={isDev}
-                  liquidGlass={liquidGlass}
-                  sortOrder={sortOrder}
-                  setSortOrder={setSortOrder}
-                  showSplash={showSplash}
-                  featureFlags={featureFlags}
-                  searchQuery={searchQuery}
-                  bypassed={bypassed}
-                  setIsPlayerInView={setIsPlayerInView}
-                  loadingTreatment={loadingTreatment}
-                  currentTime={currentTime}
-                  onChannelContextMenu={onChannelContextMenu}
-                  pinnedChannels={pinnedChannels}
-                  togglePinChannel={togglePinChannel}
-                  isTopBarVisible={isTopBarVisible}
-                  useNewDesign={useNewDesign}
-                  setUseNewDesign={setUseNewDesign}
-                  showChannelNumbers={showChannelNumbers}
-                  volume={volume}
-                  setVolume={setVolume}
-                  isMuted={isMuted}
-                  setIsMuted={setIsMuted}
-                />
+                <div id="live-tab-safe-container" className="flex-1 w-full h-full flex flex-col px-4 xs:px-6 md:px-8 xl:px-12">
+                  <TVContent 
+                    mode="live"
+                    active={activeChannel} 
+                    setActive={handleChannelSelect} 
+                    isDark={isDark} 
+                    favorites={favorites} 
+                    toggleFavorite={toggleFavorite} 
+                    user={user}
+                    onLogin={handleLogin}
+                    isDev={isDev}
+                    liquidGlass={liquidGlass}
+                    sortOrder={sortOrder}
+                    setSortOrder={setSortOrder}
+                    showSplash={showSplash}
+                    featureFlags={featureFlags}
+                    searchQuery={searchQuery}
+                    bypassed={bypassed}
+                    setIsPlayerInView={setIsPlayerInView}
+                    loadingTreatment={loadingTreatment}
+                    currentTime={currentTime}
+                    onChannelContextMenu={onChannelContextMenu}
+                    pinnedChannels={pinnedChannels}
+                    togglePinChannel={togglePinChannel}
+                    isTopBarVisible={isTopBarVisible}
+                    useNewDesign={useNewDesign}
+                    setUseNewDesign={setUseNewDesign}
+                    showChannelNumbers={showChannelNumbers}
+                    volume={volume}
+                    setVolume={setVolume}
+                    isMuted={isMuted}
+                    setIsMuted={setIsMuted}
+                  />
+                </div>
               )}
               {displayTab === "Package" && (
                 <TVContent 
@@ -17062,7 +16991,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   const isActive = activeTab === (tab.id || tab.name) || 
                                    (tab.id === "Widgets" && isWidgetsOpen && activeDashboardTab === "widgets") ||
                                    (tab.id === "Cài đặt" && isWidgetsOpen && activeDashboardTab === "settings");
-                  const isLiveTab = (tab.id || tab.name) === "Live" || (tab.id || tab.name) === "Live (mới)";
+                  const isLiveTab = (tab.id || tab.name) === "Live";
                   const activeColorClass = isLiveTab ? "text-red-500" : "text-[#4AC4FE]";
                   const activeBgClass = isLiveTab 
                     ? (isDark ? "bg-red-500/10 text-red-500 border border-red-500/20" : "bg-red-500/10 text-red-500 shadow-sm") 
@@ -17172,7 +17101,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                             if (isMobile) setIsSidebarExpanded(false);
                             return;
                           }
-                          if ((tab.id === "Live" || tab.id === "Live (mới)") && isBroadcastingLocked) {
+                          if (tab.id === "Live" && isBroadcastingLocked) {
                             setIsLockModalOpen(true);
                             return;
                           }
@@ -17313,9 +17242,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       <div className={`fixed z-50 transition-all duration-500 pointer-events-none ${
         useSidebar 
           ? "bottom-[-100%] opacity-0" 
-          : isNavVisible 
-            ? "bottom-3 left-0 w-full flex justify-center"
-            : "bottom-[-140px] left-0 w-full flex justify-center opacity-0"
+          : "bottom-3 left-0 w-full flex justify-center"
       }`}
       onContextMenu={handleGlobalContextMenu}
       >
@@ -17330,7 +17257,9 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className="flex-1 w-full flex items-center justify-between p-1 h-11 md:h-13 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12"
+            className={`flex-1 w-full flex items-center justify-between p-1 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-[28px] border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12 ${
+              isNavVisible ? "h-16 md:h-18" : "h-11 md:h-13"
+            }`}
             style={{
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
@@ -17353,7 +17282,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               </button>
             )}
 
-            <div className="flex-1 overflow-hidden relative h-10 flex items-center justify-center w-full">
+            <div className={`flex-1 overflow-hidden relative flex items-center justify-center w-full transition-all duration-300 ${isNavVisible ? "h-14" : "h-10"}`}>
               <AnimatePresence initial={false}>
                 <motion.div
                   key={`nav-page-${navPage}`}
@@ -17365,7 +17294,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 >
                   {navPage === 0 && (
                     <>
-                      {baseTabs.filter(t => ["Trang chủ", "Live", "Live (mới)", "Package", "Thông báo", "Cài đặt", "Settings (new)"].includes(t.id || t.name)).map((tab) => {
+                      {baseTabs.filter(t => ["Trang chủ", "Live", "Package", "Cài đặt", "Settings (new)"].includes(t.id || t.name)).map((tab) => {
                         const Icon = tab.icon;
                         const tabId = tab.id || tab.name;
                         const isActive = activeTab === tabId;
@@ -17384,7 +17313,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "notifications", active: true } }));
                                   return;
                                 }
-                                if ((tabId === "Live" || tabId === "Live (mới)") && isBroadcastingLocked) {
+                                if (tabId === "Live" && isBroadcastingLocked) {
                                   setIsLockModalOpen(true);
                                   return;
                                 }
@@ -17393,7 +17322,9 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 setActiveTab(tabId);
                               }}
-                              className={`relative flex flex-col items-center justify-center px-1.5 py-0 h-8 md:h-9.5 rounded-full transition-all duration-300 group z-10 w-full ${
+                              className={`relative flex flex-col items-center justify-center px-1.5 rounded-full transition-all duration-300 group z-10 w-full ${
+                                isNavVisible ? "py-1 h-13" : "py-0 h-8 md:h-9.5"
+                              } ${
                                 isActive 
                                   ? activeColorClass
                                   : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black/80 hover:text-black"
@@ -17402,9 +17333,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                                {isActive && (
                                 <motion.div
                                   layoutId="activeTabPill"
-                                  className="absolute inset-y-0 left-2.5 right-2.5 rounded-full z-0 pointer-events-none shadow-sm"
+                                  className={`absolute left-1.5 right-1.5 rounded-full z-0 pointer-events-none shadow-sm ${
+                                    isNavVisible ? "inset-y-0.5" : "inset-y-0"
+                                  }`}
                                   style={{
-                                    backgroundColor: "rgba(255, 255, 255, 0.30)",
+                                    backgroundColor: "rgba(255, 255, 255, 0.35)",
                                     backdropFilter: "blur(12px)",
                                     WebkitBackdropFilter: "blur(12px)"
                                   }}
@@ -17412,42 +17345,42 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 />
                               )}
                               <motion.div
-                                animate={isActive ? { scale: 1.08 } : { scale: 1 }}
+                                animate={isActive ? { scale: 1 } : { scale: 1 }}
                                 whileTap={{ scale: 0.8 }}
-                                transition={
-                                  isActive
-                                    ? {
-                                        type: "spring",
-                                        stiffness: 420,
-                                        damping: 12,
-                                        mass: 0.8
-                                      }
-                                    : {
-                                        type: "spring",
-                                        stiffness: 300,
-                                        damping: 20
-                                      }
-                                }
-                                className="z-10 relative flex items-center justify-center"
+                                className="z-10 relative flex flex-col items-center justify-center w-full"
                               >
                                 <Icon 
-                                  size={20}
-                                  className={`h-5.5 w-5.5 flex-shrink-0 transition-colors duration-300 ${
+                                  size={18}
+                                  className={`h-5 w-5 flex-shrink-0 transition-colors duration-300 ${
                                     isActive 
                                       ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.12)] stroke-[1.8px]" 
                                       : "text-black"
                                   }`} 
                                 />
                                 {tabId === "Cài đặt" && !user && (
-                                  <div className="absolute -top-1 -right-1.5 w-3 h-3 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[8px] font-extrabold shadow-md border border-slate-900 animate-pulse z-20">
+                                  <div className="absolute top-0 right-1/4 w-2 h-2 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-[7px] font-extrabold shadow-md border border-slate-900 animate-pulse z-20">
                                     !
                                   </div>
                                 )}
                                 {tabId === "Thông báo" && notifications.length > 0 && (
-                                  <div className="absolute -top-1 -right-1.5 min-w-[14px] px-0.5 h-3.5 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] font-black shadow-md border border-slate-900 z-20 animate-pulse">
+                                  <div className="absolute top-0 right-1/4 min-w-[12px] px-0.5 h-3 bg-red-500 text-white rounded-full flex items-center justify-center text-[7px] font-black shadow-md border border-slate-900 z-20 animate-pulse">
                                     {notifications.length}
                                   </div>
                                 )}
+
+                                <AnimatePresence>
+                                  {isNavVisible && (
+                                    <motion.span
+                                      initial={{ opacity: 0, height: 0, scale: 0.9 }}
+                                      animate={{ opacity: 1, height: "auto", scale: 1 }}
+                                      exit={{ opacity: 0, height: 0, scale: 0.9 }}
+                                      transition={{ duration: 0.2 }}
+                                      className="text-[9px] font-black tracking-tight mt-0.5 pointer-events-none select-none text-black/90 lowercase first-letter:uppercase"
+                                    >
+                                      {tabId === "Trang chủ" ? "Home" : tabId === "Cài đặt" || tabId === "Settings (new)" ? "Settings" : tabId}
+                                    </motion.span>
+                                  )}
+                                </AnimatePresence>
                               </motion.div>
                             </button>
                           </div>
@@ -17650,7 +17583,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           <FloatingTooltip text={hoveredTab || ""} show={!!hoveredTab} targetRect={hoveredTabRect} />
         </motion.div>
       </div>
-      {activeChannel && featureFlags.PiP_experimental && !pipExplicitlyClosed && (activeTab !== "Live" && activeTab !== "Live (mới)" || !isPlayerInView) && (
+      {activeChannel && featureFlags.PiP_experimental && !pipExplicitlyClosed && (activeTab !== "Live" || !isPlayerInView) && (
         <MiniPlayer 
           channel={activeChannel} 
           isDark={isDark} 
