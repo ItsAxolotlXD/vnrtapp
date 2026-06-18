@@ -7438,38 +7438,34 @@ function SettingsNew(props: any) {
 
   const buttonStyle = (active: boolean, color: string = "sky") => {
     // True bubble style has soft shadows, subtle inner reflection gloss, and active:scale-95 bounce
-    const baseStyle = "px-6 py-2 rounded-full font-bold text-xs select-none uppercase tracking-wider transition-all duration-300 focus:outline-none transform hover:scale-[1.05] active:scale-92 cursor-pointer";
+    const baseStyle = "px-6 py-2 rounded-full font-bold text-xs select-none uppercase tracking-wider transition-all duration-300 focus:outline-none transform hover:scale-[1.05] active:scale-92 cursor-pointer border backdrop-blur-[20px]";
 
     if (active) {
       if (color === "blue") {
-        return `${baseStyle} bg-gradient-to-b from-blue-400 to-blue-500 text-white border-t border-blue-300/40 shadow-[0_6px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.35)]`;
+        return `${baseStyle} bg-blue-500/20 text-blue-400 border-blue-500/20 shadow-[0_4px_12px_rgba(59,130,246,0.15)]`;
       }
       if (color === "yellow") {
-        return `${baseStyle} bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 border-t border-amber-300/40 shadow-[0_6px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]`;
+        return `${baseStyle} bg-amber-500/20 text-amber-400 border-amber-500/20 shadow-[0_4px_12px_rgba(245,158,11,0.15)]`;
       }
       if (color === "red") {
-        return `${baseStyle} bg-gradient-to-b from-red-400 to-red-500 text-white border-t border-red-300/40 shadow-[0_6px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.35)]`;
+        return `${baseStyle} bg-red-500/20 text-red-400 border-red-500/20 shadow-[0_4px_12px_rgba(239,68,68,0.15)]`;
       }
       // Standard sky style
-      return `${baseStyle} bg-gradient-to-b from-sky-400 to-[#38bcfd] text-slate-950 border-t border-sky-300/40 shadow-[0_6px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2px_rgba(255,255,255,0.45)]`;
+      return `${baseStyle} bg-[#4AC4FE]/20 text-[#4AC4FE] border-[#4AC4FE]/20 shadow-[0_4px_12px_rgba(74,196,254,0.15)]`;
     }
 
     // Inactive glassy bubble style
     if (color === "blue") {
-      return `${baseStyle} ${isDark ? "bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 shadow-md" : "bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100/50 shadow-sm"}`;
+      return `${baseStyle} bg-white/20 dark:bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/30 hover:border-white/20 shadow-sm`;
     }
     if (color === "yellow") {
-      return `${baseStyle} ${isDark ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 shadow-md" : "bg-amber-50 text-amber-700 border border-amber-100 hover:bg-amber-100/50 shadow-sm"}`;
+      return `${baseStyle} bg-white/20 dark:bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/30 hover:border-white/20 shadow-sm`;
     }
     if (color === "red") {
-      return `${baseStyle} ${isDark ? "bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500/20 shadow-md" : "bg-red-50 text-red-600 border border-red-100 hover:bg-red-100/50 shadow-sm"}`;
+      return `${baseStyle} bg-white/20 dark:bg-white/5 border-white/10 text-red-400/80 hover:text-red-400 hover:bg-white/30 hover:border-white/20 shadow-sm`;
     }
 
-    return `${baseStyle} ${
-      isDark 
-        ? "bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 hover:text-white shadow-md shadow-black/10" 
-        : "bg-slate-100/80 border border-slate-200/80 text-slate-700 hover:bg-slate-200 shadow-sm"
-    }`;
+    return `${baseStyle} bg-white/20 dark:bg-white/5 border-slate-300/40 dark:border-white/10 text-slate-800 dark:text-white/80 hover:bg-white/30 hover:text-slate-900 dark:hover:text-white shadow-sm`;
   };
 
   const renderBullet = (text: React.ReactNode) => (
