@@ -2021,6 +2021,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   const [selectedDayOffset, setSelectedDayOffset] = useState<number>(0);
   const [isRemoteOpen, setIsRemoteOpen] = useState(false);
   const [remoteInput, setRemoteInput] = useState("");
+  const [liveSearchQuery, setLiveSearchQuery] = useState("");
 
   const [liveSubTab, setLiveSubTab] = useState<"vplay" | "custom" | "url">(mode === "realm" ? "custom" : "vplay");
   const [liveTabSection, setLiveTabSection] = useState<"channels" | "schedule" | "favorites">("channels");
@@ -2433,7 +2434,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         if (ch.name === "VTV5 Tây Nam Bộ" || ch.name === "VTV5 Tây Nguyên") {
           return false;
         }
-        const matchesSearch = ch.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const finalQuery = liveSearchQuery.trim() !== "" ? liveSearchQuery : searchQuery;
+        const matchesSearch = ch.name.toLowerCase().includes(finalQuery.toLowerCase());
         const matchesType = filterType === "Tất cả" 
           || (filterType === "Hoạt động" && ch.status !== "maintenance")
           || (filterType === "Bảo trì" && ch.status === "maintenance")
@@ -2443,7 +2445,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           || (filterType === "SCTV" && ch.category === "SCTV")
           || (filterType === "HTV" && ch.category === "HTV")
           || (filterType === "HTVC" && ch.category === "HTVC")
-          || (filterType === "Các kênh địa phương" && ch.category === "Địa phương")
+          || (filterType === "Địa phương" && ch.category === "Địa phương")
           || (filterType === "Quốc tế" && ch.category === "Quốc tế")
           || ch.category === filterType;
         return matchesSearch && matchesType;
@@ -2453,9 +2455,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         if (sortOrder === "az") return a.name.localeCompare(b.name);
         return b.name.localeCompare(a.name);
       });
-  }, [displayChannelsList, searchQuery, filterType, sortOrder]);
+  }, [displayChannelsList, searchQuery, liveSearchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Quốc tế"];
+  const LIVE_CATEGORIES = ["Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
@@ -2487,7 +2489,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       if (cat === "SCTV") {
         return filteredChannels.some(c => c.category === "SCTV");
       }
-      if (cat === "Các kênh địa phương") {
+      if (cat === "Địa phương") {
         return filteredChannels.some(c => c.category === "Địa phương");
       }
       if (cat === "Quốc tế") {
@@ -4268,14 +4270,42 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         </div>
       )}
 
-      {/* FILTERS */}
+      {/* FILTERS & SEARCH */}
       {liveTabSection === "channels" && (
-        <div className="mt-8 md:mt-12">
+        <div className="mt-8 md:mt-12 flex flex-col gap-6">
+          {/* Glass Bubble Search Bar for Live Tab */}
+          <div className="max-w-md mx-auto w-full transition-all duration-300">
+            <div className={`relative flex items-center gap-2.5 h-12 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.99] active:translate-y-0 transition-shadow transition-colors duration-200 ${
+              isDark 
+                ? "bg-white/5 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(255,0,255,0.4)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30" 
+                : "bg-slate-100 border-slate-200/40 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(255,0,255,0.3)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30"
+            }`}>
+              <SearchCustomIcon size={20} className="shrink-0 transition-colors" />
+              <input
+                type="text"
+                value={liveSearchQuery}
+                onChange={(e) => setLiveSearchQuery(e.target.value)}
+                placeholder="Search for channels"
+                className={`bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold font-google border-0 p-0 focus:ring-0 ${
+                  isDark ? "text-white placeholder-white/40" : "text-slate-800 placeholder-slate-400"
+                }`}
+              />
+              {liveSearchQuery && (
+                <button 
+                  onClick={() => setLiveSearchQuery("")} 
+                  className="p-1 hover:bg-black/10 rounded-full transition-all text-white/60 hover:text-white"
+                >
+                  <X size={14} className={isDark ? "text-slate-300/60" : "text-slate-400"} />
+                </button>
+              )}
+            </div>
+          </div>
+
           {liveSubTab === "vplay" && (
           <div className="flex flex-col md:flex-row gap-6 mb-8 w-full">
             {/* Desktop Filter Row */}
             <div className={`hidden md:flex gap-6 overflow-x-auto pb-3 md:pb-3 no-scrollbar flex-1 border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Quốc tế"].map((type) => (
+              {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => (
                 <button
                   key={type}
                   onClick={() => setFilterType(type)}
@@ -4332,7 +4362,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
                         >
-                          {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Quốc tế"].map((type) => (
+                          {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => (
                             <button
                               key={type}
                               onClick={() => {
@@ -4510,13 +4540,13 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                               ? filteredChannels.filter(c => c.category === "HTVC")
                               : cat === "SCTV"
                                 ? filteredChannels.filter(c => c.category === "SCTV")
-                                : cat === "Các kênh địa phương"
+                                : cat === "Địa phương"
                                   ? filteredChannels.filter(c => c.category === "Địa phương")
                                   : cat === "Quốc tế"
                                     ? filteredChannels.filter(c => c.category === "Quốc tế")
                                     : filteredChannels.filter(c => c.category === cat));
 
-                if (cat === "Các kênh địa phương" && liveSubTab === "vplay") {
+                if (cat === "Địa phương" && liveSubTab === "vplay") {
                   const thvlChannels = playlistChannels.filter(c => c.name.toUpperCase().includes("VĨNH LONG") || c.name.toUpperCase().includes("THVL"));
                   const nonThvlChannels = playlistChannels.filter(c => !(c.name.toUpperCase().includes("VĨNH LONG") || c.name.toUpperCase().includes("THVL")));
                   playlistChannels = [...nonThvlChannels, ...thvlChannels];
@@ -4530,7 +4560,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
 
                 return (
                   <div key={`${cat}-${catIdx}`} className="space-y-8 md:space-y-12 pb-14 md:pb-24 border-b border-white/5 last:border-b-0">
-                    <div className="flex items-center justify-between px-2">
+                    <div className="flex items-center justify-between px-2 mb-3 md:mb-5">
                       <div className="flex items-center gap-3 md:gap-4">
                         <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
                         <div>
@@ -4544,9 +4574,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                     </div>
 
                     <div className={
-                      isLargeLayout 
+                      `mt-4 md:mt-6 ${isLargeLayout 
                         ? "grid grid-cols-2 gap-4 md:gap-8" 
-                        : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"
+                        : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"}`
                     }>
                       {cat === "Phát thanh" ? (
                         <div className={`col-span-full p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
@@ -7221,7 +7251,7 @@ function RejuvenatedSettings(props: any) {
               placeholder="Search settings"
               value={activeSearchQuery}
               onChange={(e) => activeSetSearchQuery(e.target.value)}
-              className="w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1.5px_2px_rgba(255,255,255,0.18)] focus:shadow-[0_8px_24px_rgba(74,196,254,0.35)] bg-white/10 border-white/10 text-white placeholder:text-white"
+              className="w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-full text-xs lg:text-sm font-bold outline-none transition-all border-2 shadow-[0_4px_12px_rgba(0,0,0,0.1),_inset_0_1.5px_2px_rgba(255,255,255,0.18)] focus:shadow-[0_8px_24px_rgba(255,0,255,0.4)] focus:border-[#ff00ff] focus:ring-2 focus:ring-[#ff00ff]/30 bg-white/10 border-white/10 text-white placeholder:text-white"
             />
           </div>
         </div>
@@ -7507,14 +7537,18 @@ function SettingsNew(props: any) {
       );
 
   return (
-    <div className="w-full h-full flex flex-col md:flex-row gap-6 p-4 md:p-8 animate-in fade-in duration-300 overflow-hidden">
+    <div className={`w-full h-full flex flex-col md:flex-row gap-6 p-4 md:p-8 animate-in fade-in duration-300 overflow-hidden rounded-[36px] border backdrop-blur-2xl ${
+      isDark 
+        ? "bg-black/25 border-white/[0.05]" 
+        : "bg-white/30 border-slate-200/50"
+    }`}>
       {/* 5 Pages Tab bar - Desktop sidebar, Mobile floating segmented control */}
       <div className="w-full md:w-64 flex flex-col gap-4 shrink-0">
         {/* Search settings input box styled as bubble */}
-        <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 ${
+        <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-shadow transition-colors duration-200 ${
           isDark 
-            ? "bg-white/5 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
-            : "bg-slate-100 border-slate-200/40 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+            ? "bg-white/5 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(255,0,255,0.4)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30" 
+            : "bg-slate-100 border-slate-200/40 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(255,0,255,0.3)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30"
         }`}>
           <SearchCustomIcon size={22} className={`shrink-0 transition-colors`} />
           <input
@@ -10787,8 +10821,8 @@ function DynamicIsland({
                       className="flex flex-col w-full h-full"
                     >
                       <div className="flex items-center w-full gap-2 h-[36px] shrink-0">
-                        <div className="shrink-0 pl-1">
-                          <SearchCustomIcon className="w-4.5 h-4.5 text-white/80" />
+                        <div className="shrink-0 pl-1 flex items-center justify-center">
+                          <SearchCustomIcon size={18} className="text-white/80 transition-colors" />
                         </div>
                         <input
                           ref={inputRef}
@@ -10796,7 +10830,7 @@ function DynamicIsland({
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Tìm kiếm kênh..."
-                          className="bg-transparent text-white placeholder-white/40 text-xs font-bold font-sans outline-none flex-1 border-none p-0 focus:ring-0"
+                          className="bg-transparent text-white placeholder-white/40 text-xs font-bold font-sans outline-none flex-1 border-none p-0 focus:ring-0 leading-none h-full"
                         />
                         <div className="flex items-center gap-1.5 shrink-0 pr-1">
                           {searchQuery && (
@@ -11141,7 +11175,7 @@ function DynamicIsland({
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
-                        {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Quốc tế"].map((type) => {
+                        {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => {
                           const isSelected = currentFilter === type;
                           return (
                             <button
@@ -13966,10 +14000,10 @@ function WidgetsDashboard({
                           
                           <div className="flex-1 max-w-lg mx-4">
                             <div 
-                              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border ${
+                              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border transition-shadow transition-colors duration-200 ${
                                 frostedGlassWidgets 
-                                  ? "bg-white/10 border-white/5 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(74,196,254,0.35)]" 
-                                  : "bg-black/5 border-black/5 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(74,196,254,0.25)]"
+                                  ? "bg-white/10 border-white/10 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(255,0,255,0.4)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30" 
+                                  : "bg-black/5 border-black/5 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(255,0,255,0.3)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30"
                               }`}
                             >
                               <SearchCustomIcon size={22} className="ml-3.5" />
@@ -17391,7 +17425,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className={`flex-1 w-full flex items-center justify-between p-1 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-[28px] border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12 ${
+            className={`flex-1 w-full flex items-center justify-between p-1 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12 ${
               isNavVisible ? "h-16 md:h-18" : "h-11 md:h-13"
             }`}
             style={{
