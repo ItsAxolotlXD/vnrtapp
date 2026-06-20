@@ -659,18 +659,20 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
 
   const isVTV = category === "VTV" || alt.includes("VTV");
   const isVTVcab = category === "VTVcab" || alt.includes("ON");
-  const isShrunk = alt.includes("THVL") || alt.includes("Vĩnh Long") || alt.includes("QNgTV") || alt.includes("Quảng Ngãi");
+  const isShrunk = alt.includes("THVL") || alt.includes("Vĩnh Long") || alt.includes("QNgTV") || alt.includes("Quảng Ngãi") || alt.includes("QTV") || alt.includes("Quảng Ninh");
   const isHTVGroup = (category === "HTV" || alt.includes("HTV")) && alt !== "HTV Thể Thao";
   const isLocalGroup = category === "Địa phương";
   const isSCTV = category === "SCTV" || alt.includes("SCTV");
+  const isQuocTe = category === "Quốc tế";
+
   const scaleClass = isSCTV
     ? "scale-[0.83]"
     : isVTVcab 
       ? "scale-[1.1]" 
       : isVTV
         ? "scale-[1.12]"
-        : isShrunk 
-          ? "scale-[1.0]" 
+        : (isShrunk || isQuocTe)
+          ? "scale-[0.80]" 
           : (isHTVGroup || isLocalGroup)
             ? "scale-[1.25]"
             : "scale-[1.35]";
@@ -813,7 +815,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px)"
             : "repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px)"
         }}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border-[1.5px] ${
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-[background-color,background-image,backdrop-filter,opacity,box-shadow,transform] duration-300 z-10 rounded-2xl border-[1.5px] ${
           isDark 
             ? "bg-white/[0.08] backdrop-blur-2xl border-white/15 text-white shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]" 
             : "bg-white/45 backdrop-blur-2xl border-white/30 text-slate-900 shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]"
@@ -821,17 +823,15 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
           isLargeLayout
             ? (isActuallyActive 
                 ? "border-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.35)]" 
-                : (isDark ? "border-white/10 hover:border-[#4AC4FE]/40 hover:bg-white/[0.12] shadow-md" : "border-slate-200/40 hover:border-[#4AC4FE]/40 hover:bg-white/80 shadow-md"))
+                : (isDark ? "border-white/10 group-hover:border-[#4AC4FE] hover:bg-white/[0.12] shadow-md" : "border-slate-200/40 group-hover:border-[#4AC4FE] hover:bg-white/80 shadow-md"))
             : (isActuallyActive
                 ? "border-[#4AC4FE] shadow-[0_0_10px_rgba(74,196,254,0.35)]"
-                : (isDark ? "border-white/10 hover:border-[#4AC4FE]/40 hover:bg-white/[0.12] hover:brightness-105" : "border-slate-200/40 hover:border-[#4AC4FE]/40 hover:bg-white/80 hover:brightness-105"))
+                : (isDark ? "border-white/10 group-hover:border-[#4AC4FE] hover:bg-white/[0.12] hover:brightness-105" : "border-slate-200/40 group-hover:border-[#4AC4FE] hover:bg-white/80 hover:brightness-105"))
         }`}
       >
 
         {showChannelNumbers || quickSwitchEnabled ? (
-          <div className={`absolute top-2 left-2 text-[10px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded-md z-20 shadow-sm ${
-            isDark ? "bg-[#18181c]/90 text-[#4AC4FE] border border-white/5" : "bg-white/90 text-blue-600 border border-slate-200"
-          }`}>
+          <div className="absolute top-2 left-2 text-xs md:text-sm font-sans font-black text-white z-20 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] select-none">
             {(() => {
               try {
                 const saved = localStorage.getItem("vplay_custom_channel_numbers");
@@ -918,7 +918,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
                 ? (ch.category === "Địa phương" || ch.category === "Các kênh địa phương" ? "pb-[28px] pt-[6px] px-[15px]" : "p-[15px]") 
                 : "p-[5px] sm:p-[8px]")
         } ${isLargeLayout ? "scale-[0.78]" : "scale-100"}`}>
-          <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out group-hover:scale-120">
+          <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out">
             {/* Main Centered Logo */}
             <ChannelLogo 
                src={ch.logo} 
@@ -4272,232 +4272,105 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
 
       {/* FILTERS & SEARCH */}
       {liveTabSection === "channels" && (
-        <div className="mt-8 md:mt-12 flex flex-col gap-6">
-          {/* Glass Bubble Search Bar for Live Tab */}
-          <div className="max-w-md mx-auto w-full transition-all duration-300">
-            <div className={`relative flex items-center gap-2.5 h-12 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.99] active:translate-y-0 transition-shadow transition-colors duration-200 ${
-              isDark 
-                ? "bg-white/5 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(255,0,255,0.4)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30" 
-                : "bg-slate-100 border-slate-200/40 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(255,0,255,0.3)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30"
-            }`}>
-              <SearchCustomIcon size={20} className="shrink-0 transition-colors" />
+        <>
+          <div className="mt-8 md:mt-12 flex flex-col gap-6 w-full max-w-5xl mx-auto">
+          {/* Glass Bubble Search Bar for Live Tab with Integrated Sub-Tabs (Pills) */}
+          <div 
+            style={{
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              backgroundColor: "rgba(255, 255, 255, 0.30)"
+            }}
+            className="flex flex-col lg:flex-row items-center gap-4 p-3 lg:p-2.5 w-full rounded-2xl lg:rounded-full border border-white/12 shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] transition-all duration-300"
+          >
+            {/* Search Input Box */}
+            <div className="relative flex items-center gap-2.5 h-10 px-3 w-full lg:w-80 shrink-0">
+              <SearchCustomIcon size={18} className="shrink-0 text-white/60 group-focus-within:text-[#ff00ff] transition-colors" />
               <input
                 type="text"
                 value={liveSearchQuery}
                 onChange={(e) => setLiveSearchQuery(e.target.value)}
                 placeholder="Search for channels"
-                className={`bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold font-google border-0 p-0 focus:ring-0 ${
-                  isDark ? "text-white placeholder-white/40" : "text-slate-800 placeholder-slate-400"
-                }`}
+                className="bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold font-google border-0 p-0 focus:ring-0 text-white placeholder-white/50"
               />
               {liveSearchQuery && (
                 <button 
                   onClick={() => setLiveSearchQuery("")} 
-                  className="p-1 hover:bg-black/10 rounded-full transition-all text-white/60 hover:text-white"
+                  className="p-1 hover:bg-black/10 rounded-full transition-all text-white/50 hover:text-white"
                 >
-                  <X size={14} className={isDark ? "text-slate-300/60" : "text-slate-400"} />
+                  <X size={14} className="text-white/65" />
                 </button>
               )}
             </div>
-          </div>
 
-          {liveSubTab === "vplay" && (
-          <div className="flex flex-col md:flex-row gap-6 mb-8 w-full">
-            {/* Desktop Filter Row */}
-            <div className={`hidden md:flex gap-6 overflow-x-auto pb-3 md:pb-3 no-scrollbar flex-1 border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setFilterType(type)}
-                  className={`relative pb-2.5 text-sm font-semibold whitespace-nowrap transition-all ${
-                    filterType === type
-                      ? "text-[#4AC4FE] font-black"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  {type}
-                  {filterType === type && (
-                    <motion.div
-                      layoutId="activeFilterTab"
-                      className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#4AC4FE] rounded-full"
-                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
+            {/* Vertical/Horizontal divider line */}
+            <div className="hidden lg:block h-6 w-px bg-white/20 self-center" />
 
-            {/* Mobile Filter & Sort side-by-side dropdowns & Toggle */}
-            <div className="flex md:hidden w-full flex-col gap-3 relative z-30">
-              <div className="flex w-full gap-3">
-                {/* Mobile Filter Dropdown */}
-                <div className="relative flex-1">
-                  <button
-                    onClick={() => {
-                      if (featureFlags.dynamic_island) {
-                        window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "filter", active: true } }));
-                      } else {
-                        setShowFilterMenu(!showFilterMenu); 
-                        setShowSortMenu(false);
-                      }
-                    }}
-                    className={`w-full p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2 bg-white/5 border-white/5 text-white ${liquidGlass ? "backdrop-blur-md" : ""}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-[#4AC4FE]" />
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Lọc</span>
-                    </div>
-                    <span className="text-xs font-black truncate max-w-[80px] text-[#4AC4FE]">
-                      {filterType}
-                    </span>
-                  </button>
-
-                  <AnimatePresence>
-                    {!featureFlags.dynamic_island && showFilterMenu && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowFilterMenu(false)} />
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
-                        >
-                          {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => (
-                            <button
-                              key={type}
-                              onClick={() => {
-                                setFilterType(type);
-                                setShowFilterMenu(false);
-                              }}
-                              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                                filterType === type 
-                                  ? "bg-[#4AC4FE] text-white" 
-                                  : "text-white hover:bg-white/5"
-                              }`}
-                            >
-                              {type}
-                            </button>
-                          ))}
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Mobile Sort Dropdown */}
-                <div className="relative flex-1">
-                  <button
-                    onClick={() => {
-                      if (featureFlags.dynamic_island) {
-                        window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "sort", active: true } }));
-                      } else {
-                        setShowSortMenu(!showSortMenu); 
-                        setShowFilterMenu(false);
-                      }
-                    }}
-                    className={`w-full p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2 bg-white/5 border-white/5 text-white ${liquidGlass ? "backdrop-blur-md" : ""}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Sliders className="h-4 w-4 text-[#4AC4FE]" />
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Xếp</span>
-                    </div>
-                    <span className="text-xs font-black truncate max-w-[80px] text-[#4AC4FE]">
-                      {sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "A-Z" : "Z-A"}
-                    </span>
-                  </button>
-
-                  <AnimatePresence>
-                    {!featureFlags.dynamic_island && showSortMenu && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowSortMenu(false)} />
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
-                        >
-                          {[
-                            { id: "default", label: "Mặc định" },
-                            { id: "az", label: "Sắp xếp A-Z" },
-                            { id: "za", label: "Sắp xếp Z-A" }
-                          ].map((opt) => (
-                            <button
-                              key={opt.id}
-                              onClick={() => {
-                                setSortOrder(opt.id as any);
-                                setShowSortMenu(false);
-                              }}
-                              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                                sortOrder === opt.id 
-                                  ? "bg-[#4AC4FE] text-white" 
-                                  : "text-white hover:bg-white/5"
-                              }`}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
-                </div>
+            {/* Small live sub tab category filters directly placed inside the search bar */}
+            {liveSubTab === "vplay" && (
+              <div className="flex gap-1.5 overflow-x-auto no-scrollbar w-full lg:flex-1 py-1 px-1">
+                {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => {
+                  const isSelected = filterType === type;
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => setFilterType(type)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                        isSelected
+                          ? "bg-[#4AC4FE] text-slate-950 font-black shadow-[0_4px_12px_rgba(74,196,254,0.3)] scale-[1.03]"
+                          : "text-white/70 hover:text-white hover:bg-white/10"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  );
+                })}
               </div>
-
-              {/* Mobile Large Layout Toggle */}
-              <button
-                onClick={() => handleToggleLargeLayout(!isLargeLayout)}
-                className={`w-full p-3 rounded-xl border transition-all flex items-center justify-center gap-2 ${
-                  isLargeLayout
-                    ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg"
-                    : isDark 
-                      ? "bg-slate-800/40 border-slate-700/55 text-slate-200 hover:bg-slate-800/60" 
-                      : "bg-slate-100 border-slate-200 text-[#4AC4FE] hover:bg-slate-200"
-                }`}
-              >
-                <LayoutGrid className="h-4 w-4" />
-                <span className="text-xs font-black uppercase tracking-wider">Giao diện lớn: {isLargeLayout ? "BẬT" : "TẮT"}</span>
-              </button>
-            </div>
-
-            <div className="hidden md:flex gap-2.5 shrink-0">
-              {/* Desktop Sort Button */}
-              <button
-                onClick={() => {
-                  if (sortOrder === "default") setSortOrder("az");
-                  else if (sortOrder === "az") setSortOrder("za");
-                  else setSortOrder("default");
-                }}
-                className={`p-3.5 md:p-3 rounded-xl border transition-all flex items-center gap-2 ${
-                  isDark 
-                    ? "bg-slate-800/50 border-slate-700/50 text-white" 
-                    : "bg-[#4AC4FE]/5 border-[#4AC4FE]/20 text-slate-900"
-                } ${liquidGlass ? "backdrop-blur-md" : ""}`}
-                title={sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "Sắp xếp A-Z" : "Sắp xếp Z-A"}
-              >
-                <Sliders className="h-5 w-5 text-[#4AC4FE] opacity-80" />
-                <span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
-                  {sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "A-Z" : "Z-A"}
-                </span>
-              </button>
-
-              {/* Desktop Large Layout Toggle */}
-              <button
-                onClick={() => handleToggleLargeLayout(!isLargeLayout)}
-                className={`p-3 md:p-3 rounded-xl border transition-all flex items-center gap-2 ${
-                  isLargeLayout
-                    ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg font-black"
-                    : isDark 
-                      ? "bg-slate-800/50 border-slate-700/50 text-white hover:bg-slate-800" 
-                      : "bg-white border-slate-200 text-slate-900 hover:bg-slate-100 shadow-sm"
-                } ${liquidGlass ? "backdrop-blur-md" : ""}`}
-                title="Bật/Tắt Giao diện lớn (Hiển thị 2 ô kênh/dòng)"
-              >
-                <LayoutGrid className={`h-5 w-5 ${isLargeLayout ? "text-white" : "text-[#4AC4FE] opacity-80"}`} />
-                <span className="text-sm font-bold">Giao diện lớn</span>
-              </button>
-            </div>
+            )}
           </div>
-        )}
+
+          {/* Sorters / Grid Layout Options below or beside */}
+          {liveSubTab === "vplay" && (
+            <div className="flex items-center justify-between w-full mt-2 px-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  Đang lọc: <span className="text-[#4AC4FE]">{filterType}</span>
+                </span>
+              </div>
+              <div className="flex gap-2.5 shrink-0">
+                {/* Desktop Sort Button */}
+                <button
+                  onClick={() => {
+                    if (sortOrder === "default") setSortOrder("az");
+                    else if (sortOrder === "az") setSortOrder("za");
+                    else setSortOrder("default");
+                  }}
+                  className="p-3 md:p-2.5 rounded-xl border border-white/10 bg-white/5 transition-all flex items-center gap-2 hover:bg-white/10 text-white min-w-[90px] justify-center"
+                  title={sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "Sắp xếp A-Z" : "Sắp xếp Z-A"}
+                >
+                  <Sliders className="h-4 w-4 text-[#4AC4FE] opacity-80" />
+                  <span className="text-xs font-bold text-white">
+                    {sortOrder === "default" ? "Mặc định" : sortOrder === "az" ? "A-Z" : "Z-A"}
+                  </span>
+                </button>
+
+                {/* Large Layout Toggle */}
+                <button
+                  onClick={() => handleToggleLargeLayout(!isLargeLayout)}
+                  className={`p-3 md:p-2.5 rounded-xl border transition-all flex items-center gap-2 ${
+                    isLargeLayout
+                      ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg font-black"
+                      : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+                  }`}
+                  title="Bật/Tắt Giao diện lớn (Hiển thị 2 ô kênh/dòng)"
+                >
+                  <LayoutGrid className={`h-4 w-4 ${isLargeLayout ? "text-white" : "text-[#4AC4FE] opacity-80"}`} />
+                  <span className="text-xs font-bold">Giao diện lớn</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* CHANNEL LIST */}
         <div className="space-y-12 md:space-y-16">
@@ -4559,7 +4432,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 if (displaySubset.length === 0 && liveSubTab === "custom") return null;
 
                 return (
-                  <div key={`${cat}-${catIdx}`} className="space-y-8 md:space-y-12 pb-14 md:pb-24 border-b border-white/5 last:border-b-0">
+                  <div key={`${cat}-${catIdx}`} className="space-y-8 md:space-y-12 pb-14 md:pb-24 border-b border-white/80 last:border-b-0">
                     <div className="flex items-center justify-between px-2 mb-3 md:mb-5">
                       <div className="flex items-center gap-3 md:gap-4">
                         <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
@@ -4655,7 +4528,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             </>
           ) : null}
         </div>
-      </div>
+        </>
       )}
 
       {/* FAVORITES SUB-TAB CONTENT */}
@@ -7545,22 +7418,25 @@ function SettingsNew(props: any) {
       {/* 5 Pages Tab bar - Desktop sidebar, Mobile floating segmented control */}
       <div className="w-full md:w-64 flex flex-col gap-4 shrink-0">
         {/* Search settings input box styled as bubble */}
-        <div className={`relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-shadow transition-colors duration-200 ${
-          isDark 
-            ? "bg-white/5 border-white/5 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(255,0,255,0.4)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30" 
-            : "bg-slate-100 border-slate-200/40 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(255,0,255,0.3)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30"
-        }`}>
-          <SearchCustomIcon size={22} className={`shrink-0 transition-colors`} />
+        <div 
+          style={{
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            backgroundColor: "rgba(255, 255, 255, 0.30)"
+          }}
+          className="relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border border-white/12 shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] cursor-pointer transform transition-all duration-300 hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-shadow transition-colors duration-200 focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30"
+        >
+          <SearchCustomIcon size={22} className="shrink-0 text-white/60 group-focus-within:text-[#ff00ff] transition-colors" />
           <input
             type="text"
             value={settingsSearchQuery}
             onChange={(e) => setSettingsSearchQuery(e.target.value)}
             placeholder="Search settings"
-            className="bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold font-google text-white placeholder-white placeholder:text-white"
+            className="bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold font-google text-white placeholder-white/50 focus:ring-0 p-0"
           />
           {settingsSearchQuery && (
             <button onClick={() => setSettingsSearchQuery("")} className="p-1 hover:bg-black/10 rounded-full transition-all">
-              <X size={14} className={isDark ? "text-slate-300/60" : "text-slate-400"} />
+              <X size={14} className="text-white/60" />
             </button>
           )}
         </div>
@@ -14000,27 +13876,24 @@ function WidgetsDashboard({
                           
                           <div className="flex-1 max-w-lg mx-4">
                             <div 
-                              className={`group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border transition-shadow transition-colors duration-200 ${
-                                frostedGlassWidgets 
-                                  ? "bg-white/10 border-white/10 text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15),_inset_0_1.5px_2.5px_rgba(255,255,255,0.15)] focus-within:shadow-[0_8px_24px_rgba(255,0,255,0.4)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30" 
-                                  : "bg-black/5 border-black/5 text-slate-800 shadow-[0_4px_10px_rgba(0,0,0,0.06),_inset_0_1.5px_2px_rgba(255,255,255,0.4)] focus-within:shadow-[0_8px_20px_rgba(255,0,255,0.3)] focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30"
-                              }`}
+                              style={{
+                                backdropFilter: "blur(20px)",
+                                WebkitBackdropFilter: "blur(20px)",
+                                backgroundColor: "rgba(255, 255, 255, 0.30)"
+                              }}
+                              className="group flex items-center gap-2.5 h-10 w-full cursor-pointer transform transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 relative rounded-full border border-white/12 shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] transition-shadow transition-colors duration-200 focus-within:border-[#ff00ff] focus-within:ring-2 focus-within:ring-[#ff00ff]/30"
                             >
-                              <SearchCustomIcon size={22} className="ml-3.5" />
+                              <SearchCustomIcon size={22} className="ml-3.5 text-white/60 group-focus-within:text-[#ff00ff] transition-colors" />
                               <input 
                                 type="text" 
                                 placeholder="Search settings"
                                 value={settingsSearchQuery}
                                 onChange={(e) => setSettingsSearchQuery(e.target.value)}
-                                className={`flex-1 bg-transparent border-none outline-none text-sm font-semibold h-full ${
-                                  frostedGlassWidgets 
-                                    ? "placeholder:text-slate-100/30 text-slate-100" 
-                                    : "placeholder:text-slate-400 text-slate-800"
-                                }`}
+                                className="flex-1 bg-transparent border-none outline-none text-sm font-semibold h-full placeholder:text-white/50 text-white focus:ring-0 p-0"
                               />
                               {settingsSearchQuery && (
                                 <button onClick={() => setSettingsSearchQuery("")} className="p-1 mr-2 hover:bg-black/10 rounded-full transition-all">
-                                  <X size={14} className={frostedGlassWidgets ? "text-slate-300/60" : "text-slate-400"} />
+                                  <X size={14} className="text-white/60" />
                                 </button>
                               )}
                             </div>
