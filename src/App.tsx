@@ -1530,15 +1530,23 @@ function HomeContent({
                 initial={{ opacity: 0, scale: 0.98, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: -15 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
+                whileHover={{ 
+                  scale: 1.015,
+                  y: -4,
+                  boxShadow: isDark 
+                    ? "0 22px 45px rgba(74, 196, 254, 0.16)" 
+                    : "0 22px 45px rgba(74, 196, 254, 0.08)"
+                }}
+                whileTap={{ scale: 0.995 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
                 onClick={() => {
                   setActiveChannel(suggestedChannel);
                   setActiveTab("Live");
                 }}
-                className={`relative w-full overflow-hidden p-6 xs:p-8 md:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 md:gap-10 border cursor-pointer group hover:shadow-2xl transition-all duration-500 ${
+                className={`relative w-full overflow-hidden p-6 xs:p-8 md:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 md:gap-10 border cursor-pointer group transition-all duration-500 ${
                   isDark 
-                    ? "bg-[#1f2937]/35 border-white/8 text-white hover:border-[#4AC4FE]/40" 
-                    : "bg-white/55 border-slate-200/50 text-slate-900 hover:border-[#4AC4FE]/40 shadow-sm"
+                    ? "bg-[#1f2937]/35 border-white/8 text-white hover:border-[#4AC4FE]/45" 
+                    : "bg-white/55 border-slate-200/50 text-slate-900 hover:border-[#4AC4FE]/45 shadow-sm"
                 }`}
               >
                 {/* Visual accent flows */}
@@ -1547,11 +1555,21 @@ function HomeContent({
 
                 <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 md:gap-8 flex-1 w-full text-center sm:text-left">
                   {/* Glass logo container */}
-                  <div className={`relative shrink-0 w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center rounded-2xl border-[1.5px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-105 ${
-                    isDark 
-                      ? "bg-white/[0.08] backdrop-blur-2xl border-white/15" 
-                      : "bg-white/65 backdrop-blur-2xl border-slate-200/40"
-                  }`}>
+                  <motion.div 
+                    animate={{
+                      y: [0, -4, 0]
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className={`relative shrink-0 w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center rounded-2xl border-[1.5px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-transform duration-500 group-hover:scale-105 ${
+                      isDark 
+                        ? "bg-white/[0.08] backdrop-blur-2xl border-white/15" 
+                        : "bg-white/65 backdrop-blur-2xl border-slate-200/40"
+                    }`}
+                  >
                     <ChannelLogo 
                       src={suggestedChannel.logo} 
                       alt={suggestedChannel.name} 
@@ -1560,7 +1578,7 @@ function HomeContent({
                       category={suggestedChannel.category}
                       className="max-h-[70%] object-contain scale-[1.2]"
                     />
-                  </div>
+                  </motion.div>
 
                   <div className="space-y-2 md:space-y-3 flex-1">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-wider bg-[#4AC4FE]/10 text-[#4AC4FE]">
@@ -1625,10 +1643,16 @@ function HomeContent({
               style={{ gap: `${itemConfig.gap}px` }}
             >
               {randomChannels.map((ch) => (
-                <div 
+                <motion.div 
                   key={`promo-ch-${ch.name}`}
                   style={{ width: `${itemConfig.width}px` }}
                   className="shrink-0 group/card-wrapper cursor-pointer"
+                  whileHover={{ 
+                    scale: 1.05,
+                    y: -5
+                  }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
                   onClick={() => {
                     setActiveChannel(ch);
                     setActiveTab("Live");
@@ -1649,7 +1673,7 @@ function HomeContent({
                       <span className="text-[9px] font-bold opacity-50 uppercase tracking-widest">{ch.category}</span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           </div>
@@ -2424,14 +2448,16 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           || (filterType === "Thiết yếu" && (ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")))
           || (filterType === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(ch.name))
           || (filterType === "VTVcab" && ch.name.includes("ON"))
-          || (filterType === "HTV" && ch.name.startsWith("HTV"))
+          || (filterType === "HTV" && ch.name.startsWith("HTV") && ch.category !== "HTVC")
           || (filterType === "Các kênh địa phương" && (
                !(ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")) &&
                !["VTV2", "VTV3", "VTV4", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ"].includes(ch.name) &&
                !ch.name.includes("ON") &&
                !ch.name.startsWith("HTV") &&
                ch.category !== "SCTV" &&
-               !ch.name.toUpperCase().startsWith("SCTV")
+               !ch.name.toUpperCase().startsWith("SCTV") &&
+               ch.category !== "HTVC" &&
+               ch.category !== "Nước ngoài"
              ))
           || ch.category === filterType;
         return matchesSearch && matchesType;
@@ -2443,7 +2469,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       });
   }, [displayChannelsList, searchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"];
+  const LIVE_CATEGORIES = ["Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Nước ngoài"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
@@ -2467,7 +2493,10 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         return filteredChannels.some(c => c.name.includes("ON"));
       }
       if (cat === "HTV") {
-        return filteredChannels.some(c => c.name.startsWith("HTV"));
+        return filteredChannels.some(c => c.name.startsWith("HTV") && c.category !== "HTVC");
+      }
+      if (cat === "HTVC") {
+        return filteredChannels.some(c => c.category === "HTVC");
       }
       if (cat === "SCTV") {
         return filteredChannels.some(c => c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV"));
@@ -2479,8 +2508,13 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           const isVTVcab = c.name.includes("ON");
           const isHTV = c.name.startsWith("HTV");
           const isSCTV = c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV");
-          return !isThietYeu && !isVTV && !isVTVcab && !isHTV && !isSCTV;
+          const isHTVC = c.category === "HTVC";
+          const isNuocNgoai = c.category === "Nước ngoài";
+          return !isThietYeu && !isVTV && !isVTVcab && !isHTV && !isSCTV && !isHTVC && !isNuocNgoai;
         });
+      }
+      if (cat === "Nước ngoài") {
+        return filteredChannels.some(c => c.category === "Nước ngoài");
       }
       return false;
     });
@@ -4264,7 +4298,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           <div className="flex flex-col md:flex-row gap-6 mb-8 w-full">
             {/* Desktop Filter Row */}
             <div className={`hidden md:flex gap-6 overflow-x-auto pb-3 md:pb-3 no-scrollbar flex-1 border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => (
+              {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Nước ngoài"].map((type) => (
                 <button
                   key={type}
                   onClick={() => setFilterType(type)}
@@ -4321,7 +4355,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
                         >
-                          {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => (
+                          {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Nước ngoài"].map((type) => (
                             <button
                               key={type}
                               onClick={() => {
@@ -6148,21 +6182,35 @@ function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDa
   return (
     <button 
       onClick={onClick}
+      style={{
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)"
+      }}
       className={`w-full flex items-center gap-6 p-6 rounded-[24px] transition-all border group ${
         isDark 
-          ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10 shadow-inner" 
-          : "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
+          ? "bg-white/20 border-white/20 hover:bg-white/30 hover:border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.15)]" 
+          : "bg-[#0f172a]/20 border-slate-200/20 hover:bg-[#0f172a]/30 hover:border-slate-200/30 shadow-[0_8px_32px_rgba(0,0,0,0.05)]"
       }`}
     >
-      <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}>
+      <div className={`p-4 rounded-2xl ${isDark ? "bg-white/10 text-[#4AC4FE]" : "bg-[#4AC4FE]/20 text-[#4AC4FE]"}`}>
         <Icon size={24} />
       </div>
       <div className="flex-1 text-left">
         <h4 className={`text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
-        {description && <p className="text-sm opacity-50 font-medium tracking-tight mt-0.5">{description}</p>}
+        {description && <p className={`text-sm tracking-tight mt-0.5 ${isDark ? "text-white/60" : "text-slate-700/80"}`}>{description}</p>}
       </div>
       {isToggleable ? (
-        <div className={`w-11 h-6 rounded-full p-1 transition-colors duration-300 flex items-center ${isToggled ? "bg-[#4AC4FE]" : (isDark ? "bg-white/10" : "bg-slate-200")}`}>
+        <div 
+          style={{
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)"
+          }}
+          className={`w-11 h-6 rounded-full p-1 transition-all duration-300 flex items-center border ${
+            isToggled 
+              ? (isDark ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/30" : "bg-[#4AC4FE]/20 border-[#4AC4FE]/40") 
+              : (isDark ? "bg-white/20 border-white/20" : "bg-black/20 border-black/10")
+          }`}
+        >
           <motion.div 
             animate={{ x: isToggled ? 20 : 0 }}
             className="w-4 h-4 bg-white rounded-full shadow-md" 
@@ -10632,7 +10680,7 @@ function DynamicIsland({
             : isExpanded 
               ? (aiExpanded 
                   ? aiCardHeight 
-                  : (islandMode === "search" ? (searchQuery ? 315 : 130) : islandMode === "keypad" ? 340 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 270 : islandMode === "vtv5" ? 230 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 130)
+                  : (islandMode === "search" ? (searchQuery ? 285 : 60) : islandMode === "keypad" ? 340 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 270 : islandMode === "vtv5" ? 230 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 130)
                 ) 
               : 38,
           borderRadius: (activeToast || aiExpanded || isExpanded) ? "30px" : "999px",
@@ -10698,56 +10746,58 @@ function DynamicIsland({
               className="w-full flex flex-col pt-3 pb-2 h-full justify-between"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Dynamic Island Header Option Bar */}
-              <div className="flex items-center justify-center w-full border-b border-white/10 pb-2.5 select-none shrink-0 relative">
-                <div className="flex items-center gap-2">
+              {/* Dynamic Island Header Option Bar - only show if NOT in search mode to prevent duplicate toolbar */}
+              {islandMode !== "search" && (
+                <div className="flex items-center justify-center w-full border-b border-white/10 pb-2.5 select-none shrink-0 relative">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIslandMode("search")}
+                      className={`p-1 rounded-full transition-all ${
+                        islandMode === "search" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+                      }`}
+                      title="Tìm kiếm"
+                    >
+                      <SearchCustomIcon size={13} />
+                    </button>
+                    <button
+                      onClick={() => setIslandMode("keypad")}
+                      className={`p-1 rounded-full transition-all ${
+                        islandMode === "keypad" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+                      }`}
+                      title="GỌI KÊNH NHANH"
+                    >
+                      <LayoutGrid size={13} />
+                    </button>
+                    <button
+                      onClick={() => setIslandMode("volume")}
+                      className={`p-1 rounded-full transition-all ${
+                        islandMode === "volume" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+                      }`}
+                      title="Volume"
+                    >
+                      <Volume2 size={13} />
+                    </button>
+                    <button
+                      onClick={() => setIslandMode("notifications")}
+                      className={`p-1 rounded-full transition-all relative ${
+                        islandMode === "notifications" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+                      }`}
+                      title="Thông báo"
+                    >
+                      <Bell size={13} />
+                      {notifications && notifications.length > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                      )}
+                    </button>
+                  </div>
                   <button
-                    onClick={() => setIslandMode("search")}
-                    className={`p-1 rounded-full transition-all ${
-                      islandMode === "search" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
-                    }`}
-                    title="Tìm kiếm"
+                    onClick={() => setIsExpanded(false)}
+                    className="absolute right-1 top-[4px] p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white flex items-center justify-center"
                   >
-                    <SearchCustomIcon size={13} />
-                  </button>
-                  <button
-                    onClick={() => setIslandMode("keypad")}
-                    className={`p-1 rounded-full transition-all ${
-                      islandMode === "keypad" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
-                    }`}
-                    title="GỌI KÊNH NHANH"
-                  >
-                    <LayoutGrid size={13} />
-                  </button>
-                  <button
-                    onClick={() => setIslandMode("volume")}
-                    className={`p-1 rounded-full transition-all ${
-                      islandMode === "volume" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
-                    }`}
-                    title="Volume"
-                  >
-                    <Volume2 size={13} />
-                  </button>
-                  <button
-                    onClick={() => setIslandMode("notifications")}
-                    className={`p-1 rounded-full transition-all relative ${
-                      islandMode === "notifications" ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
-                    }`}
-                    title="Thông báo"
-                  >
-                    <Bell size={13} />
-                    {notifications && notifications.length > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                    )}
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <button
-                  onClick={() => setIsExpanded(false)}
-                  className="absolute right-1 top-[4px] p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white flex items-center justify-center"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              )}
 
               {/* Dynamic Island View Content */}
               <div className="flex-1 flex flex-col justify-start py-2.5 overflow-hidden">
@@ -10760,9 +10810,9 @@ function DynamicIsland({
                       exit={{ opacity: 0, scale: 0.95 }}
                       className="flex flex-col w-full h-full"
                     >
-                      <div className="flex items-center w-full gap-2.5 h-[36px] shrink-0">
+                      <div className="flex items-center w-full gap-2 h-[36px] shrink-0">
                         <div className="shrink-0 pl-1">
-                          <SearchCustomIcon className="w-4.5 h-4.5 text-white" />
+                          <SearchCustomIcon className="w-4.5 h-4.5 text-white/80" />
                         </div>
                         <input
                           ref={inputRef}
@@ -10770,7 +10820,7 @@ function DynamicIsland({
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Tìm kiếm kênh..."
-                          className="bg-transparent text-white placeholder-white/40 text-xs font-bold font-sans outline-none w-full border-none p-0 focus:ring-0"
+                          className="bg-transparent text-white placeholder-white/40 text-xs font-bold font-sans outline-none flex-1 border-none p-0 focus:ring-0"
                         />
                         <div className="flex items-center gap-1.5 shrink-0 pr-1">
                           {searchQuery && (
@@ -10781,9 +10831,43 @@ function DynamicIsland({
                               }}
                               className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/60 hover:text-white flex items-center justify-center"
                             >
-                              <X className="w-3.5 h-3.5" />
+                              <X className="w-3 h-3" />
                             </button>
                           )}
+
+                          {/* Toolbar icons placed directly on the right side of the search bar */}
+                          <div className="flex items-center gap-1 border-l border-white/15 pl-2">
+                            <button
+                              onClick={() => setIslandMode("keypad")}
+                              className="p-1 rounded-full text-white/40 hover:text-white hover:bg-white/15 transition-all"
+                              title="GỌI KÊNH NHANH"
+                            >
+                              <LayoutGrid size={13} />
+                            </button>
+                            <button
+                              onClick={() => setIslandMode("volume")}
+                              className="p-1 rounded-full text-white/40 hover:text-white hover:bg-white/15 transition-all"
+                              title="Volume"
+                            >
+                              <Volume2 size={13} />
+                            </button>
+                            <button
+                              onClick={() => setIslandMode("notifications")}
+                              className="p-1 rounded-full text-white/40 hover:text-white hover:bg-white/15 transition-all relative"
+                              title="Thông báo"
+                            >
+                              <Bell size={13} />
+                              {notifications && notifications.length > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                              )}
+                            </button>
+                            <button
+                              onClick={() => setIsExpanded(false)}
+                              className="p-1 hover:bg-white/15 rounded-full text-white/40 hover:text-white transition-all flex items-center justify-center"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
 
@@ -11081,7 +11165,7 @@ function DynamicIsland({
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
-                        {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "Các kênh địa phương"].map((type) => {
+                        {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Nước ngoài"].map((type) => {
                           const isSelected = currentFilter === type;
                           return (
                             <button
@@ -17237,7 +17321,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   <div className="pt-4 pb-2">
                     <div className={`h-px mx-3 mb-4 ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
                     {isSidebarExpanded && !isCompactMode && (
-                      <span className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Ghim Kênh</span>
+                      <span className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Ghim Kênh</span>
                     )}
                     <div className={`space-y-1 ${isCompactMode && isSidebarExpanded ? "flex flex-col items-center" : ""}`}>
                       {Array.from(new Set(favorites)).map(favId => {
