@@ -714,13 +714,6 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
     );
   }
 
-  const shouldAddOutline = category === "HTV" || 
-                           category === "Địa phương" || 
-                           category === "VTVcab" || 
-                           alt.toLowerCase().includes("htv") ||
-                           alt.toLowerCase().includes("vtvcab") ||
-                           alt.toLowerCase().includes("atv");
-
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <img 
@@ -729,7 +722,6 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         referrerPolicy="no-referrer"
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-        style={shouldAddOutline ? { filter: "drop-shadow(1.5px 0px 0px rgba(0,0,0,0.35)) drop-shadow(-1.5px 0px 0px rgba(0,0,0,0.35)) drop-shadow(0px 1.5px 0px rgba(0,0,0,0.35)) drop-shadow(0px -1.5px 0px rgba(0,0,0,0.35))" } : undefined}
       />
     </div>
   );
@@ -2446,19 +2438,13 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           || (filterType === "Hoạt động" && ch.status !== "maintenance")
           || (filterType === "Bảo trì" && ch.status === "maintenance")
           || (filterType === "Thiết yếu" && (ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")))
-          || (filterType === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(ch.name))
-          || (filterType === "VTVcab" && ch.name.includes("ON"))
-          || (filterType === "HTV" && ch.name.startsWith("HTV") && ch.category !== "HTVC")
-          || (filterType === "Các kênh địa phương" && (
-               !(ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")) &&
-               !["VTV2", "VTV3", "VTV4", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ"].includes(ch.name) &&
-               !ch.name.includes("ON") &&
-               !ch.name.startsWith("HTV") &&
-               ch.category !== "SCTV" &&
-               !ch.name.toUpperCase().startsWith("SCTV") &&
-               ch.category !== "HTVC" &&
-               ch.category !== "Nước ngoài"
-             ))
+          || (filterType === "VTV" && ch.category === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(ch.name))
+          || (filterType === "VTVcab" && ch.category === "VTVcab")
+          || (filterType === "SCTV" && ch.category === "SCTV")
+          || (filterType === "HTV" && ch.category === "HTV")
+          || (filterType === "HTVC" && ch.category === "HTVC")
+          || (filterType === "Các kênh địa phương" && ch.category === "Địa phương")
+          || (filterType === "Quốc tế" && ch.category === "Quốc tế")
           || ch.category === filterType;
         return matchesSearch && matchesType;
       })
@@ -2469,7 +2455,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       });
   }, [displayChannelsList, searchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Nước ngoài"];
+  const LIVE_CATEGORIES = ["Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Quốc tế"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
@@ -2487,34 +2473,25 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       }
       if (cat === "VTV") {
         const vtvNames = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"];
-        return filteredChannels.some(c => vtvNames.includes(c.name));
+        return filteredChannels.some(c => c.category === "VTV" && vtvNames.includes(c.name));
       }
       if (cat === "VTVcab") {
-        return filteredChannels.some(c => c.name.includes("ON"));
+        return filteredChannels.some(c => c.category === "VTVcab");
       }
       if (cat === "HTV") {
-        return filteredChannels.some(c => c.name.startsWith("HTV") && c.category !== "HTVC");
+        return filteredChannels.some(c => c.category === "HTV");
       }
       if (cat === "HTVC") {
         return filteredChannels.some(c => c.category === "HTVC");
       }
       if (cat === "SCTV") {
-        return filteredChannels.some(c => c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV"));
+        return filteredChannels.some(c => c.category === "SCTV");
       }
       if (cat === "Các kênh địa phương") {
-        return filteredChannels.some(c => {
-          const isThietYeu = c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN");
-          const isVTV = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name);
-          const isVTVcab = c.name.includes("ON");
-          const isHTV = c.name.startsWith("HTV");
-          const isSCTV = c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV");
-          const isHTVC = c.category === "HTVC";
-          const isNuocNgoai = c.category === "Nước ngoài";
-          return !isThietYeu && !isVTV && !isVTVcab && !isHTV && !isSCTV && !isHTVC && !isNuocNgoai;
-        });
+        return filteredChannels.some(c => c.category === "Địa phương");
       }
-      if (cat === "Nước ngoài") {
-        return filteredChannels.some(c => c.category === "Nước ngoài");
+      if (cat === "Quốc tế") {
+        return filteredChannels.some(c => c.category === "Quốc tế");
       }
       return false;
     });
@@ -4298,7 +4275,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           <div className="flex flex-col md:flex-row gap-6 mb-8 w-full">
             {/* Desktop Filter Row */}
             <div className={`hidden md:flex gap-6 overflow-x-auto pb-3 md:pb-3 no-scrollbar flex-1 border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Nước ngoài"].map((type) => (
+              {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Quốc tế"].map((type) => (
                 <button
                   key={type}
                   onClick={() => setFilterType(type)}
@@ -4355,7 +4332,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           className={`absolute top-full left-0 right-0 mt-2 p-2 border shadow-2xl bg-slate-900 border-white/10 z-50 ${liquidGlass ? "rounded-2xl backdrop-blur-3xl" : "rounded-xl"}`}
                         >
-                          {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Nước ngoài"].map((type) => (
+                          {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Quốc tế"].map((type) => (
                             <button
                               key={type}
                               onClick={() => {
@@ -4524,21 +4501,20 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   : (cat === "Thiết yếu" 
                       ? filteredChannels.filter(c => c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN"))
                       : cat === "VTV"
-                        ? filteredChannels.filter(c => ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name))
+                        ? filteredChannels.filter(c => c.category === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name))
                         : cat === "VTVcab"
-                          ? filteredChannels.filter(c => c.name.includes("ON"))
+                          ? filteredChannels.filter(c => c.category === "VTVcab")
                           : cat === "HTV"
-                            ? filteredChannels.filter(c => c.name.startsWith("HTV"))
-                            : cat === "SCTV"
-                              ? filteredChannels.filter(c => c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV"))
-                              : filteredChannels.filter(c => {
-                                  const isThietYeu = c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN");
-                                  const isVTV = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name);
-                                  const isVTVcab = c.name.includes("ON");
-                                  const isHTV = c.name.startsWith("HTV");
-                                  const isSCTV = c.category === "SCTV" || c.name.toUpperCase().startsWith("SCTV");
-                                  return !isThietYeu && !isVTV && !isVTVcab && !isHTV && !isSCTV;
-                                }));
+                            ? filteredChannels.filter(c => c.category === "HTV")
+                            : cat === "HTVC"
+                              ? filteredChannels.filter(c => c.category === "HTVC")
+                              : cat === "SCTV"
+                                ? filteredChannels.filter(c => c.category === "SCTV")
+                                : cat === "Các kênh địa phương"
+                                  ? filteredChannels.filter(c => c.category === "Địa phương")
+                                  : cat === "Quốc tế"
+                                    ? filteredChannels.filter(c => c.category === "Quốc tế")
+                                    : filteredChannels.filter(c => c.category === cat));
 
                 if (cat === "Các kênh địa phương" && liveSubTab === "vplay") {
                   const thvlChannels = playlistChannels.filter(c => c.name.toUpperCase().includes("VĨNH LONG") || c.name.toUpperCase().includes("THVL"));
@@ -4553,7 +4529,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 if (displaySubset.length === 0 && liveSubTab === "custom") return null;
 
                 return (
-                  <div key={`${cat}-${catIdx}`} className="space-y-6 md:space-y-8">
+                  <div key={`${cat}-${catIdx}`} className="space-y-8 md:space-y-12 pb-14 md:pb-24 border-b border-white/5 last:border-b-0">
                     <div className="flex items-center justify-between px-2">
                       <div className="flex items-center gap-3 md:gap-4">
                         <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
@@ -11165,7 +11141,7 @@ function DynamicIsland({
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
-                        {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Nước ngoài"].map((type) => {
+                        {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Các kênh địa phương", "Quốc tế"].map((type) => {
                           const isSelected = currentFilter === type;
                           return (
                             <button
