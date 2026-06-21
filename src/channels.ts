@@ -37,9 +37,6 @@ function formatLocalChannelName(name: string): string {
 }
 
 const rawChannels: Channel[] = [
-  // Thử nghiệm
-  { category: "Thử nghiệm", name: "Vplay LIVE", logo: "https://static.wikia.nocookie.net/ftv/images/a/ab/Imagexvxvz.png/revision/latest/scale-to-width-down/1000?cb=20260429082350&path-prefix=vi", stream: "https://vplay.live/Colorbars", desc: "KÊNH THỬ NGHIỆM VPLAY" },
-
   // VTV
   { category: "VTV", name: "VTV1", logo: "https://static.wikia.nocookie.net/ftv/images/a/ac/1vv.png/revision/latest/scale-to-width-down/1000?cb=20260604052331&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtv1hd_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH THỜI SỰ - CHÍNH TRỊ" },
   { category: "VTV", name: "VTV2", logo: "https://static.wikia.nocookie.net/ftv/images/5/5b/2f.png/revision/latest/scale-to-width-down/1000?cb=20260604052625&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtv2hd_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH KHOA HỌC - GIÁO DỤC" },
@@ -194,6 +191,9 @@ const rawChannels: Channel[] = [
   { category: "Quốc tế", name: "Extreme Sports", logo: "https://upload.wikimedia.org/wikipedia/commons/1/18/Extreme_Group_Logo.svg", stream: "http://flussonic.mkpnet.ru/tv-1a9441fd32d63873/video.m3u8", desc: "KÊNH THỂ THAO MẠO HIỂM" },
   { category: "Quốc tế", name: "Fashion TV", logo: "https://upload.wikimedia.org/wikipedia/commons/6/69/Fashion_TV.svg", stream: "https://stream8.cinerama.uz/1053/tracks-v1a1/mono.m3u8", desc: "KÊNH THỜI TRANG QUỐC TẾ" },
   { category: "Quốc tế", name: "Bloomberg", logo: "https://upload.wikimedia.org/wikipedia/commons/5/50/Bloomberg_logo.svg", stream: "https://cdn4.skygo.mn/live/disk1/Bloomberg/HLSv3-FTA/Bloomberg.m3u8", desc: "BLOOMBERG BUSINESS TELEVISION" },
+  
+  // Thử nghiệm
+  { category: "Thử nghiệm", name: "Vplay LIVE", logo: "https://static.wikia.nocookie.net/ftv/images/a/ab/Imagexvxvz.png/revision/latest/scale-to-width-down/1000?cb=20260429082350&path-prefix=vi", stream: "https://vplay.live/Colorbars", desc: "KÊNH THỬ NGHIỆM VPLAY" },
 ];
 
 export const channels: Channel[] = rawChannels.map(ch => {
