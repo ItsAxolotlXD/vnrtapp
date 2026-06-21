@@ -37,6 +37,9 @@ function formatLocalChannelName(name: string): string {
 }
 
 const rawChannels: Channel[] = [
+  // Thử nghiệm
+  { category: "Thử nghiệm", name: "Vplay LIVE", logo: "https://static.wikia.nocookie.net/ftv/images/a/ab/Imagexvxvz.png/revision/latest/scale-to-width-down/1000?cb=20260429082350&path-prefix=vi", stream: "https://vplay.live/Colorbars", desc: "KÊNH THỬ NGHIỆM VPLAY" },
+
   // VTV
   { category: "VTV", name: "VTV1", logo: "https://static.wikia.nocookie.net/ftv/images/a/ac/1vv.png/revision/latest/scale-to-width-down/1000?cb=20260604052331&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtv1hd_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH THỜI SỰ - CHÍNH TRỊ" },
   { category: "VTV", name: "VTV2", logo: "https://static.wikia.nocookie.net/ftv/images/5/5b/2f.png/revision/latest/scale-to-width-down/1000?cb=20260604052625&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtv2hd_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH KHOA HỌC - GIÁO DỤC" },
@@ -47,7 +50,7 @@ const rawChannels: Channel[] = [
   { category: "VTV", name: "VTV7", logo: "https://static.wikia.nocookie.net/ftv/images/4/43/Image7.png/revision/latest/scale-to-width-down/1000?cb=20260601093859&path-prefix=vi", stream: "https://live.fptplay53.net/live/media/vtv7/live247-hls-avc/index.m3u8", desc: "KÊNH TRUYỀN HÌNH GIÁO DỤC QUỐC GIA" },
   { category: "VTV", name: "VTV8", logo: "https://static.wikia.nocookie.net/ftv/images/b/b1/Imagea8.png/revision/latest/scale-to-width-down/1000?cb=20260601094212&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtv8hd_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH VĂN HÓA - LỊCH SỬ - DU LỊCH" },
   { category: "VTV", name: "VTV9", logo: "https://static.wikia.nocookie.net/ftv/images/8/8c/Imagei9.png/revision/latest/scale-to-width-down/1000?cb=20260601094610&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtv9hd_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH KINH TẾ - ĐÔ THỊ" },
-  { category: "VTV", name: "VTV Cần Thơ", logo: "https://static.wikia.nocookie.net/ftv/images/a/a0/I10.png/revision/latest/scale-to-width-down/1000?cb=20260601094723&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtvcantho_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH NÔNG NGHIỆP - NÔNG THÔN" },
+  { category: "VTV", name: "VTV10 HD", logo: "https://static.wikia.nocookie.net/ftv/images/a/a0/I10.png/revision/latest/scale-to-width-down/1000?cb=20260601094723&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtvcantho_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH NÔNG NGHIỆP - NÔNG THÔN" },
   { category: "VTV", name: "VTV5 Tây Nam Bộ", logo: "https://upload.wikimedia.org/wikipedia/commons/a/ab/VTV5_logo_24.png", stream: "https://live.fptplay53.net/live/media/vtv5tnb/live-hls-avc/index.m3u8" },
   { category: "VTV", name: "VTV5 Tây Nguyên", logo: "https://upload.wikimedia.org/wikipedia/commons/a/ab/VTV5_logo_24.png", stream: "https://live.fptplay53.net/live/media/vtv5tn/live-hls-avc/index.m3u8" },
   { category: "VTV", name: "Vietnam Today", logo: "https://upload.wikimedia.org/wikipedia/commons/d/d2/VTV_logo_24.png", stream: "https://live.fptplay53.net/fnxhd1/vntoday_vhls.smil/chunklist_b5000000.m3u8", desc: "KÊNH TRUYỀN HÌNH ĐỐI NGOẠI QUỐC GIA" },
@@ -106,7 +109,6 @@ const rawChannels: Channel[] = [
   { category: "Địa phương", name: "Đắk Lắk (DRT)", logo: "https://static.wikia.nocookie.net/ftv/images/0/07/Derote.png/revision/latest/scale-to-width-down/1000?cb=20260601122629&path-prefix=vi", stream: "https://live.fptplay53.net/epzsd1/daklak_hls.smil/chunklist_b2500000.m3u8" },
   { category: "Địa phương", name: "ĐNNRTV1", logo: "https://static.wikia.nocookie.net/ftv/images/a/ae/D51.png/revision/latest/scale-to-width-down/1000?cb=20260601123058&path-prefix=vi", stream: "https://live.fptplay53.net/epzsd1/dongnai1_hls.smil/chunklist_b2500000.m3u8" },
   { category: "Địa phương", name: "ĐNNRTV2", logo: "https://static.wikia.nocookie.net/ftv/images/8/85/D62.png/revision/latest/scale-to-width-down/1000?cb=20260601123136&path-prefix=vi", stream: "https://live.fptplay53.net/epzsd1/dongnai2_hls.smil/chunklist_b2500000.m3u8" },
-  { category: "Địa phương", name: "Đồng Nai (ĐNNRTV3)", logo: "https://static.wikia.nocookie.net/ftv/images/a/ae/D51.png/revision/latest/scale-to-width-down/1000?cb=20260601123058&path-prefix=vi", stream: "https://1.org.vn/dnrtv3", qualityBadge: "720p", qualityColor: "bg-orange-500" },
   { category: "Địa phương", name: "Gia Lai (GTV)", logo: "https://static.wikia.nocookie.net/ftv/images/d/db/Gtvc.png/revision/latest/scale-to-width-down/1000?cb=20260601123951&path-prefix=vi", stream: "https://live.fptplay53.net/epzsd1/gialai01_hls.smil/chunklist_b2500000.m3u8" },
   { category: "Địa phương", name: "Đồng Tháp 1 (THĐT1)", logo: "https://static.wikia.nocookie.net/ftv/images/4/44/D8.png/revision/latest/scale-to-width-down/1000?cb=20260601123433&path-prefix=vi", stream: "https://live.fptplay53.net/epzsd1/dongthap_vhls.smil/chunklist_b5000000.m3u8" },
   { category: "Địa phương", name: "Đồng Tháp 2 (Miền Tây - THĐT2)", logo: "https://static.wikia.nocookie.net/ftv/images/1/14/D9.png/revision/latest/scale-to-width-down/1000?cb=20260601123603&path-prefix=vi", stream: "https://live.fptplay53.net/epzsd1/dongthaphd_vhls.smil/chunklist_b5000000.m3u8" },

@@ -24,8 +24,8 @@ export interface ToastMessage {
   description?: string;
 }
 
-export function showToast(message: string, type: "success" | "error" | "info" | "warning" = "success") {
-  window.dispatchEvent(new CustomEvent("vplay-toast", { detail: { message, type } }));
+export function showToast(message: string, type: "success" | "error" | "info" | "warning" = "success", description?: string) {
+  window.dispatchEvent(new CustomEvent("vplay-toast", { detail: { message, type, description } }));
 }
 
 const HomeIcon = ({ className, size, strokeWidth, filled }: { className?: string, size?: number | string, strokeWidth?: number, filled?: boolean }) => <Home className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} fill={filled ? "currentColor" : "none"} />;
@@ -664,18 +664,21 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isLocalGroup = category === "Địa phương";
   const isSCTV = category === "SCTV" || alt.includes("SCTV");
   const isQuocTe = category === "Quốc tế";
+  const isVplayLive = alt.toLowerCase().includes("vplay live");
 
   const scaleClass = isSCTV
     ? "scale-[0.83]"
-    : isVTVcab 
-      ? "scale-[1.1]" 
-      : isVTV
-        ? "scale-[1.12]"
-        : (isShrunk || isQuocTe)
-          ? "scale-[0.80]" 
-          : (isHTVGroup || isLocalGroup)
-            ? "scale-[1.25]"
-            : "scale-[1.35]";
+    : isVplayLive
+      ? "scale-[1.0]"
+      : isVTVcab 
+        ? "scale-[1.1]" 
+        : isVTV
+          ? "scale-[1.12]"
+          : (isShrunk || isQuocTe)
+            ? "scale-[0.80]" 
+            : (isHTVGroup || isLocalGroup)
+              ? "scale-[1.25]"
+              : "scale-[1.35]";
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
   const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
@@ -725,6 +728,11 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
       />
+      {isVplayLive && (
+        <div className="absolute top-1.5 right-1.5 bg-red-600 animate-pulse text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest shadow shadow-red-600/50 uppercase select-none z-10 scale-[0.9] sm:scale-100">
+          LIVE!
+        </div>
+      )}
     </div>
   );
 }
@@ -2328,7 +2336,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
 
   useEffect(() => {
     if (streamError) {
-      showToast("Lỗi luồng phát kênh", "error");
+      window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "notifications", active: true } }));
     }
   }, [streamError]);
 
@@ -2440,7 +2448,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
           || (filterType === "Hoạt động" && ch.status !== "maintenance")
           || (filterType === "Bảo trì" && ch.status === "maintenance")
           || (filterType === "Thiết yếu" && (ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")))
-          || (filterType === "VTV" && ch.category === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(ch.name))
+          || (filterType === "VTV" && ch.category === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today"].includes(ch.name))
           || (filterType === "VTVcab" && ch.category === "VTVcab")
           || (filterType === "SCTV" && ch.category === "SCTV")
           || (filterType === "HTV" && ch.category === "HTV")
@@ -2457,13 +2465,16 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       });
   }, [displayChannelsList, searchQuery, liveSearchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"];
+  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
       return cats.length > 0 ? cats : ["Kênh tự thêm"];
     }
     return LIVE_CATEGORIES.filter(cat => {
+      if (cat === "Thử nghiệm") {
+        return filteredChannels.some(c => c.category === "Thử nghiệm");
+      }
       if (cat === "Thiết yếu") {
         return filteredChannels.some(c => 
           c.name === "VTV1" || 
@@ -2474,7 +2485,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         );
       }
       if (cat === "VTV") {
-        const vtvNames = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"];
+        const vtvNames = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today"];
         return filteredChannels.some(c => c.category === "VTV" && vtvNames.includes(c.name));
       }
       if (cat === "VTVcab") {
@@ -2499,9 +2510,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     });
   }, [filteredChannels, liveSubTab]);
 
-  // Play 1000Hz testcard tone beep for testcard/maintenance channels
+  // Play 1000Hz testcard tone beep for testcard/maintenance channels or stream errors
   useEffect(() => {
-    const isTestcard = active.status === "maintenance" || active.stream.includes("Colorbars");
+    const isTestcard = active.status === "maintenance" || active.stream.includes("Colorbars") || !!streamError;
     
     if (!isTestcard || isMuted || volume === 0 || showSplash) {
       if (beepOscillatorRef.current) {
@@ -2567,7 +2578,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         beepOscillatorRef.current = null;
       }
     };
-  }, [active, isMuted, volume, showSplash]);
+  }, [active, isMuted, volume, showSplash, streamError]);
 
   useEffect(() => {
     if (!user && !isDev && !bypassed) return;
@@ -2603,6 +2614,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     video.volume = volume;
     setStreamError(null);
     let isEffectMounted = true;
+    let retryCount = 0;
 
     if (hlsRef.current) {
       hlsRef.current.destroy();
@@ -2647,17 +2659,31 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       hls.on(Hls.Events.ERROR, (_, data) => {
         if (!isEffectMounted) return;
         if (data.fatal) {
+          retryCount++;
+          console.warn(`HLS fatal error encountered, attempt ${retryCount}:`, data);
+          
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              setStreamError("Lỗi mạng: Không thể tải luồng phát. Vui lòng kiểm tra kết nối hoặc CORS.");
-              hls!.startLoad();
+              if (retryCount <= 5) {
+                showToast(`Kết nối lại: ${active.name}`, "warning", `Đang thử lại lần ${retryCount}/5... (Lỗi mạng/CORS)`);
+                hls!.startLoad();
+              } else {
+                showToast(`Lỗi luồng: ${active.name}`, "error", "Không thể tải luồng phát sau 5 lần thử. Hãy kiểm tra CORS.");
+                setStreamError("Lỗi kết nối hoặc chặn bảo mật (CORS).");
+              }
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              setStreamError("Lỗi media: Dữ liệu video không hợp lệ.");
-              hls!.recoverMediaError();
+              if (retryCount <= 5) {
+                showToast(`Phục hồi luồng: ${active.name}`, "warning", `Đang phục hồi video lần ${retryCount}/5...`);
+                hls!.recoverMediaError();
+              } else {
+                showToast(`Lỗi media: ${active.name}`, "error", "Lỗi dữ liệu video không thể phục hồi.");
+                setStreamError("Lỗi media: Dữ liệu video không hợp lệ.");
+              }
               break;
             default:
-              setStreamError("Lỗi không xác định khi tải kênh.");
+              showToast(`Lỗi phát: ${active.name}`, "error", "Lỗi luồng không xác định.");
+              setStreamError("Lỗi luồng không xác định khi tải kênh.");
               hls!.destroy();
               break;
           }
@@ -2678,7 +2704,14 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       };
       const onError = () => {
         if (!isEffectMounted) return;
-        setStreamError("Trình duyệt báo lỗi khi phát luồng này.");
+        retryCount++;
+        if (retryCount <= 3) {
+          showToast(`Thử lại: ${active.name}`, "warning", `Trình duyệt đang thử phát lần ${retryCount}/3...`);
+          video.load();
+        } else {
+          showToast(`Lỗi luồng: ${active.name}`, "error", "Trình duyệt chặn hoặc luồng phát bị lỗi.");
+          setStreamError("Trình duyệt báo lỗi khi phát luồng này.");
+        }
       };
       video.addEventListener('loadedmetadata', onLoadedMetadata);
       video.addEventListener('error', onError);
@@ -3091,21 +3124,27 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   </div>
                 </motion.div>
               </div>
-            ) : (active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.status === "maintenance") ? (
+            ) : (active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.status === "maintenance" || !!streamError) ? (
               <div 
                 className="relative w-full h-full flex items-center justify-center bg-black select-none cursor-pointer"
                 onDoubleClick={toggleFullscreen}
               >
                 <img
-                  src={(active.status === "maintenance" || active.stream.includes("Colorbars")) ? "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/EBU_Colorbars_HD.svg/960px-EBU_Colorbars_HD.svg.png?_=20220810032923" : active.stream}
+                  src={(active.status === "maintenance" || active.stream.includes("Colorbars") || !!streamError) ? "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/EBU_Colorbars_HD.svg/960px-EBU_Colorbars_HD.svg.png?_=20220810032923" : active.stream}
                   alt={active.name}
                   className="w-full h-full object-contain select-none"
                   referrerPolicy="no-referrer"
                 />
                 {active.status === "maintenance" && (
-                  <div className="absolute top-6 left-6 bg-red-600/90 text-white font-mono font-bold text-xs px-3 py-1 rounded tracking-widest uppercase shadow-md flex items-center gap-2 border border-red-505/20">
+                  <div className="absolute top-6 left-6 bg-red-600/90 text-white font-mono font-bold text-xs px-3 py-1 rounded tracking-widest uppercase shadow-md flex items-center gap-2 border border-red-500/20">
                     <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                    MAINTENANCE
+                    BẢO TRÌ (MAINTENANCE)
+                  </div>
+                )}
+                {!!streamError && active.status !== "maintenance" && (
+                  <div className="absolute top-6 left-6 bg-red-600/95 text-white font-mono font-bold text-xs px-3 py-1 rounded tracking-widest uppercase shadow-md flex items-center gap-2 border border-red-500/20">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    LỖI LUỒNG
                   </div>
                 )}
               </div>
@@ -3119,37 +3158,6 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 onClick={togglePlay}
                 onDoubleClick={toggleFullscreen}
               />
-            )}
-            
-            {streamError && active.status !== "maintenance" && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90 backdrop-blur-xl p-6 text-center">
-                <div className="bg-red-500/20 p-4 rounded-full mb-4 ring-2 ring-red-500/50">
-                  <X className="h-10 w-10 text-red-500" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Lỗi bảo mật (CORS)</h3>
-                <p className="text-white/60 text-sm max-w-xs mb-6">
-                  {streamError}
-                  <br />
-                  <span className="text-[10px] mt-2 block text-amber-400 opacity-60">Gợi ý: Luồng phát này chặn xem trực tiếp trên Website. Hãy cài extension "CORS Unblock" hoặc mở link trực tiếp bên dưới.</span>
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <button 
-                    onClick={() => window.open(active.stream, '_blank')}
-                    className="btn-purple-3d px-6 py-2 text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <ExternalLink size={16} />
-                      Xem link gốc
-                    </div>
-                  </button>
-                  <button 
-                    onClick={() => window.location.reload()}
-                    className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-bold transition-all border border-white/10"
-                  >
-                    Tải lại trang
-                  </button>
-                </div>
-              </div>
             )}
             {/* Tap to Unmute Overlay */}
             {isMuted && isPlaying && !isMaintenance && (
@@ -4309,7 +4317,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             {/* Small live sub tab category filters directly placed inside the search bar */}
             {liveSubTab === "vplay" && (
               <div className="flex gap-1.5 overflow-x-auto no-scrollbar w-full lg:flex-1 py-1 px-1">
-                {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => {
+                {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => {
                   const isSelected = filterType === type;
                   return (
                     <button
@@ -4401,10 +4409,12 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               {filteredCategories.map((cat, catIdx) => {
                 let playlistChannels = liveSubTab === "custom"
                   ? filteredChannels.filter(c => c.category === cat || (!c.category && cat === "Kênh tự thêm"))
-                  : (cat === "Thiết yếu" 
-                      ? filteredChannels.filter(c => c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN"))
+                  : (cat === "Thử nghiệm"
+                      ? filteredChannels.filter(c => c.category === "Thử nghiệm")
+                      : cat === "Thiết yếu" 
+                          ? filteredChannels.filter(c => c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN"))
                       : cat === "VTV"
-                        ? filteredChannels.filter(c => c.category === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "Vietnam Today"].includes(c.name))
+                        ? filteredChannels.filter(c => c.category === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today"].includes(c.name))
                         : cat === "VTVcab"
                           ? filteredChannels.filter(c => c.category === "VTVcab")
                           : cat === "HTV"
@@ -11051,7 +11061,7 @@ function DynamicIsland({
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
-                        {["Tất cả", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => {
+                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => {
                           const isSelected = currentFilter === type;
                           return (
                             <button
