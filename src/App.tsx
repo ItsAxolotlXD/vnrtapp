@@ -488,14 +488,28 @@ const baseTabs = [
   { name: "Quản trị", icon: AdminIcon, id: "Quản trị" },
 ];
 
-function LiquidModal({ isOpen, onClose, children, isDark, title, description, liquidGlass }: { 
+function LiquidModal({ 
+  isOpen, 
+  onClose, 
+  children, 
+  isDark, 
+  title, 
+  description, 
+  liquidGlass,
+  customBackdropFilter,
+  customBackgroundColor,
+  maxWidthClass = "max-w-md"
+}: { 
   isOpen: boolean, 
   onClose: () => void, 
   children?: ReactNode, 
   isDark: boolean,
   title?: string,
   description?: string,
-  liquidGlass: "glassy" | "tinted"
+  liquidGlass: "glassy" | "tinted",
+  customBackdropFilter?: string,
+  customBackgroundColor?: string,
+  maxWidthClass?: string
 }) {
   const [coords, setCoords] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -530,7 +544,7 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 1.12, opacity: 0, y: 0 }}
             transition={{ type: "spring", damping: 26, stiffness: 320 }}
-            className="relative w-full max-w-md overflow-hidden p-[1.5px] rounded-[32px] transition-all duration-300 ease-out"
+            className={`relative w-full ${maxWidthClass} overflow-hidden p-[1.5px] rounded-[32px] transition-all duration-300 ease-out`}
             style={{
               background: isHovered 
                 ? `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.05) 75%, transparent 100%), linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%)`
@@ -540,13 +554,16 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
                 : "0 30px 70px -15px rgba(15, 23, 42, 0.15), inset 0 1px 1px rgba(255,255,255,0.6)"
             }}
           >
-            <div className={`relative w-full h-full rounded-[30.5px] p-10 text-center ${
+            <div className={`relative w-full h-full rounded-[30.5px] p-6 sm:p-10 text-center ${
               isDark 
-                ? "bg-[#121214]/92 text-white" 
-                : "bg-white/92 text-slate-850"
-            } ${
-              liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"
-            }`} style={{ borderRadius: "inherit" }}>
+                ? "text-white" 
+                : "text-slate-850"
+            }`} style={{ 
+              borderRadius: "inherit",
+              backdropFilter: customBackdropFilter || (liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"),
+              WebkitBackdropFilter: customBackdropFilter || (liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"),
+              backgroundColor: customBackgroundColor || (isDark ? "rgba(18, 18, 20, 0.92)" : "rgba(255, 255, 255, 0.92)")
+            }}>
               {title && <h3 className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>}
               {description && <p className={`${isDark ? "text-white/60" : "text-black/60"} text-sm leading-relaxed mb-6 font-medium`}>{description}</p>}
               {children}
@@ -728,11 +745,6 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
         onError={() => setError(true)}
         className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
       />
-      {isVplayLive && (
-        <div className="absolute top-1.5 right-1.5 bg-red-600 animate-pulse text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest shadow shadow-red-600/50 uppercase select-none z-10 scale-[0.9] sm:scale-100">
-          LIVE!
-        </div>
-      )}
     </div>
   );
 }
@@ -2014,7 +2026,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp }: { 
+function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20 }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -2045,7 +2057,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   volume?: number,
   setVolume?: (v: number) => void,
   isMuted?: boolean,
-  setIsMuted?: (m: boolean) => void
+  setIsMuted?: (m: boolean) => void,
+  searchBoxBlur?: number,
+  searchBoxOpacity?: number
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2960,56 +2974,77 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         title="Chọn kênh Multiview"
         description="Tìm kiếm và chọn kênh truyền hình bạn muốn thêm vào lưới Multiview"
         liquidGlass={liquidGlass}
+        customBackdropFilter="blur(30px)"
+        customBackgroundColor="rgba(255, 255, 255, 0.10)"
+        maxWidthClass="max-w-3xl"
       >
         <div className="space-y-6">
-          <div className={`relative group flex items-center gap-3 px-6 py-4 rounded-full overflow-hidden transition-all ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
-            <SearchIcon size={18} className={`transition-colors ${isDark ? "text-slate-500 group-focus-within:text-[#4AC4FE]" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
+          {/* Settings-styled Search box bubble */}
+          <div 
+            style={{
+              backdropFilter: `blur(${searchBoxBlur}px)`,
+              WebkitBackdropFilter: `blur(${searchBoxBlur}px)`,
+              backgroundColor: isDark 
+                ? `rgba(30, 41, 59, ${searchBoxOpacity / 100})` 
+                : `rgba(255, 255, 255, ${searchBoxOpacity / 100})`,
+              borderColor: isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.15)"
+            }}
+            className="relative flex items-center gap-2.5 h-12 md:h-14 px-5 w-full group rounded-full border shadow-[0_12px_24px_rgba(0,0,0,0.08)] cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 focus-within:ring-2 focus-within:ring-[#4AC4FE]/30 focus-within:border-[#4AC4FE]/40"
+          >
+            <SearchIcon size={20} className={`shrink-0 transition-colors ${isDark ? "text-slate-400 group-focus-within:text-[#4AC4FE]" : "text-slate-500 group-focus-within:text-[#4AC4FE]"}`} />
             <input 
               type="text"
               placeholder="Tìm tên kênh hoặc thể loại..."
               value={channelSearch}
               onChange={(e) => setChannelSearch(e.target.value)}
-              className={`bg-transparent border-none outline-none text-sm font-bold w-full placeholder-slate-500 ${isDark ? "text-white" : "text-slate-900"}`}
+              className={`bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold focus:ring-0 p-0 ${isDark ? "text-white placeholder-white/40" : "text-slate-900 placeholder-slate-500"}`}
             />
-            <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isDark ? "bg-white/10" : "bg-slate-200"} group-focus-within:bg-[#4AC4FE] group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.5)]`} />
+            {channelSearch && (
+              <button onClick={() => setChannelSearch("")} className="p-1 hover:bg-black/10 rounded-full transition-all">
+                <X size={14} className={isDark ? "text-white/60" : "text-slate-500"} />
+              </button>
+            )}
           </div>
 
-          <div className="max-h-[350px] overflow-y-auto px-1 space-y-2 custom-scrollbar pr-2">
+          <div className="max-h-[380px] overflow-y-auto px-1 custom-scrollbar pr-2">
             {filteredMultiviewChannels.length > 0 ? (
-              filteredMultiviewChannels.map(c => (
-                <button
-                  key={`${c.name}-${c.stream}`}
-                  onClick={() => {
-                    if (showChannelSelector) {
-                      setMultiviewChannels(prev => {
-                        const next = [...prev];
-                        next[showChannelSelector.idx] = c;
-                        return next;
-                      });
-                      setShowChannelSelector(null);
-                      setChannelSearch("");
-                    }
-                  }}
-                  className={`w-full flex items-center gap-4 p-3 rounded-[20px] transition-all group ${isDark ? "hover:bg-white/5 text-white" : "hover:bg-slate-100 text-slate-900"}`}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center p-2 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
-                    <img src={c.logo} alt={c.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-bold text-sm leading-tight uppercase tracking-tight">{c.name}</p>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{c.category}</p>
-                  </div>
-                  <div className="p-2 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] opacity-0 group-hover:opacity-100 transition-opacity">
-                    <SignInIcon size={16} />
-                  </div>
-                </button>
-              ))
+              <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-3">
+                {filteredMultiviewChannels.map(c => (
+                  <button
+                    key={`${c.name}-${c.stream}`}
+                    onClick={() => {
+                      if (showChannelSelector) {
+                        setMultiviewChannels(prev => {
+                          const next = [...prev];
+                          next[showChannelSelector.idx] = c;
+                          return next;
+                        });
+                        setShowChannelSelector(null);
+                        setChannelSearch("");
+                      }
+                    }}
+                    className={`flex flex-col items-center justify-center text-center p-4 rounded-[24px] border transition-all duration-300 group hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.98] ${
+                      isDark 
+                        ? "bg-white/5 border-white/5 hover:bg-white/12 hover:border-white/15 text-white" 
+                        : "bg-black/5 border-black/5 hover:bg-black/10 hover:border-black/10 text-slate-800"
+                    }`}
+                  >
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center p-2 border mb-3 transition-transform duration-300 group-hover:scale-110 shadow-sm ${
+                      isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"
+                    }`}>
+                      <img src={c.logo} alt={c.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                    </div>
+                    <p className={`font-semibold text-xs leading-tight uppercase tracking-tight max-w-full truncate ${isDark ? "text-white" : "text-slate-900"}`}>{c.name}</p>
+                    <p className="text-[10px] text-[#4AC4FE] font-black uppercase tracking-wider mt-1 max-w-full truncate">{c.category}</p>
+                  </button>
+                ))}
+              </div>
             ) : (
               <div className="py-20 text-center space-y-4">
                 <div className="inline-flex p-4 rounded-full bg-slate-500/10 text-slate-500">
                   <SearchIcon size={32} />
                 </div>
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Không tìm thấy kênh nào</p>
+                <p className={`text-sm font-bold uppercase tracking-widest ${isDark ? "text-slate-400" : "text-slate-500"}`}>Không tìm thấy kênh nào</p>
               </div>
             )}
           </div>
@@ -7398,7 +7433,11 @@ function SettingsNew(props: any) {
     setActiveTab, settingsActivePage, setSettingsActivePage,
     floatyBars, setFloatyBars,
     showChannelNumbers, setShowChannelNumbers,
-    customChannelNumbers, setCustomChannelNumbers
+    customChannelNumbers, setCustomChannelNumbers,
+    dockBlur, setDockBlur, dockOpacity, setDockOpacity,
+    contextMenuBlur, setContextMenuBlur, contextMenuOpacity, setContextMenuOpacity,
+    buttonBlur, setButtonBlur, buttonOpacity, setButtonOpacity,
+    searchBoxBlur, setSearchBoxBlur, searchBoxOpacity, setSearchBoxOpacity
   } = props;
 
   const [localActivePage, setLocalActivePage] = useState<number>(1);
@@ -8009,39 +8048,129 @@ function SettingsNew(props: any) {
                     )}
 
                     {renderBullet(
-                      <div className="pl-4 border-l-2 border-sky-500/20 py-2 space-y-5 mt-4">
-                        {/* Blur Slider */}
-                        <div className="space-y-2 text-left">
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-semibold opacity-85">Độ mờ cảnh nền (Blur)</span>
-                            <span className="text-xs font-mono font-bold text-[#4AC4FE] bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{liquidGlassBlur}px</span>
+                      <div className="pl-4 border-l-2 border-sky-500/20 py-2 space-y-6 mt-4 w-full">
+                        {/* 1. DOCK */}
+                        <div className="space-y-3.5 pb-2 border-b border-black/5 dark:border-white/5 text-left">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#4AC4FE]">Thanh Dock (Navigation Bar)</span>
                           </div>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="40" 
-                            step="1" 
-                            value={liquidGlassBlur} 
-                            onChange={(e) => setLiquidGlassBlur(parseInt(e.target.value, 10))}
-                            className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
-                          />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold mb-1">
+                                <span>Độ mờ cảnh nền (Blur)</span>
+                                <span className="text-[#4AC4FE] font-black font-mono bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{dockBlur}px</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="45" step="1" 
+                                value={dockBlur || 0} onChange={(e) => setDockBlur(parseInt(e.target.value, 10))}
+                                className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold mb-1">
+                                <span>Độ đục nền (Opacity)</span>
+                                <span className="text-[#4AC4FE] font-black font-mono bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{dockOpacity}%</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="100" step="1" 
+                                value={dockOpacity || 0} onChange={(e) => setDockOpacity(parseInt(e.target.value, 10))}
+                                className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                              />
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Opacity Slider */}
-                        <div className="space-y-2 text-left">
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-semibold opacity-85">Độ đục nền (Opacity)</span>
-                            <span className="text-xs font-mono font-bold text-[#4AC4FE] bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{liquidGlassOpacity}%</span>
+                        {/* 2. CONTEXT MENU */}
+                        <div className="space-y-3.5 pb-2 border-b border-black/5 dark:border-white/5 text-left">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#4AC4FE]">Menu ngữ cảnh (Context Menu)</span>
                           </div>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            step="1" 
-                            value={liquidGlassOpacity} 
-                            onChange={(e) => setLiquidGlassOpacity(parseInt(e.target.value, 10))}
-                            className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
-                          />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold mb-1">
+                                <span>Độ mờ cảnh nền (Blur)</span>
+                                <span className="text-[#4AC4FE] font-black font-mono bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{contextMenuBlur}px</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="45" step="1" 
+                                value={contextMenuBlur || 0} onChange={(e) => setContextMenuBlur(parseInt(e.target.value, 10))}
+                                className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold mb-1">
+                                <span>Độ đục nền (Opacity)</span>
+                                <span className="text-[#4AC4FE] font-black font-mono bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{contextMenuOpacity}%</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="100" step="1" 
+                                value={contextMenuOpacity || 0} onChange={(e) => setContextMenuOpacity(parseInt(e.target.value, 10))}
+                                className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 3. BUTTONS & TOGGLES */}
+                        <div className="space-y-3.5 pb-2 border-b border-black/5 dark:border-white/5 text-left">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#4AC4FE]">Nút & Công tắc (Buttons & Toggles)</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold mb-1">
+                                <span>Độ mờ cảnh nền (Blur)</span>
+                                <span className="text-[#4AC4FE] font-black font-mono bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{buttonBlur}px</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="45" step="1" 
+                                value={buttonBlur || 0} onChange={(e) => setButtonBlur(parseInt(e.target.value, 10))}
+                                className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold mb-1">
+                                <span>Độ đục nền (Opacity)</span>
+                                <span className="text-[#4AC4FE] font-black font-mono bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{buttonOpacity}%</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="100" step="1" 
+                                value={buttonOpacity || 0} onChange={(e) => setButtonOpacity(parseInt(e.target.value, 10))}
+                                className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 4. SEARCH BOX */}
+                        <div className="space-y-3.5 pb-2 text-left">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#4AC4FE]">Hộp tìm kiếm (Search Box)</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold mb-1">
+                                <span>Độ mờ cảnh nền (Blur)</span>
+                                <span className="text-[#4AC4FE] font-black font-mono bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{searchBoxBlur}px</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="45" step="1" 
+                                value={searchBoxBlur || 0} onChange={(e) => setSearchBoxBlur(parseInt(e.target.value, 10))}
+                                className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold mb-1">
+                                <span>Độ đục nền (Opacity)</span>
+                                <span className="text-[#4AC4FE] font-black font-mono bg-[#4AC4FE]/10 px-2.5 py-0.5 rounded-full">{searchBoxOpacity}%</span>
+                              </div>
+                              <input 
+                                type="range" min="0" max="100" step="1" 
+                                value={searchBoxOpacity || 0} onChange={(e) => setSearchBoxOpacity(parseInt(e.target.value, 10))}
+                                className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#4AC4FE]"
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -17028,6 +17157,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                     setVolume={setVolume}
                     isMuted={isMuted}
                     setIsMuted={setIsMuted}
+                    searchBoxBlur={searchBoxBlur}
+                    searchBoxOpacity={searchBoxOpacity}
                   />
                 </div>
               )}
@@ -17063,6 +17194,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                   setVolume={setVolume}
                   isMuted={isMuted}
                   setIsMuted={setIsMuted}
+                  searchBoxBlur={searchBoxBlur}
+                  searchBoxOpacity={searchBoxOpacity}
                 />
               )}
               {displayTab === "Experiments" && (
@@ -17145,6 +17278,22 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setShowChannelNumbers={setShowChannelNumbers}
                       customChannelNumbers={customChannelNumbers}
                       setCustomChannelNumbers={setCustomChannelNumbers}
+                      dockBlur={dockBlur}
+                      setDockBlur={setDockBlur}
+                      dockOpacity={dockOpacity}
+                      setDockOpacity={setDockOpacity}
+                      contextMenuBlur={contextMenuBlur}
+                      setContextMenuBlur={setContextMenuBlur}
+                      contextMenuOpacity={contextMenuOpacity}
+                      setContextMenuOpacity={setContextMenuOpacity}
+                      buttonBlur={buttonBlur}
+                      setButtonBlur={setButtonBlur}
+                      buttonOpacity={buttonOpacity}
+                      setButtonOpacity={setButtonOpacity}
+                      searchBoxBlur={searchBoxBlur}
+                      setSearchBoxBlur={setSearchBoxBlur}
+                      searchBoxOpacity={searchBoxOpacity}
+                      setSearchBoxOpacity={setSearchBoxOpacity}
                     />
                   </div>
                 </div>
@@ -17616,15 +17765,13 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className={`flex-1 w-full flex items-center justify-between p-1 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.15)] border-white/12 ${
+            className={`flex-1 w-full flex items-center justify-between p-1 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.22)] border-black/5 dark:border-white/20 ${
               isNavVisible ? "h-16 md:h-18" : "h-11 md:h-13"
             }`}
             style={{
               backdropFilter: `blur(${dockBlur}px)`,
               WebkitBackdropFilter: `blur(${dockBlur}px)`,
-              backgroundColor: isDark 
-                ? `rgba(15, 23, 42, ${dockOpacity / 100})` 
-                : `rgba(255, 255, 255, ${dockOpacity / 100})`
+              backgroundColor: `rgba(255, 255, 255, ${dockOpacity / 100})`
             }}>
             
             <div className={`flex-1 overflow-hidden relative flex items-center justify-center w-full transition-all duration-300 ${isNavVisible ? "h-14" : "h-10"}`}>
@@ -17672,7 +17819,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                               } ${
                                 isActive 
                                   ? activeColorClass
-                                  : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black/80 hover:text-black"
+                                  : "text-slate-600/70 hover:text-slate-900 group-hover:opacity-100"
                               }`}
                             >
                                {isActive && (
@@ -17682,9 +17829,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                                     isNavVisible ? "inset-y-0.5" : "inset-y-0"
                                   }`}
                                   style={{
-                                    backgroundColor: "rgba(255, 255, 255, 0.35)",
-                                    backdropFilter: "blur(12px)",
-                                    WebkitBackdropFilter: "blur(12px)"
+                                    backgroundColor: "rgba(255, 255, 255, 0.75)",
+                                    backdropFilter: "blur(4px)",
+                                    WebkitBackdropFilter: "blur(4px)",
+                                    boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
                                   }}
                                   transition={{ type: "spring", stiffness: 480, damping: 28 }}
                                 />
@@ -17698,8 +17846,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   size={23}
                                   className={`h-6 w-6 flex-shrink-0 transition-colors duration-300 ${
                                     isActive 
-                                      ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.12)] stroke-[1.8px]" 
-                                      : "text-black"
+                                      ? "text-slate-950 drop-shadow-[0_1px_1px_rgba(0,0,0,0.08)] stroke-[1.8px]" 
+                                      : "text-slate-600 group-hover:text-slate-900"
                                   }`} 
                                 />
                                 {tabId === "Cài đặt" && !user && (
@@ -17720,7 +17868,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                       animate={{ opacity: 1, height: "auto", scale: 1 }}
                                       exit={{ opacity: 0, height: 0, scale: 0.9 }}
                                       transition={{ duration: 0.2 }}
-                                      className="text-[9px] font-black tracking-tight mt-0.5 pointer-events-none select-none text-black/90 lowercase first-letter:uppercase"
+                                      className="text-[9px] font-black tracking-tight mt-0.5 pointer-events-none select-none text-slate-800 lowercase first-letter:uppercase"
                                     >
                                       {tabId === "Trang chủ" ? "Home" : tabId === "Cài đặt" || tabId === "Settings (new)" ? "Settings" : tabId}
                                     </motion.span>
