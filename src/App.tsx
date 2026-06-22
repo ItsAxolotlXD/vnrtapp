@@ -736,6 +736,22 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
     );
   }
 
+  if (isVplayLive) {
+    return (
+      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+        <div className="w-full h-full relative flex items-center justify-center overflow-hidden">
+          <img 
+            src={finalSrc} 
+            alt={alt} 
+            referrerPolicy="no-referrer"
+            onError={() => setError(true)}
+            className={`${className} object-contain p-0 transition-opacity duration-300 translate-y-[16%] scale-[1.35] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <img 
@@ -968,23 +984,17 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
                 ? (ch.category === "Địa phương" || ch.category === "Các kênh địa phương" ? "pb-[28px] pt-[6px] px-[15px]" : "p-[15px]") 
                 : "p-[5px] sm:p-[8px]")
         } ${isLargeLayout ? "scale-[0.78]" : "scale-100"}`}>
-          <div className={`relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out ${ch.name.toLowerCase() === "vplay live" ? "flex-col gap-1 sm:gap-1.5 pt-1" : ""}`}>
+          <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out">
             {/* Main Centered Logo */}
             <ChannelLogo 
                src={ch.logo} 
                alt={ch.name} 
-               className={ch.name.toLowerCase() === "vplay live" ? "h-[65%] w-auto object-contain" : "w-full h-full object-contain"}
+               className="w-full h-full object-contain"
                isDark={useNewDesign ? false : isDark} 
                liquidGlass={liquidGlass} 
                status={ch.status} 
                category={ch.category}
              />
-             {ch.name.toLowerCase() === "vplay live" && (
-               <div className="px-2 py-0.5 sm:py-1 rounded-full bg-red-600 text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm border border-red-500/25 animate-pulse shrink-0">
-                 <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white block" />
-                 LIVE
-               </div>
-             )}
           </div>
         </div>
       </motion.button>
@@ -1571,95 +1581,6 @@ function HomeContent({
         </div>
       </motion.div>
 
-      {/* Premium Random Channel Highlight Banner */}
-      {suggestedChannel && (
-        <div className="space-y-4 select-none max-w-6xl mx-auto w-full">
-          <div className="flex items-center gap-3 px-1">
-            <div className="w-7 h-7 rounded-full bg-[#4AC4FE]/10 flex items-center justify-center text-[#4AC4FE]">
-              <Sparkles size={16} className="animate-pulse" />
-            </div>
-            <h2 className={`text-lg md:text-2xl font-black uppercase tracking-wider ${isDark ? "text-white" : "text-slate-900"}`}>
-              Đề xuất hữu ích
-            </h2>
-          </div>
-
-          <div className="relative overflow-hidden w-full h-auto rounded-[32px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`suggested-banner-${suggestedChannel.name}`}
-                initial={{ opacity: 0, scale: 0.98, y: 12 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.98, y: -12 }}
-                whileHover={{ 
-                  scale: 1.01,
-                  y: -3,
-                  boxShadow: isDark 
-                    ? "0 20px 40px rgba(74, 196, 254, 0.12)" 
-                    : "0 20px 40px rgba(0, 0, 0, 0.05)"
-                }}
-                whileTap={{ scale: 0.995 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                onClick={() => {
-                  setActiveChannel(suggestedChannel);
-                  setActiveTab("Live");
-                }}
-                className={`relative w-full overflow-hidden p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 border cursor-pointer group transition-all duration-300 rounded-[32px] ${
-                  isDark 
-                    ? "bg-slate-950/45 border-white/5 text-white hover:border-[#4AC4FE]/30" 
-                    : "bg-white border-slate-200/50 text-slate-900 hover:border-[#4AC4FE]/30 shadow-sm"
-                }`}
-              >
-                {/* Visual accent flows */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-tr from-[#4AC4FE]/10 to-transparent blur-[70px]" />
-                <div className="absolute bottom-0 left-0 w-60 h-60 bg-gradient-to-bl from-blue-500/10 to-transparent blur-[50px]" />
-
-                <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 md:gap-7 flex-1 w-full text-center sm:text-left">
-                  {/* Floating glass logo block */}
-                  <motion.div 
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className={`relative shrink-0 w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-2xl border shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-transform duration-300 group-hover:scale-105 ${
-                      isDark 
-                        ? "bg-white/[0.06] border-white/10" 
-                        : "bg-slate-50 border-slate-200"
-                    }`}
-                  >
-                    <ChannelLogo 
-                      src={suggestedChannel.logo} 
-                      alt={suggestedChannel.name} 
-                      isDark={isDark} 
-                      status={suggestedChannel.status} 
-                      category={suggestedChannel.category}
-                      className="max-h-[70%] object-contain scale-110"
-                    />
-                  </motion.div>
-
-                  <div className="space-y-1.5 flex-1">
-                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#4AC4FE]/10 text-[#4AC4FE]">
-                      <Radio size={10} className="animate-pulse" /> ĐÀY KHUYÊN DÙNG
-                    </div>
-                    
-                    <h3 className={`text-xl md:text-2.5xl font-black tracking-tight leading-none ${isDark ? "text-white" : "text-slate-900"}`}>
-                      {suggestedChannel.name}
-                    </h3>
-                    
-                    <p className={`text-xs md:text-sm font-medium leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                      Kênh {suggestedChannel.category} vô cùng hấp dẫn với chất lượng ổn định cao nhất, tín hiệu truyền dẫn trực tiếp siêu nét thế hệ mới.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="relative z-10 shrink-0 w-full md:w-auto">
-                  <button className="w-full md:w-auto px-6 py-3 bg-[#4AC4FE] hover:bg-[#3db8f2] text-xs font-black tracking-widest text-slate-950 rounded-xl transition-all duration-200 shadow-[0_8px_20px_rgba(74,196,254,0.15)] flex items-center justify-center gap-2 group-hover:scale-105 uppercase">
-                    Mở Xem Ngay <Play size={12} fill="currentColor" />
-                  </button>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
-      )}
-
       {/* Promoted / Suggested Channels Horizontal Slider */}
       {randomChannels && randomChannels.length > 0 && (
         <div className="space-y-6 max-w-6xl mx-auto w-full select-none">
@@ -1717,10 +1638,10 @@ function HomeContent({
                       ? "bg-white/[0.03] border-white/5 hover:border-[#4AC4FE]/30 hover:bg-white/[0.05]" 
                       : "bg-[#4AC4FE]/5 border-[#4AC4FE]/10 hover:border-[#4AC4FE]/40 hover:bg-[#4AC4FE]/10 shadow-sm"
                   }`}>
-                    <div className={`w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-2xl border-[1.5px] transition-transform duration-300 group-hover/card-wrapper:scale-110 ${
+                    <div className={`w-11 h-11 sm:w-13 sm:h-13 flex items-center justify-center rounded-2xl border-[1.5px] transition-transform duration-300 group-hover/card-wrapper:scale-110 ${
                       isDark ? "bg-white/[0.05] border-white/10" : "bg-white border-slate-200"
                     }`}>
-                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[70%] object-contain scale-[1.2]" />
+                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[70%] object-contain scale-[0.65]" />
                     </div>
                     <div className="space-y-0.5">
                       <p className={`text-xs font-black truncate max-w-full ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
@@ -2056,7 +1977,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20 }: { 
+function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20 }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -2084,6 +2005,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   useNewDesign?: boolean,
   setUseNewDesign?: (val: boolean) => void,
   showChannelNumbers?: boolean,
+  setShowChannelNumbers?: (val: boolean) => void,
   volume?: number,
   setVolume?: (v: number) => void,
   isMuted?: boolean,
@@ -3096,7 +3018,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       {/* MAIN WATCH AREA WITH SIDEBAR SCHEDULE */}
       <div className={`w-full max-w-full mx-auto flex flex-col lg:block gap-4 md:gap-6 mb-4 md:mb-6 relative z-10 transition-all duration-300 ${
         isDark ? "bg-vplay-background md:bg-transparent text-white" : "bg-white md:bg-transparent text-black"
-      } lg:pr-[344px] xl:pr-[389px] pt-0 pb-0 md:py-0 md:px-0 px-0`}>
+      } ${active.category === "Phát thanh" ? "" : "lg:pr-[344px] xl:pr-[389px]"} pt-0 pb-0 md:py-0 md:px-0 px-0`}>
         
         {/* VIDEO PLAYER */}
         {isScrolledPast && (
@@ -3313,13 +3235,22 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 </div>
 
                 <div className="p-4 md:p-10 pointer-events-auto">
-                   <div className={`p-2 md:p-4 rounded-[24px] md:rounded-[32px] border border-white/10 flex items-center justify-between gap-2 md:gap-6 backdrop-blur-3xl shadow-2xl ${liquidGlass === "tinted" ? "bg-white/80" : "bg-black/30"}`}>
+                   <div 
+                     style={{
+                       backdropFilter: "blur(24px)",
+                       WebkitBackdropFilter: "blur(24px)"
+                     }}
+                     className="p-2 md:p-4 rounded-[24px] md:rounded-[32px] border border-white/20 flex items-center justify-between gap-2 md:gap-6 shadow-[0_16px_48px_rgba(0,0,0,0.4),_inset_0_1.5px_2px_rgba(255,255,255,0.25)] bg-white/[0.08]"
+                   >
                       <div className="flex items-center gap-2 md:gap-3">
-                         <button onClick={togglePlay} className={`p-3 md:p-4 rounded-xl md:rounded-2xl transition-all hover:scale-105 active:scale-95 ${liquidGlass === "tinted" ? "bg-black text-white" : "bg-white text-black"}`}>
+                         <button 
+                           onClick={togglePlay} 
+                           className="p-3 md:p-4 rounded-xl md:rounded-2xl transition-all hover:scale-105 active:scale-95 bg-white/15 hover:bg-white/25 text-white border border-white/35 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
+                         >
                             {isPlaying ? <Pause size={20} className="md:w-6 md:h-6" fill="currentColor" /> : <Play size={20} className="md:w-6 md:h-6" fill="currentColor" />}
                          </button>
                          <div className="hidden sm:flex items-center gap-4 pl-4 border-l border-white/10">
-                            <Volume2 size={20} className={liquidGlass === "tinted" ? "text-black" : "text-white"} />
+                            <Volume2 size={20} className="text-white opacity-85" />
                             <input 
                               type="range" min="0" max="1" step="0.1" 
                               value={volume} onChange={handleVolumeChange}
@@ -3334,8 +3265,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                                onClick={toggleRecording}
                                className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                                  isRecording
-                                   ? "bg-red-600 border-red-500 text-white shadow-lg animate-pulse"
-                                   : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+                                   ? "bg-red-600/30 border-red-500/60 text-red-500 shadow-lg shadow-red-500/10 animate-pulse backdrop-blur-md"
+                                   : "bg-white/5 border-white/10 text-white hover:bg-white/15 hover:border-white/20 backdrop-blur-md"
                                }`}
                                title={searchQuery.trim().length > 0 ? "Search results" : (isRecording ? "Dừng ghi" : "Ghi màn hình")}
                              >
@@ -3348,8 +3279,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                                 onClick={() => setShowLayoutMenu(!showLayoutMenu)}
                                 className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                                   isMultiview
-                                    ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg"
-                                    : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+                                    ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/45 text-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.25)] backdrop-blur-md"
+                                    : "bg-white/5 border-white/10 text-white hover:bg-white/15 hover:border-white/20 backdrop-blur-md"
                                 }`}
                                 title="Multiview"
                               >
@@ -3407,8 +3338,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             }}
                             className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                               lockPlayer 
-                                ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
-                                : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+                                ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/45 text-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.25)] backdrop-blur-md"
+                                : "bg-white/5 border-white/10 text-white hover:bg-white/15 hover:border-white/20 backdrop-blur-md"
                             }`}
                             title={lockPlayer ? "Bỏ ghim/khóa trình phát" : "Ghim/khóa trình phát khi cuộn trang"}
                           >
@@ -3420,11 +3351,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                                 window.dispatchEvent(new CustomEvent("vplay-enable-island"));
                                 window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "keypad", active: true } }));
                               }}
-                              className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
-                                false
-                                  ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
-                                  : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black animate-pulse" : "bg-white/5 border-white/10 text-white animate-pulse"
-                              }`}
+                              className="p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all text-white bg-white/5 border-white/10 hover:bg-white/15 hover:border-white/20 backdrop-blur-md"
                               title="Chuyển kênh nhanh (Bàn phím Remote)"
                             >
                               <Smartphone size={18} className="md:w-5 md:h-5" />
@@ -3434,8 +3361,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             onClick={() => toggleFavorite(active)}
                             className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                               favorites.includes(active.name)
-                                ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
-                                : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+                                ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/45 text-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.25)] backdrop-blur-md"
+                                : "bg-white/5 border-white/10 text-white hover:bg-white/15 hover:border-white/20 backdrop-blur-md"
                             }`}
                             title="Yêu thích"
                           >
@@ -3445,16 +3372,16 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                             onClick={toggleMultiview}
                             className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                               isMultiview
-                                ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
-                                : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+                                ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/45 text-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.25)] backdrop-blur-md"
+                                : "bg-white/5 border-white/10 text-white hover:bg-white/15 hover:border-white/20 backdrop-blur-md"
                             }`}
                             title="Xếp lưới nhiều kênh (Multiview)"
                           >
                             <LayoutGrid size={18} className="md:w-5 md:h-5" />
                           </button>
-                         <button onClick={toggleFullscreen} className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"}`}>
-                            <Maximize size={18} className="md:w-5 md:h-5" />
-                         </button>
+                          <button onClick={toggleFullscreen} className="p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all bg-white/5 border-white/10 text-white hover:bg-white/15 hover:border-white/20 backdrop-blur-md">
+                             <Maximize size={18} className="md:w-5 md:h-5" />
+                          </button>
                       </div>
                    </div>
                 </div>
@@ -3466,6 +3393,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         </div>
 
         {/* LỊCH PHÁT SÓNG SECTION */}
+        {active.category !== "Phát thanh" && (
         <div 
           className={`hidden lg:flex lg:absolute lg:top-0 lg:bottom-0 lg:right-0 lg:w-[320px] xl:w-[365px] shrink-0 flex-col p-4 md:p-5 border shadow-2xl overflow-hidden transition-all duration-300 lg:h-auto ${
             liquidGlass ? "rounded-xl md:rounded-2xl" : "rounded-lg"
@@ -3712,6 +3640,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
             </>
           )}
         </div>
+        )}
 
       </div>
 
@@ -4496,6 +4425,20 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 >
                   <LayoutGrid className={`h-3.5 w-3.5 ${isLargeLayout ? "text-white" : "text-[#4AC4FE] opacity-80"}`} />
                   <span className="text-xs font-bold">Giao diện lớn</span>
+                </button>
+
+                {/* Show Channel Numbers Toggle */}
+                <button
+                  onClick={() => setShowChannelNumbers && setShowChannelNumbers(!showChannelNumbers)}
+                  className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 cursor-pointer ${
+                    showChannelNumbers
+                      ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg font-black"
+                      : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+                  }`}
+                  title="Hiện/Ẩn Số kênh"
+                >
+                  <Hash className={`h-3.5 w-3.5 ${showChannelNumbers ? "text-white" : "text-[#4AC4FE] opacity-80"}`} />
+                  <span className="text-xs font-bold">Hiện số kênh</span>
                 </button>
               </div>
             </div>
@@ -16334,11 +16277,15 @@ const [headingBar, setHeadingBar] = useState(() => {
           opacity: ${buttonOpacity / 100} !important;
         }
 
-        /* Dynamic Context Menu Blur and Opacity Override */
+        /* Dynamic Context Menu Blur and Opacity Override with pristine rich White Acrylic Overlay */
         .vplay-context-menu {
           backdrop-filter: blur(${contextMenuBlur}px) !important;
           -webkit-backdrop-filter: blur(${contextMenuBlur}px) !important;
-          background-color: ${isDark ? `rgba(24, 25, 36, ${contextMenuOpacity / 100})` : `rgba(255, 255, 255, ${contextMenuOpacity / 100})`} !important;
+          background: rgba(255, 255, 255, 0.82) !important;
+          background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05)) !important;
+          border: 1px solid rgba(255, 255, 255, 0.75) !important;
+          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+          color: #0f172a !important;
         }
       `}</style>
       <AnimatePresence>
@@ -16751,16 +16698,13 @@ const [headingBar, setHeadingBar] = useState(() => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.12 }}
-              className="fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-slate-900"
+              className="fixed z-[310] min-w-[240px] rounded-2xl border transition-all duration-300 font-bold shadow-[0_12px_32px_rgba(0,0,0,0.25)] text-slate-900 vplay-context-menu"
               style={{
                 position: "fixed",
                 top: channelContextMenu.y,
                 left: channelContextMenu.x,
                 padding: "10px",
-                backgroundColor: "rgba(255, 255, 255, 0.75)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: "1px solid rgba(0, 0, 0, 0.12)"
+                border: "1px solid rgba(255, 255, 255, 0.35)"
               }}
             >
               <div className="px-3 pb-2 pt-1 border-b border-black/5 mb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-800 truncate max-w-[220px]">
@@ -17317,6 +17261,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     useNewDesign={useNewDesign}
                     setUseNewDesign={setUseNewDesign}
                     showChannelNumbers={showChannelNumbers}
+                    setShowChannelNumbers={setShowChannelNumbers}
                     volume={volume}
                     setVolume={setVolume}
                     isMuted={isMuted}
@@ -17354,6 +17299,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   useNewDesign={useNewDesign}
                   setUseNewDesign={setUseNewDesign}
                   showChannelNumbers={showChannelNumbers}
+                  setShowChannelNumbers={setShowChannelNumbers}
                   volume={volume}
                   setVolume={setVolume}
                   isMuted={isMuted}
@@ -17957,7 +17903,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                         const isGlassy = liquidGlass === "glassy";
 
                         // Map tab colors individually
-                        let activeColorClass = "text-slate-950 font-black scale-102";
+                        let activeColorClass = "text-black font-black scale-102";
 
                         return (
                           <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center p-0.5">
@@ -17983,7 +17929,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                               } ${
                                 isActive 
                                   ? activeColorClass
-                                  : "text-slate-600/70 hover:text-slate-900 group-hover:opacity-100"
+                                  : "text-black/60 hover:text-black group-hover:opacity-100"
                               }`}
                             >
                                {isActive && (
@@ -18010,8 +17956,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   size={23}
                                   className={`h-6 w-6 flex-shrink-0 transition-colors duration-300 ${
                                     isActive 
-                                      ? "text-slate-950 drop-shadow-[0_1px_1px_rgba(0,0,0,0.08)] stroke-[1.8px]" 
-                                      : "text-slate-600 group-hover:text-slate-900"
+                                      ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.08)] stroke-[2.2px]" 
+                                      : "text-black/60 group-hover:text-black"
                                   }`} 
                                 />
                                 {tabId === "Cài đặt" && !user && (
