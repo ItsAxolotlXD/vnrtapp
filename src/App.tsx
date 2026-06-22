@@ -789,11 +789,27 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
   ], [v5National, v5TNB, v5TN]);
 
   const isVTV5Card = ch.name === "VTV5";
-  const isActuallyActive = isActive || (isVTV5Card && (
-    activeChannelName === "VTV5" ||
-    activeChannelName === "VTV5 Tây Nam Bộ" ||
-    activeChannelName === "VTV5 Tây Nguyên"
-  ));
+  const isVOV4Card = ch.name === "VOV4";
+  const isVOVGTCard = ch.name === "VOV Giao Thông";
+
+  const isActuallyActive = isActive || 
+    (isVTV5Card && (
+      activeChannelName === "VTV5" ||
+      activeChannelName === "VTV5 Tây Nam Bộ" ||
+      activeChannelName === "VTV5 Tây Nguyên"
+    )) ||
+    (isVOV4Card && (
+      activeChannelName === "VOV4" ||
+      activeChannelName === "VOV4 Tây Bắc" ||
+      activeChannelName === "VOV4 Tây Nguyên"
+    )) ||
+    (isVOVGTCard && (
+      activeChannelName === "VOV Giao Thông" ||
+      activeChannelName === "VOV Giao Thông Hà Nội" ||
+      activeChannelName === "VOV Giao Thông TP.HCM" ||
+      activeChannelName === "VOV Giao Thông Mê Kông" ||
+      activeChannelName === "VOV Giao Thông Duyên Hải"
+    ));
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (isVTV5Card) {
@@ -802,6 +818,20 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
       // Trigger VTV5 overflow menu on Dynamic Island
       window.dispatchEvent(new CustomEvent("vplay-island", {
         detail: { mode: "vtv5", active: true }
+      }));
+    } else if (isVOV4Card) {
+      e.stopPropagation();
+      e.preventDefault();
+      // Trigger VOV4 overflow menu on Dynamic Island
+      window.dispatchEvent(new CustomEvent("vplay-island", {
+        detail: { mode: "vov4", active: true }
+      }));
+    } else if (isVOVGTCard) {
+      e.stopPropagation();
+      e.preventDefault();
+      // Trigger VOVGT overflow menu on Dynamic Island
+      window.dispatchEvent(new CustomEvent("vplay-island", {
+        detail: { mode: "vovgt", active: true }
       }));
     } else {
       onClick();
@@ -2482,7 +2512,16 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   const filteredChannels = useMemo(() => {
     return displayChannelsList
       .filter(ch => {
-        if (ch.name === "VTV5 Tây Nam Bộ" || ch.name === "VTV5 Tây Nguyên") {
+        if (
+          ch.name === "VTV5 Tây Nam Bộ" || 
+          ch.name === "VTV5 Tây Nguyên" ||
+          ch.name === "VOV4 Tây Bắc" || 
+          ch.name === "VOV4 Tây Nguyên" ||
+          ch.name === "VOV Giao Thông Hà Nội" || 
+          ch.name === "VOV Giao Thông TP.HCM" || 
+          ch.name === "VOV Giao Thông Mê Kông" || 
+          ch.name === "VOV Giao Thông Duyên Hải"
+        ) {
           return false;
         }
         const finalQuery = liveSearchQuery.trim() !== "" ? liveSearchQuery : searchQuery;
@@ -2508,7 +2547,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       });
   }, [displayChannelsList, searchQuery, liveSearchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"];
+  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Phát thanh", "Quốc tế"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
@@ -2545,6 +2584,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       }
       if (cat === "Địa phương") {
         return filteredChannels.some(c => c.category === "Địa phương");
+      }
+      if (cat === "Phát thanh") {
+        return filteredChannels.some(c => c.category === "Phát thanh");
       }
       if (cat === "Quốc tế") {
         return filteredChannels.some(c => c.category === "Quốc tế");
@@ -3213,15 +3255,27 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 )}
               </div>
             ) : (
-              <video
-                ref={videoRef}
-                className="w-full h-full object-contain cursor-pointer"
-                autoPlay
-                playsInline
-                muted={isMuted}
-                onClick={togglePlay}
-                onDoubleClick={toggleFullscreen}
-              />
+              <div className="relative w-full h-full flex items-center justify-center bg-black">
+                {active.category === "Phát thanh" && (
+                  <img
+                    src="https://static.wikia.nocookie.net/ep-deo/images/1/11/Vovbg.png/revision/latest/scale-to-width-down/1000?cb=20260622074101"
+                    alt={active.name}
+                    className="absolute inset-0 w-full h-full object-contain select-none z-10 cursor-pointer"
+                    referrerPolicy="no-referrer"
+                    onClick={togglePlay}
+                    onDoubleClick={toggleFullscreen}
+                  />
+                )}
+                <video
+                  ref={videoRef}
+                  className={`w-full h-full object-contain cursor-pointer ${active.category === "Phát thanh" ? "absolute opacity-0 pointer-events-none w-1 h-1" : ""}`}
+                  autoPlay
+                  playsInline
+                  muted={isMuted}
+                  onClick={togglePlay}
+                  onDoubleClick={toggleFullscreen}
+                />
+              </div>
             )}
             {/* Tap to Unmute Overlay */}
             {isMuted && isPlaying && !isMaintenance && (
@@ -4176,44 +4230,46 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   setLiveTabSection("channels");
                   setIsRemoteOpen(false);
                 }}
-                className={`py-2 px-3.5 rounded-lg xl:rounded-full transition-all duration-200 flex items-center justify-center gap-1.5 text-xs font-bold whitespace-nowrap cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${
+                className={`py-2 px-3.5 rounded-lg xl:rounded-full transition-all duration-200 flex items-center justify-center text-xs font-bold whitespace-nowrap cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${
                   liveTabSection === "channels" && !isRemoteOpen
                     ? "bg-[#4AC4FE] text-slate-950 font-black shadow-lg"
                     : "text-white/80 hover:text-white hover:bg-white/10"
                 }`}
+                title="Chuyển kênh"
               >
-                <Tv className="w-3.5 h-3.5" />
-                <span>Chuyển kênh</span>
+                <Tv className="w-4 h-4" />
               </button>
 
-              <button
-                onClick={() => {
-                  setLiveTabSection("schedule");
-                  setIsRemoteOpen(false);
-                }}
-                className={`py-2 px-3.5 rounded-lg xl:rounded-full transition-all duration-200 flex items-center justify-center gap-1.5 text-xs font-bold whitespace-nowrap cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${
-                  liveTabSection === "schedule" && !isRemoteOpen
-                    ? "bg-[#4AC4FE] text-slate-950 font-black shadow-lg"
-                    : "text-white/80 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Lịch phát sóng</span>
-              </button>
+              {active?.category !== "Phát thanh" && (
+                <button
+                  onClick={() => {
+                    setLiveTabSection("schedule");
+                    setIsRemoteOpen(false);
+                  }}
+                  className={`py-2 px-3.5 rounded-lg xl:rounded-full transition-all duration-200 flex items-center justify-center text-xs font-bold whitespace-nowrap cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${
+                    liveTabSection === "schedule" && !isRemoteOpen
+                      ? "bg-[#4AC4FE] text-slate-950 font-black shadow-lg"
+                      : "text-white/80 hover:text-white hover:bg-white/10"
+                  }`}
+                  title="Lịch phát sóng"
+                >
+                  <Calendar className="w-4 h-4" />
+                </button>
+              )}
 
               <button
                 onClick={() => {
                   setLiveTabSection("favorites");
                   setIsRemoteOpen(false);
                 }}
-                className={`py-2 px-3.5 rounded-lg xl:rounded-full transition-all duration-200 flex items-center justify-center gap-1.5 text-xs font-bold whitespace-nowrap cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${
+                className={`py-2 px-3.5 rounded-lg xl:rounded-full transition-all duration-200 flex items-center justify-center text-xs font-bold whitespace-nowrap cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${
                   liveTabSection === "favorites" && !isRemoteOpen
                     ? "bg-[#4AC4FE] text-slate-950 font-black shadow-lg"
                     : "text-white/80 hover:text-white hover:bg-white/10"
                 }`}
+                title="Yêu thích"
               >
-                <Heart className="w-3.5 h-3.5" />
-                <span>Yêu thích</span>
+                <Heart className="w-4 h-4" />
               </button>
 
               <button
@@ -4221,10 +4277,10 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   window.dispatchEvent(new CustomEvent("vplay-enable-island"));
                   window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "keypad", active: true } }));
                 }}
-                className="py-2 px-3.5 rounded-lg xl:rounded-full transition-all duration-200 flex items-center justify-center gap-1.5 text-xs font-bold whitespace-nowrap cursor-pointer hover:scale-[1.01] active:scale-[0.99] text-white/80 hover:text-white hover:bg-white/10"
+                className="py-2 px-3.5 rounded-lg xl:rounded-full transition-all duration-200 flex items-center justify-center text-xs font-bold whitespace-nowrap cursor-pointer hover:scale-[1.01] active:scale-[0.99] text-white/80 hover:text-white hover:bg-white/10"
+                title="Gọi kênh nhanh"
               >
-                <Smartphone className="w-3.5 h-3.5" />
-                <span>Gọi kênh nhanh</span>
+                <Smartphone className="w-4 h-4" />
               </button>
             </div>
 
@@ -4260,7 +4316,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               <>
                 <div className="hidden xl:block h-6 w-px bg-white/15 self-center shrink-0" />
                 <div className="flex gap-1 overflow-x-auto no-scrollbar w-full xl:flex-1 py-1">
-                  {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => {
+                  {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Phát thanh", "Quốc tế"].map((type) => {
                     const isSelected = filterType === type;
                     return (
                       <button
@@ -10569,7 +10625,7 @@ function DynamicIsland({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(false);
-  const [islandMode, setIslandMode] = useState<"search" | "keypad" | "volume" | "notifications" | "vtv5" | "filter" | "sort">("search");
+  const [islandMode, setIslandMode] = useState<"search" | "keypad" | "volume" | "notifications" | "vtv5" | "vov4" | "vovgt" | "filter" | "sort">("search");
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const aiInputRef = useRef<HTMLInputElement>(null);
@@ -10708,7 +10764,7 @@ function DynamicIsland({
   // Custom global triggers for Dynamic Island
   useEffect(() => {
     const handleIslandTrigger = (e: Event) => {
-      const customEvent = e as CustomEvent<{ mode: "search" | "keypad" | "volume" | "notifications" | "vtv5" | "filter" | "sort"; active?: boolean }>;
+      const customEvent = e as CustomEvent<{ mode: "search" | "keypad" | "volume" | "notifications" | "vtv5" | "vov4" | "vovgt" | "filter" | "sort"; active?: boolean }>;
       if (customEvent.detail) {
         if (customEvent.detail.mode) {
           setIslandMode(customEvent.detail.mode);
@@ -10867,7 +10923,19 @@ function DynamicIsland({
             : isExpanded 
               ? (aiExpanded 
                   ? aiCardWidth 
-                  : (islandMode === "keypad" ? 320 : islandMode === "volume" ? 220 : islandMode === "notifications" ? (windowWidth < 480 ? 320 : 380) : islandMode === "vtv5" ? (windowWidth < 480 ? 310 : 330) : islandMode === "filter" ? (windowWidth < 480 ? 320 : 360) : islandMode === "sort" ? (windowWidth < 480 ? 310 : 330) : expandedWidth)
+                  : (islandMode === "vtv5" || islandMode === "vov4" || islandMode === "vovgt")
+                    ? (windowWidth < 480 ? 310 : 330)
+                    : islandMode === "keypad"
+                      ? 320
+                      : islandMode === "volume"
+                        ? 220
+                        : islandMode === "notifications"
+                          ? (windowWidth < 480 ? 320 : 380)
+                          : islandMode === "filter"
+                            ? (windowWidth < 480 ? 320 : 360)
+                            : islandMode === "sort"
+                              ? (windowWidth < 480 ? 310 : 330)
+                              : expandedWidth
                 ) 
               : 132,
           height: activeToast
@@ -10875,7 +10943,7 @@ function DynamicIsland({
             : isExpanded 
               ? (aiExpanded 
                   ? aiCardHeight 
-                  : (islandMode === "search" ? (searchQuery ? 285 : 60) : islandMode === "keypad" ? 340 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 270 : islandMode === "vtv5" ? 230 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 130)
+                  : (islandMode === "search" ? (searchQuery ? 285 : 60) : islandMode === "keypad" ? 340 : islandMode === "volume" ? 230 : islandMode === "notifications" ? 270 : islandMode === "vtv5" ? 230 : islandMode === "vov4" ? 200 : islandMode === "vovgt" ? 270 : islandMode === "filter" ? 290 : islandMode === "sort" ? 220 : 130)
                 ) 
               : 38,
           borderRadius: (activeToast || aiExpanded || isExpanded) ? "30px" : "999px",
@@ -11299,23 +11367,70 @@ function DynamicIsland({
                   )}
 
                   {islandMode === "vtv5" && (
+                     <motion.div
+                       key="vtv5-variants"
+                       initial={{ opacity: 0, scale: 0.95 }}
+                       animate={{ opacity: 1, scale: 1 }}
+                       exit={{ opacity: 0, scale: 0.95 }}
+                       className="w-full flex flex-col h-[160px]"
+                     >
+                       <div className="flex items-center justify-between px-1.5 pb-1.5 shrink-0 border-b border-white/10">
+                         <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">Phân bản VTV5</span>
+                         <span className="text-[8px] bg-[#4AC4FE]/20 text-[#4AC4FE] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Chọn luồng</span>
+                       </div>
+                       
+                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
+                         {[
+                           { label: "VTV5 Quốc gia", target: "VTV5" },
+                           { label: "VTV5 Tây Nam Bộ", target: "VTV5 Tây Nam Bộ" },
+                           { label: "VTV5 Tây Nguyên", target: "VTV5 Tây Nguyên" }
+                         ].map((variant) => {
+                           const isSelected = activeChannel?.name === variant.target;
+                           return (
+                             <button
+                               key={variant.target}
+                               onClick={() => {
+                                 if (setActiveChannel) {
+                                   const targetCh = channels.find(c => c.name === variant.target);
+                                   if (targetCh) {
+                                     setActiveChannel(targetCh);
+                                     if (setActiveTab) setActiveTab("Live");
+                                     setIsExpanded(false);
+                                   }
+                                 }
+                               }}
+                               className={`w-full text-left px-3.5 py-2.5 text-[10px] font-black tracking-wider uppercase rounded-xl transition-all flex items-center justify-between border ${
+                                 isSelected
+                                   ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/30 text-[#4AC4FE]"
+                                   : "bg-white/5 border-transparent hover:bg-white/10 text-slate-300 hover:text-white"
+                               }`}
+                             >
+                               <span>{variant.label}</span>
+                               {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE]" />}
+                             </button>
+                           );
+                         })}
+                       </div>
+                     </motion.div>
+                   )}
+
+                  {islandMode === "vov4" && (
                     <motion.div
-                      key="vtv5-variants"
+                      key="vov4-variants"
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="w-full flex flex-col h-[160px]"
+                      className="w-full flex flex-col h-[130px]"
                     >
                       <div className="flex items-center justify-between px-1.5 pb-1.5 shrink-0 border-b border-white/10">
-                        <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">Phân bản VTV5</span>
-                        <span className="text-[8px] bg-[#4AC4FE]/20 text-[#4AC4FE] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Chọn luồng</span>
+                        <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">Phân bản VOV4</span>
+                        <span className="text-[8px] bg-[#4AC4FE]/20 text-[#4AC4FE] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Chọn vùng</span>
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
                         {[
-                          { label: "VTV5 Quốc gia", target: "VTV5" },
-                          { label: "VTV5 Tây Nam Bộ", target: "VTV5 Tây Nam Bộ" },
-                          { label: "VTV5 Tây Nguyên", target: "VTV5 Tây Nguyên" }
+                          { label: "VOV4 Tây Bắc", target: "VOV4 Tây Bắc" },
+                          { label: "VOV4 Tây Nguyên", target: "VOV4 Tây Nguyên" }
                         ].map((variant) => {
                           const isSelected = activeChannel?.name === variant.target;
                           return (
@@ -11331,7 +11446,56 @@ function DynamicIsland({
                                   }
                                 }
                               }}
-                              className={`w-full text-left px-3.5 py-2.5 text-[10px] font-black tracking-wider uppercase rounded-xl transition-all flex items-center justify-between border ${
+                              className={`w-full text-left px-3.5 py-2 text-[10px] font-black tracking-wider uppercase rounded-xl transition-all flex items-center justify-between border ${
+                                isSelected
+                                  ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/30 text-[#4AC4FE]"
+                                  : "bg-white/5 border-transparent hover:bg-white/10 text-slate-300 hover:text-white"
+                              }`}
+                            >
+                              <span>{variant.label}</span>
+                              {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE]" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {islandMode === "vovgt" && (
+                    <motion.div
+                      key="vovgt-variants"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="w-full flex flex-col h-[200px]"
+                    >
+                      <div className="flex items-center justify-between px-1.5 pb-1.5 shrink-0 border-b border-white/10">
+                        <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">VOV Giao Thông</span>
+                        <span className="text-[8px] bg-[#4AC4FE]/20 text-[#4AC4FE] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Chọn vùng</span>
+                      </div>
+                      
+                      <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
+                        {[
+                          { label: "Giao Thông Hà Nội", target: "VOV Giao Thông Hà Nội" },
+                          { label: "Giao Thông TP.HCM", target: "VOV Giao Thông TP.HCM" },
+                          { label: "Giao Thông Mê Kông", target: "VOV Giao Thông Mê Kông" },
+                          { label: "Giao Thông Duyên Hải", target: "VOV Giao Thông Duyên Hải" }
+                        ].map((variant) => {
+                          const isSelected = activeChannel?.name === variant.target;
+                          return (
+                            <button
+                              key={variant.target}
+                              onClick={() => {
+                                if (setActiveChannel) {
+                                  const targetCh = channels.find(c => c.name === variant.target);
+                                  if (targetCh) {
+                                    setActiveChannel(targetCh);
+                                    if (setActiveTab) setActiveTab("Live");
+                                    setIsExpanded(false);
+                                  }
+                                }
+                              }}
+                              className={`w-full text-left px-3.5 py-2 text-[10px] font-black tracking-wider uppercase rounded-xl transition-all flex items-center justify-between border ${
                                 isSelected
                                   ? "bg-[#4AC4FE]/20 border-[#4AC4FE]/30 text-[#4AC4FE]"
                                   : "bg-white/5 border-transparent hover:bg-white/10 text-slate-300 hover:text-white"
@@ -11360,7 +11524,7 @@ function DynamicIsland({
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
-                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Quốc tế"].map((type) => {
+                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Phát thanh", "Quốc tế"].map((type) => {
                           const isSelected = currentFilter === type;
                           return (
                             <button
