@@ -16039,6 +16039,32 @@ const [headingBar, setHeadingBar] = useState(() => {
     });
   };
 
+  const exportAllToM3U8 = () => {
+    try {
+      let m3uContent = "#EXTM3U\n";
+      channels.forEach((ch, index) => {
+        const logoAttr = ch.logo ? ` tvg-logo="${ch.logo}"` : "";
+        const groupAttr = ch.category ? ` group-title="${ch.category}"` : "";
+        m3uContent += `#EXTINF:-1 tvg-id="${index + 1}" tvg-name="${ch.name}"${logoAttr}${groupAttr},${ch.name}\n`;
+        m3uContent += `${ch.stream}\n`;
+      });
+
+      const blob = new Blob([m3uContent], { type: "application/x-mpegurl;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Vplay_Channels.m3u8");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast("Đã xuất và tải xuống danh sách kênh M3U8 thành công!", "success");
+    } catch (error) {
+      console.error(error);
+      showToast("Lỗi khi xuất danh sách M3U8", "error");
+    }
+  };
+
   const onChannelContextMenu = (e: React.MouseEvent, ch: Channel) => {
     e.preventDefault();
     e.stopPropagation();
@@ -16719,6 +16745,18 @@ const [headingBar, setHeadingBar] = useState(() => {
               >
                 <Pin size={14} className={pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "text-[#4AC4FE] fill-[#4AC4FE]" : "opacity-60 text-slate-800"} />
                 {pinnedChannels.some(p => p.name === channelContextMenu.ch.name) ? "Bỏ ghim khỏi sidebar/nav" : "Ghim vào sidebar/nav"}
+              </button>
+
+              {/* Export M3U8 File Option */}
+              <button
+                onClick={() => {
+                  exportAllToM3U8();
+                  setChannelContextMenu(null);
+                }}
+                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-black/8 text-slate-900"
+              >
+                <FileText size={14} className="opacity-60 text-slate-800" />
+                Export m3u8 file
               </button>
             </motion.div>
           </>
