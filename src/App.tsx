@@ -2469,7 +2469,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       });
   }, [displayChannelsList, searchQuery, liveSearchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Phát thanh", "Quốc tế"];
+  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
@@ -2507,8 +2507,8 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       if (cat === "Địa phương") {
         return filteredChannels.some(c => c.category === "Địa phương");
       }
-      if (cat === "Phát thanh") {
-        return filteredChannels.some(c => c.category === "Phát thanh");
+      if (cat === "Radio") {
+        return filteredChannels.some(c => c.category === "Radio");
       }
       if (cat === "Quốc tế") {
         return filteredChannels.some(c => c.category === "Quốc tế");
@@ -3018,7 +3018,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       {/* MAIN WATCH AREA WITH SIDEBAR SCHEDULE */}
       <div className={`w-full max-w-full mx-auto flex flex-col lg:block gap-4 md:gap-6 mb-4 md:mb-6 relative z-10 transition-all duration-300 ${
         isDark ? "bg-vplay-background md:bg-transparent text-white" : "bg-white md:bg-transparent text-black"
-      } ${active.category === "Phát thanh" ? "" : "lg:pr-[344px] xl:pr-[389px]"} pt-0 pb-0 md:py-0 md:px-0 px-0`}>
+      } ${active.category === "Radio" ? "" : "lg:pr-[344px] xl:pr-[389px]"} pt-0 pb-0 md:py-0 md:px-0 px-0`}>
         
         {/* VIDEO PLAYER */}
         {isScrolledPast && (
@@ -3178,7 +3178,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               </div>
             ) : (
               <div className="relative w-full h-full flex items-center justify-center bg-black">
-                {active.category === "Phát thanh" && (
+                {active.category === "Radio" && (
                   <img
                     src="https://static.wikia.nocookie.net/ep-deo/images/1/11/Vovbg.png/revision/latest/scale-to-width-down/1000?cb=20260622074101"
                     alt={active.name}
@@ -3190,7 +3190,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 )}
                 <video
                   ref={videoRef}
-                  className={`w-full h-full object-contain cursor-pointer ${active.category === "Phát thanh" ? "absolute opacity-0 pointer-events-none w-1 h-1" : ""}`}
+                  className={`w-full h-full object-contain cursor-pointer ${active.category === "Radio" ? "absolute opacity-0 pointer-events-none w-1 h-1" : ""}`}
                   autoPlay
                   playsInline
                   muted={isMuted}
@@ -3393,7 +3393,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
         </div>
 
         {/* LỊCH PHÁT SÓNG SECTION */}
-        {active.category !== "Phát thanh" && (
+        {active.category !== "Radio" && (
         <div 
           className={`hidden lg:flex lg:absolute lg:top-0 lg:bottom-0 lg:right-0 lg:w-[320px] xl:w-[365px] shrink-0 flex-col p-4 md:p-5 border shadow-2xl overflow-hidden transition-all duration-300 lg:h-auto ${
             liquidGlass ? "rounded-xl md:rounded-2xl" : "rounded-lg"
@@ -4169,7 +4169,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 <Tv className="w-4 h-4" />
               </button>
 
-              {active?.category !== "Phát thanh" && (
+              {active?.category !== "Radio" && (
                 <button
                   onClick={() => {
                     setLiveTabSection("schedule");
@@ -4245,7 +4245,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               <>
                 <div className="hidden xl:block h-6 w-px bg-white/15 self-center shrink-0" />
                 <div className="flex gap-1 overflow-x-auto no-scrollbar w-full xl:flex-1 py-1">
-                  {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Phát thanh", "Quốc tế"].map((type) => {
+                  {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"].map((type) => {
                     const isSelected = filterType === type;
                     return (
                       <button
@@ -4525,39 +4525,25 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                         ? "grid grid-cols-2 gap-4 md:gap-8" 
                         : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"}`
                     }>
-                      {cat === "Phát thanh" ? (
-                        <div className={`col-span-full p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
-                          isDark ? "border-white/10 bg-white/5 text-slate-400 hover:bg-white/10" : "border-black/5 bg-black/5 text-slate-500 hover:bg-black/[0.02]"
-                        }`}>
-                          <div className="p-4 rounded-3xl bg-[#4AC4FE]/10 text-[#4AC4FE]">
-                            <Sparkles size={32} className="animate-pulse" strokeWidth={1.5} />
-                          </div>
-                          <div className="text-center">
-                            <p className="font-bold text-xl tracking-tighter uppercase mb-1">Coming Soon!</p>
-                            <p className="text-xs font-medium opacity-60">Tính năng đang được phát triển để mang lại trải nghiệm âm thanh tốt nhất.</p>
-                          </div>
-                        </div>
-                      ) : (
-                        displaySubset.map((ch) => (
-                          <ChannelCard 
-                            key={`tv-${cat}-${ch.name}-${ch.stream}`} 
-                            ch={ch} 
-                            onClick={(targetCh) => playChannelAndEnterFullscreen(targetCh || ch)} 
-                            isDark={isDark} 
-                            isActive={active.name === ch.name} 
-                            favorites={favorites} 
-                            toggleFavorite={toggleFavorite} 
-                            liquidGlass={liquidGlass}
-                            isLiveTab={true}
-                            onContextMenu={onChannelContextMenu}
-                            useNewDesign={useNewDesign}
-                            activeChannelName={active?.name}
-                            isLargeLayout={isLargeLayout}
-                            quickSwitchEnabled={featureFlags.quick_channel_switch}
-                            showChannelNumbers={showChannelNumbers}
-                          />
-                        ))
-                      )}
+                      {displaySubset.map((ch) => (
+                        <ChannelCard 
+                          key={`tv-${cat}-${ch.name}-${ch.stream}`} 
+                          ch={ch} 
+                          onClick={(targetCh) => playChannelAndEnterFullscreen(targetCh || ch)} 
+                          isDark={isDark} 
+                          isActive={active.name === ch.name} 
+                          favorites={favorites} 
+                          toggleFavorite={toggleFavorite} 
+                          liquidGlass={liquidGlass}
+                          isLiveTab={true}
+                          onContextMenu={onChannelContextMenu}
+                          useNewDesign={useNewDesign}
+                          activeChannelName={active?.name}
+                          isLargeLayout={isLargeLayout}
+                          quickSwitchEnabled={featureFlags.quick_channel_switch}
+                          showChannelNumbers={showChannelNumbers}
+                        />
+                      ))}
                     </div>
                   </div>
                 );
@@ -11467,7 +11453,7 @@ function DynamicIsland({
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
-                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Phát thanh", "Quốc tế"].map((type) => {
+                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"].map((type) => {
                           const isSelected = currentFilter === type;
                           return (
                             <button
