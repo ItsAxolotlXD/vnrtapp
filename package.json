@@ -20,6 +20,7 @@
     "firebase": "^12.11.0",
     "hls.js": "^1.6.15",
     "http-proxy-middleware": "^3.0.5",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.546.0",
     "motion": "^12.38.0",
     "react": "^19.0.0",

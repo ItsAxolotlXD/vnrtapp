@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
-  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain, Upload, Edit, FileText, Trash, Waves, Tornado, Package,
+  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain, Upload, Edit, FileText, Trash, Waves, Tornado, Package, Download,
   Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash, Brain, Bell
 } from "lucide-react";
 import Hls from "hls.js";
@@ -2043,6 +2043,32 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       localStorage.setItem("vplay_is_large_layout", JSON.stringify(val));
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const exportAllToM3U8 = () => {
+    try {
+      let m3uContent = "#EXTM3U\n";
+      channels.forEach((ch, index) => {
+        const logoAttr = ch.logo ? ` tvg-logo="${ch.logo}"` : "";
+        const groupAttr = ch.category ? ` group-title="${ch.category}"` : "";
+        m3uContent += `#EXTINF:-1 tvg-id="${index + 1}" tvg-name="${ch.name}"${logoAttr}${groupAttr},${ch.name}\n`;
+        m3uContent += `${ch.stream}\n`;
+      });
+
+      const blob = new Blob([m3uContent], { type: "application/x-mpegurl;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Vplay_Channels.m3u8");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast("Đã xuất và tải xuống danh sách kênh M3U8 thành công!", "success");
+    } catch (error) {
+      console.error(error);
+      showToast("Lỗi khi xuất danh sách M3U8", "error");
     }
   };
 
@@ -4240,6 +4266,17 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
               )}
             </div>
 
+            <div className="hidden xl:block h-6 w-px bg-white/15 self-center shrink-0" />
+
+            <button
+              onClick={exportAllToM3U8}
+              className="relative flex items-center justify-center gap-2 h-10 px-4 w-full md:w-auto bg-black/25 hover:bg-black/40 text-xs font-bold text-white rounded-xl xl:rounded-full border border-white/5 cursor-pointer hover:border-[#4AC4FE]/20 hover:text-[#4AC4FE] transition-all duration-250 shrink-0"
+              title="Export toàn bộ kênh Vplay dưới dạng tệp m3u8"
+            >
+              <Download size={14} className="text-[#4AC4FE]" />
+              <span>Export channel file</span>
+            </button>
+
             {/* Inline filters for categories if on channels list */}
             {liveSubTab === "vplay" && (
               <>
@@ -6157,6 +6194,7 @@ function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDa
 function RejuvenatedSettings(props: any) {
   const { 
     isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
+    disableLiquidGlass, setDisableLiquidGlass,
     liquidGlassBlur, setLiquidGlassBlur, liquidGlassOpacity, setLiquidGlassOpacity,
     dockBlur, setDockBlur, dockOpacity, setDockOpacity,
     contextMenuBlur, setContextMenuBlur, contextMenuOpacity, setContextMenuOpacity,
@@ -6540,6 +6578,27 @@ function RejuvenatedSettings(props: any) {
                      className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isDark ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
                    >
                      <Moon size={16} /> Tối
+                   </button>
+                 </div>
+               </div>
+             )}
+             {shouldShowSetting("Disable Liquid Glass", "", ["glass", "motion", "disable", "liquid", "blur", "kính"]) && (
+               <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                 <div className="flex items-center justify-between gap-5">
+                   <div className="flex items-center gap-5 text-left">
+                     <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}>
+                       <EyeOff size={24} />
+                     </div>
+                     <div className="text-left">
+                       <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Disable Liquid Glass</h4>
+                       <p className="text-sm opacity-50 font-medium tracking-tight">Tắt toàn bộ hiệu ứng kính và mờ (blur), thay thế bằng nền solid white / opaque</p>
+                     </div>
+                   </div>
+                   <button
+                     onClick={() => setDisableLiquidGlass(!disableLiquidGlass)}
+                     className={`w-12 h-6 rounded-full transition-all duration-300 flex items-center p-0.5 shrink-0 select-none cursor-pointer ${disableLiquidGlass ? "bg-[#4AC4FE]" : "bg-slate-300 dark:bg-white/10"}`}
+                   >
+                     <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-all duration-300 ${disableLiquidGlass ? "translate-x-6" : "translate-x-0"}`} />
                    </button>
                  </div>
                </div>
@@ -7407,6 +7466,7 @@ const GlassSelect = ({ value, onChange, options, isDark }: { value: any, onChang
 function SettingsNew(props: any) {
   const {
     isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
+    disableLiquidGlass, setDisableLiquidGlass,
     liquidGlassBlur, setLiquidGlassBlur, liquidGlassOpacity, setLiquidGlassOpacity,
     useSidebar, setUseSidebar, isSidebarRight, setIsSidebarRight, isSidebarLocked, setIsSidebarLocked,
     isPinningEnabled, setIsPinningEnabled, user, userData, setUserData, onAlert, onLogin, onLogout,
@@ -8029,6 +8089,21 @@ function SettingsNew(props: any) {
                             Kính mờ
                           </button>
                         </div>
+                      </div>
+                    )}
+
+                    {renderBullet(
+                      <div className="flex items-center justify-between w-full text-left">
+                        <div className="flex-1">
+                           <p className="font-semibold text-sm">Disable Liquid Glass</p>
+                           <p className="text-xs opacity-50 font-normal">Tắt toàn bộ hiệu ứng kính và mờ (blur), thay thế bằng nền solid white / opaque</p>
+                        </div>
+                        <button
+                          onClick={() => setDisableLiquidGlass(!disableLiquidGlass)}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 flex items-center p-0.5 shrink-0 select-none cursor-pointer ${disableLiquidGlass ? "bg-[#4AC4FE]" : "bg-slate-300 dark:bg-white/10"}`}
+                        >
+                          <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-all duration-300 ${disableLiquidGlass ? "translate-x-6" : "translate-x-0"}`} />
+                        </button>
                       </div>
                     )}
 
@@ -8737,6 +8812,8 @@ function SettingsContent({
   setFeatureFlags,
   liquidGlass, 
   setLiquidGlass,
+  disableLiquidGlass,
+  setDisableLiquidGlass,
   liquidGlassBlur = 10,
   setLiquidGlassBlur = () => {},
   liquidGlassOpacity = 25,
@@ -8791,6 +8868,8 @@ function SettingsContent({
   setFeatureFlags: (val: { [key: string]: boolean } | ((prev: { [key: string]: boolean }) => { [key: string]: boolean })) => void,
   liquidGlass: "glassy" | "tinted",
   setLiquidGlass: (val: "glassy" | "tinted") => void,
+  disableLiquidGlass?: boolean,
+  setDisableLiquidGlass?: (val: boolean) => void,
   liquidGlassBlur?: number,
   setLiquidGlassBlur?: (val: number) => void,
   liquidGlassOpacity?: number,
@@ -12917,6 +12996,8 @@ function WidgetsDashboard({
   setIsDev,
   liquidGlass,
   setLiquidGlass,
+  disableLiquidGlass,
+  setDisableLiquidGlass,
   liquidGlassBlur = 10,
   setLiquidGlassBlur = () => {},
   liquidGlassOpacity = 25,
@@ -13035,6 +13116,8 @@ function WidgetsDashboard({
   liquidGlass?: "glassy" | "tinted",
   onOpenUserMenu?: () => void,
   setLiquidGlass: (v: "glassy" | "tinted") => void,
+  disableLiquidGlass?: boolean,
+  setDisableLiquidGlass?: (v: boolean) => void,
   liquidGlassBlur?: number,
   setLiquidGlassBlur?: (v: number) => void,
   liquidGlassOpacity?: number,
@@ -14345,8 +14428,10 @@ function WidgetsDashboard({
                               setSplashDuration={setSplashDuration}
                               featureFlags={featureFlags}
                               setFeatureFlags={setFeatureFlags || (() => {})}
-                              liquidGlass={liquidGlass || "glassy"} 
+                              liquidGlass={liquidGlass || "glassy"}
                               setLiquidGlass={setLiquidGlass}
+                              disableLiquidGlass={disableLiquidGlass}
+                              setDisableLiquidGlass={setDisableLiquidGlass}
                               liquidGlassBlur={liquidGlassBlur}
                               setLiquidGlassBlur={setLiquidGlassBlur}
                               liquidGlassOpacity={liquidGlassOpacity}
@@ -15105,6 +15190,14 @@ function App() {
     const saved = localStorage.getItem("vplay_liquid_glass_opacity");
     return saved ? parseInt(saved, 10) : 25;
   });
+
+  const [disableLiquidGlass, setDisableLiquidGlass] = useState<boolean>(() => {
+    return localStorage.getItem("vplay_disable_liquid_glass") === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_disable_liquid_glass", disableLiquidGlass.toString());
+  }, [disableLiquidGlass]);
 
   const [dockBlur, setDockBlur] = useState<number>(() => {
     const saved = localStorage.getItem("vplay_dock_blur");
@@ -16065,6 +16158,38 @@ const [headingBar, setHeadingBar] = useState(() => {
     }
   };
 
+  const exportLogoInZip = async () => {
+    try {
+      showToast("Đang tải các tệp logo và nén thành ZIP... Quá trình này có thể mất ít phút.", "info");
+
+      const response = await fetch("/api/export-logos-zip", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ channels })
+      });
+
+      if (!response.ok) {
+        throw new Error("Không thể tạo tệp nén logo từ máy chủ.");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Vplay_Logos.zip");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast("Đã xuất và tải xuống toàn bộ Logo Vplay dưới dạng ZIP thành công!", "success");
+    } catch (error: any) {
+      console.error(error);
+      showToast("Lỗi khi xuất và tải Logo dạng ZIP.", "error");
+    }
+  };
+
   const onChannelContextMenu = (e: React.MouseEvent, ch: Channel) => {
     e.preventDefault();
     e.stopPropagation();
@@ -16299,6 +16424,77 @@ const [headingBar, setHeadingBar] = useState(() => {
           box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
           color: #0f172a !important;
         }
+
+        ${disableLiquidGlass ? `
+          /* Turn off backdrop filters across the entire app */
+          *, *::before, *::after {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+          }
+
+          /* solid white backgrounds for standard containers in light mode, solid dark in dark mode */
+          .backdrop-blur-sm,
+          .backdrop-blur-md,
+          .backdrop-blur-lg,
+          .backdrop-blur-xl,
+          .backdrop-blur-2xl,
+          .backdrop-blur-3xl,
+          .backdrop-blur {
+            background-color: ${isDark ? "#12141d" : "#ffffff"} !important;
+            background-image: none !important;
+          }
+
+          /* Elements using inline styles with glass/acrylic fallback */
+          [style*="backdropFilter"],
+          [style*="backdrop-filter"] {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background-color: ${isDark ? "#12141d" : "#ffffff"} !important;
+            background-image: none !important;
+          }
+
+          /* Force settings dialog, sidebar, top bar, player controls, etc. to be solid */
+          .vplay-context-menu {
+            background: ${isDark ? "#12141d" : "#ffffff"} !important;
+            color: ${isDark ? "#ffffff" : "#000000"} !important;
+            border: 1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+          }
+
+          /* Toggle switches, settings items, specific widgets etc. */
+          .vplay-toggle-switch,
+          .rejuvenated-settings-btn,
+          .vplay-custom-button {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background-color: ${isDark ? "#1e2030" : "#eaece0"} !important;
+          }
+
+          /* Overriding common slate and semi-transparent background classes with opaque fallback */
+          .bg-white\\/5, .bg-white\\/10, .bg-white\\/15, .bg-white\\/20, .bg-white\\/25, .bg-white\\/30, .bg-white\\/40, .bg-white\\/50, .bg-white\\/60, .bg-white\\/70, .bg-white\\/80, .bg-white\\/90 {
+            background-color: ${isDark ? "#12141d" : "#ffffff"} !important;
+          }
+          
+          .dark\\:bg-black\\/20, .dark\\:bg-black\\/30, .dark\\:bg-black\\/40, .dark\\:bg-black\\/50, .dark\\:bg-black\\/60, .dark\\:bg-black\\/75, .dark\\:bg-black\\/80, .dark\\:bg-black\\/90,
+          .dark\\:bg-[#161823]\\/80, .dark\\:bg-[#161823]\\/90 {
+            background-color: #12141d !important;
+          }
+
+          .bg-black\\/20, .bg-black\\/30, .bg-black\\/40, .bg-black\\/50, .bg-black\\/60, .bg-black\\/75, .bg-black\\/80, .bg-black\\/90 {
+            background-color: ${isDark ? "#12141d" : "#ffffff"} !important;
+          }
+
+          /* The primary dialog backdrop should remain transparent dark block so we can see, but no blur */
+          .fixed.inset-0.backdrop-blur-sm,
+          .fixed.inset-0.backdrop-blur-md,
+          .fixed.inset-0.backdrop-blur-lg,
+          .fixed.inset-0.backdrop-blur {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background-color: rgba(0, 0, 0, 0.45) !important;
+          }
+        ` : ""}
       `}</style>
       <AnimatePresence>
         {isVTV6DialogOpen && (
@@ -16568,6 +16764,8 @@ const [headingBar, setHeadingBar] = useState(() => {
         setIsDev={setIsDev}
         liquidGlass={liquidGlass}
         setLiquidGlass={setLiquidGlass}
+        disableLiquidGlass={disableLiquidGlass}
+        setDisableLiquidGlass={setDisableLiquidGlass}
         liquidGlassBlur={liquidGlassBlur}
         setLiquidGlassBlur={setLiquidGlassBlur}
         liquidGlassOpacity={liquidGlassOpacity}
@@ -16757,6 +16955,18 @@ const [headingBar, setHeadingBar] = useState(() => {
               >
                 <FileText size={14} className="opacity-60 text-slate-800" />
                 Export m3u8 file
+              </button>
+
+              {/* Export Logo in ZIP Option */}
+              <button
+                onClick={() => {
+                  exportLogoInZip();
+                  setChannelContextMenu(null);
+                }}
+                className="w-full text-left truncate flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors hover:bg-black/8 text-slate-900"
+              >
+                <Download size={14} className="opacity-60 text-slate-800" />
+                Export logo in zip
               </button>
             </motion.div>
           </>
@@ -17354,6 +17564,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setFeatureFlags={setFeatureFlags}
                       liquidGlass={liquidGlass} 
                       setLiquidGlass={setLiquidGlass}
+                      disableLiquidGlass={disableLiquidGlass}
+                      setDisableLiquidGlass={setDisableLiquidGlass}
                       liquidGlassBlur={liquidGlassBlur}
                       setLiquidGlassBlur={setLiquidGlassBlur}
                       liquidGlassOpacity={liquidGlassOpacity}

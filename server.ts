@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { GoogleGenAI } from "@google/genai";
+import JSZip from "jszip";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,11 +15,77 @@ async function startServer() {
   const PORT = 3000;
 
   // Middleware to parse body
-  app.use(express.json());
+  app.use(express.json({ limit: "50mb" }));
 
   // HEALTH CHECK
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Export Logos in ZIP
+  app.post("/api/export-logos-zip", async (req, res) => {
+    try {
+      const { channels: channelsData } = req.body;
+      if (!channelsData || !Array.isArray(channelsData)) {
+        return res.status(400).json({ error: "Danh sách kênh không hợp lệ." });
+      }
+
+      const zip = new JSZip();
+
+      // Download logos concurrently but safely using Settled
+      const fetchPromises = channelsData.map(async (ch: any, idx: number) => {
+        if (!ch.logo || typeof ch.logo !== "string" || !ch.logo.startsWith("http")) {
+          return;
+        }
+
+        try {
+          const response = await fetch(ch.logo, {
+            signal: AbortSignal.timeout(12000) // 12 seconds max timeout per request
+          });
+          if (!response.ok) {
+            console.warn(`[ZIP Export] Failed to fetch logo for ${ch.name}: ${response.status} ${response.statusText}`);
+            return;
+          }
+
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+
+          let ext = "png";
+          const contentType = response.headers.get("content-type");
+          if (contentType) {
+            if (contentType.includes("svg")) ext = "svg";
+            else if (contentType.includes("jpeg") || contentType.includes("jpg")) ext = "jpg";
+            else if (contentType.includes("gif")) ext = "gif";
+            else if (contentType.includes("png")) ext = "png";
+            else if (contentType.includes("webp")) ext = "webp";
+          } else {
+            const urlPath = new URL(ch.logo).pathname;
+            const match = urlPath.match(/\.([a-zA-Z0-9]+)(?:[?#]|$)/);
+            if (match && match[1]) {
+              ext = match[1].toLowerCase();
+            }
+          }
+
+          const sanitizedName = ch.name.replace(/[/\\?%*:|"<>\s]+/g, "_");
+          const filename = `${sanitizedName}.${ext}`;
+
+          zip.file(filename, buffer);
+        } catch (err: any) {
+          console.warn(`[ZIP Export] Exception fetching logo for ${ch.name}: ${err?.message || err}`);
+        }
+      });
+
+      await Promise.allSettled(fetchPromises);
+
+      const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
+
+      res.setHeader("Content-Type", "application/zip");
+      res.setHeader("Content-Disposition", "attachment; filename=\"vplay-logos.zip\"");
+      res.send(zipBuffer);
+    } catch (error: any) {
+      console.error("Export logos ZIP endpoint error:", error);
+      res.status(500).json({ error: error.message || "Lỗi xảy ra trong quá trình xuất file ZIP." });
+    }
   });
 
   // V-Intelligence AI Endpoint
