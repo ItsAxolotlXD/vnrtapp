@@ -655,7 +655,7 @@ function FloatingTooltip({ text, show, targetRect }: { text: string, show: boole
   );
 }
 
-function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, category }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted", status?: string, category?: string }) {
+function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, category, isUpdatedLogo, logoNumber }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted", status?: string, category?: string, isUpdatedLogo?: boolean, logoNumber?: string }) {
   const [error, setError] = useState(false);
 
   if (error || !src || src === "LOGO THÊM VÀO SAU") {
@@ -668,7 +668,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   }
 
   let finalSrc = src;
-  if (alt === "Vietnam Today") {
+  if (alt === "Vietnam Today" && !isUpdatedLogo) {
     finalSrc = !isDark 
       ? "https://static.wikia.nocookie.net/ftv/images/e/ef/Vtd2.png/revision/latest/scale-to-width-down/1000?cb=20260601094937&path-prefix=vi"
       : "https://static.wikia.nocookie.net/ftv/images/7/7f/Vtd.png/revision/latest/scale-to-width-down/1000?cb=20260601094859&path-prefix=vi";
@@ -683,22 +683,43 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isQuocTe = category === "Quốc tế";
   const isVplayLive = alt.toLowerCase().includes("vplay live");
 
-  const scaleClass = isSCTV
-    ? "scale-[0.83]"
-    : isVplayLive
-      ? "scale-[1.0]"
-      : isVTVcab 
-        ? "scale-[1.1]" 
-        : isVTV
-          ? "scale-[1.12]"
-          : (isShrunk || isQuocTe)
-            ? "scale-[0.80]" 
-            : (isHTVGroup || isLocalGroup)
-              ? "scale-[1.25]"
-              : "scale-[1.35]";
+  const scaleClass = isUpdatedLogo
+    ? "scale-[0.55]"
+    : isSCTV
+      ? "scale-[0.83]"
+      : isVplayLive
+        ? "scale-[1.0]"
+        : isVTVcab 
+          ? "scale-[1.1]" 
+          : isVTV
+            ? "scale-[1.12]"
+            : (isShrunk || isQuocTe)
+              ? "scale-[0.80]" 
+              : (isHTVGroup || isLocalGroup)
+                ? "scale-[1.25]"
+                : "scale-[1.35]";
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
   const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
+
+  if (logoNumber) {
+    return (
+      <div className="relative w-full h-full flex items-center justify-center gap-1.5 select-none px-1">
+        <img 
+          src={finalSrc} 
+          alt={alt} 
+          referrerPolicy="no-referrer"
+          onError={() => setError(true)}
+          className={`${className} object-contain p-0 transition-opacity duration-300 scale-[0.55] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+        />
+        <span 
+          className="text-white text-lg font-black tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] filter pr-1 shrink-0"
+        >
+          {logoNumber}
+        </span>
+      </div>
+    );
+  }
 
   if (isVTV5_TN || isVTV5_TNB) {
     return (
@@ -850,7 +871,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
         detail: { mode: "vovgt", active: true }
       }));
     } else {
-      onClick();
+      onClick(ch);
     }
   };
 
@@ -994,6 +1015,8 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
                liquidGlass={liquidGlass} 
                status={ch.status} 
                category={ch.category}
+               isUpdatedLogo={ch.isUpdatedLogo}
+               logoNumber={ch.logoNumber}
              />
           </div>
         </div>
@@ -1192,6 +1215,11 @@ function HomeContent({
       return () => clearInterval(interval);
     }
   }, []);
+
+  const handleHomeChannelSelect = useCallback((ch: Channel) => {
+    setActiveChannel(ch);
+    setActiveTab("Live");
+  }, [setActiveChannel, setActiveTab]);
 
   const [startIndex, setStartIndex] = useState(0);
 
@@ -1641,7 +1669,7 @@ function HomeContent({
                     <div className={`w-11 h-11 sm:w-13 sm:h-13 flex items-center justify-center rounded-2xl border-[1.5px] transition-transform duration-300 group-hover/card-wrapper:scale-110 ${
                       isDark ? "bg-white/[0.05] border-white/10" : "bg-white border-slate-200"
                     }`}>
-                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[70%] object-contain scale-[0.65]" />
+                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[70%] object-contain scale-[0.65]" isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} />
                     </div>
                     <div className="space-y-0.5">
                       <p className={`text-xs font-black truncate max-w-full ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
@@ -1722,10 +1750,7 @@ function HomeContent({
                 key={`${ch.name}-${ch.stream}`} 
                 ch={ch} 
                 className="hover:scale-105"
-                onClick={(targetCh) => {
-                  setActiveChannel(targetCh || ch);
-                  setActiveTab("Live");
-                }} 
+                onClick={handleHomeChannelSelect} 
                 isDark={isDark} 
                 favorites={favorites} 
                 toggleFavorite={toggleFavorite} 
@@ -1977,7 +2002,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20 }: { 
+const TVContent = React.memo(function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentHour, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20 }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -1997,7 +2022,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
   bypassed?: boolean,
   setIsPlayerInView: (val: boolean) => void,
   loadingTreatment: string,
-  currentTime: Date,
+  currentHour: number,
   onChannelContextMenu: (e: React.MouseEvent, ch: Channel) => void,
   pinnedChannels: Channel[],
   togglePinChannel: (ch: Channel) => void,
@@ -2214,7 +2239,6 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     });
   }, []);
 
-  const currentHour = currentTime ? currentTime.getHours() : new Date().getHours();
   const activeItemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -2444,7 +2468,6 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     setIsMultiview(!isMultiview);
   };
 
-  const timeString = (currentTime || new Date()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
   const isMaintenance = active.status === "maintenance";
 
   const displayChannelsList = useMemo(() => {
@@ -2820,9 +2843,9 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
     }
   };
 
-  const playChannelAndEnterFullscreen = (ch: Channel) => {
+  const playChannelAndEnterFullscreen = useCallback((ch: Channel) => {
     setActive(ch);
-  };
+  }, [setActive]);
 
   const toggleMute = () => {
     const video = videoRef.current;
@@ -3122,7 +3145,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                 {/* Individual Control Bar */}
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover/slot:opacity-100 transition-opacity flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 truncate">
-                    {ch && <ChannelLogo src={ch.logo} alt={ch.name} className="w-5 h-5" isDark={true} />}
+                    {ch && <ChannelLogo src={ch.logo} alt={ch.name} className="w-5 h-5" isDark={true} isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} />}
                     <span className="text-[10px] font-bold text-white truncate">{ch?.name || "Chọn kênh"}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -3172,7 +3195,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   animate={{ opacity: 1, scale: 1 }}
                   className="relative z-10 flex flex-col items-center text-center space-y-6"
                 >
-                  <ChannelLogo src={active.logo} alt={active.name} className="w-48 h-48 md:w-64 md:h-64" isDark={true} />
+                  <ChannelLogo src={active.logo} alt={active.name} className="w-48 h-48 md:w-64 md:h-64" isDark={true} isUpdatedLogo={active.isUpdatedLogo} logoNumber={active.logoNumber} />
                   <div className="space-y-1">
                     <p className="text-white/60 text-lg md:text-xl font-medium">Kênh chưa tồn tại trong hệ thống</p>
                   </div>
@@ -4566,7 +4589,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                         <ChannelCard 
                           key={`tv-${cat}-${ch.name}-${ch.stream}`} 
                           ch={ch} 
-                          onClick={(targetCh) => playChannelAndEnterFullscreen(targetCh || ch)} 
+                          onClick={playChannelAndEnterFullscreen} 
                           isDark={isDark} 
                           isActive={active.name === ch.name} 
                           favorites={favorites} 
@@ -4669,7 +4692,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
                   <ChannelCard 
                     key={`fav-tab-${ch.name}`} 
                     ch={ch} 
-                    onClick={(targetCh) => playChannelAndEnterFullscreen(targetCh || ch)} 
+                    onClick={playChannelAndEnterFullscreen} 
                     isDark={isDark} 
                     isActive={active.name === ch.name} 
                     favorites={favorites} 
@@ -5125,7 +5148,7 @@ function TVContent({ key, mode = "live", active, setActive, isDark, favorites, t
       </AnimatePresence>
     </div>
   );
-}
+});
 
 const settingsSearchOptions = [
   { name: "Hồ sơ cá nhân", page: 1, desc: "Chi tiết tài khoản của bạn và chỉnh sửa tên hiển thị", match: ["hồ sơ", "ho so", "tài khoản", "tai khoan", "username", "user id", "tên", "ten", "đăng nhập", "đăng xuất", "profile"] },
@@ -16096,7 +16119,7 @@ const [headingBar, setHeadingBar] = useState(() => {
     localStorage.setItem("vplay_favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  const toggleFavorite = (ch: typeof channels[0]) => {
+  const toggleFavorite = useCallback((ch: typeof channels[0]) => {
     setFavorites(prev => {
       const exists = prev.includes(ch.name);
       if (exists) {
@@ -16107,7 +16130,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         return [...prev, ch.name];
       }
     });
-  };
+  }, []);
 
   const [pinnedChannels, setPinnedChannels] = useState<Channel[]>(() => {
     const saved = localStorage.getItem("vplay_pinned_channels");
@@ -16116,7 +16139,7 @@ const [headingBar, setHeadingBar] = useState(() => {
 
   const [channelContextMenu, setChannelContextMenu] = useState<{ x: number, y: number, ch: Channel } | null>(null);
 
-  const togglePinChannel = (ch: Channel) => {
+  const togglePinChannel = useCallback((ch: Channel) => {
     setPinnedChannels(prev => {
       const exists = prev.some(p => p.name === ch.name);
       let next;
@@ -16130,7 +16153,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       localStorage.setItem("vplay_pinned_channels", JSON.stringify(next));
       return next;
     });
-  };
+  }, []);
 
   const exportAllToM3U8 = () => {
     try {
@@ -16190,7 +16213,7 @@ const [headingBar, setHeadingBar] = useState(() => {
     }
   };
 
-  const onChannelContextMenu = (e: React.MouseEvent, ch: Channel) => {
+  const onChannelContextMenu = useCallback((e: React.MouseEvent, ch: Channel) => {
     e.preventDefault();
     e.stopPropagation();
     setChannelContextMenu({
@@ -16198,9 +16221,9 @@ const [headingBar, setHeadingBar] = useState(() => {
       y: e.clientY,
       ch: ch
     });
-  };
+  }, []);
 
-  const handleChannelSelect = (ch: typeof channels[0], keepTab = false) => {
+  const handleChannelSelect = useCallback((ch: typeof channels[0], keepTab = false) => {
     if (!user && !isDev && !bypassed) {
       setShowAuthModal(true);
       return;
@@ -16211,7 +16234,11 @@ const [headingBar, setHeadingBar] = useState(() => {
       setActiveTab("Live");
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [user, isDev, bypassed]);
+
+  const handleChannelSelectKeepTab = useCallback((ch: typeof channels[0]) => {
+    handleChannelSelect(ch, true);
+  }, [handleChannelSelect]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -16303,11 +16330,11 @@ const [headingBar, setHeadingBar] = useState(() => {
     return () => unsubscribe();
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     setIsGuestMode(false);
     localStorage.removeItem("vplay_guest_mode");
     setShowAuthModal(true);
-  };
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -16373,6 +16400,7 @@ const [headingBar, setHeadingBar] = useState(() => {
   }, []);
 
   const [showWhatsNew, setShowWhatsNew] = useState(false);
+  const [showVplayRefreshModal, setShowVplayRefreshModal] = useState(true);
 
   const closeWhatsNew = () => {
     setShowWhatsNew(false);
@@ -16524,6 +16552,35 @@ const [headingBar, setHeadingBar] = useState(() => {
             liquidGlass={liquidGlass} 
           />
         )}
+        <LiquidModal
+          isOpen={showVplayRefreshModal}
+          onClose={() => setShowVplayRefreshModal(false)}
+          isDark={isDark}
+          liquidGlass={liquidGlass}
+          title="Nhà mới, sức sống mới"
+        >
+          <div className="mt-4 space-y-6 text-center">
+            <p className={`text-sm leading-relaxed ${isDark ? "text-white/80" : "text-slate-700"} font-medium`}>
+              26.7 sẽ là bản cập nhật cuối cùng của Vplay tại nơi này. Bản cập nhật tiếp theo 26.8, Vplay sẽ tiếp tục ở một nơi mới với dự án <strong className="text-[#4AC4FE] font-extrabold">Vplay Refresh</strong>. Mục tiêu của dự án là dựng lại Vplay từ đầu nhằm loại bỏ những vấn đề về hiệu năng, các code cũ chồng chất lên code mới, đem đến cho người dùng một trải nghiệm mượt mà hơn, tinh tế hơn với hiệu ứng <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-[#4AC4FE]">Liquid Glass</span>. Cảm ơn bạn đã luôn quan tâm và trải nghiệm Vplay, hẹn gặp ở nơi mới!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 mt-6">
+              <a 
+                href="https://vplay-refresh.vercel.app" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex-1 text-center py-4 bg-gradient-to-r from-[#4AC4FE] to-teal-400 hover:from-[#32bcfc] hover:to-teal-500 active:scale-[0.98] transition-all text-black font-extrabold rounded-2xl flex items-center justify-center gap-1.5 shadow-[0_4px_20px_rgba(74,196,254,0.4)] hover:shadow-[0_6px_24px_rgba(74,196,254,0.6)]"
+              >
+                Switch now!
+              </a>
+              <button 
+                onClick={() => setShowVplayRefreshModal(false)}
+                className={`flex-1 py-4 border-[1.5px] ${isDark ? "border-white/10 hover:bg-white/5 text-white" : "border-slate-200 hover:bg-slate-50 text-slate-700"} font-bold rounded-2xl active:scale-[0.98] transition-all`}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </LiquidModal>
         <LiquidModal 
           isOpen={isLockModalOpen} 
           onClose={() => setIsLockModalOpen(false)}
@@ -17487,7 +17544,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     bypassed={bypassed}
                     setIsPlayerInView={setIsPlayerInView}
                     loadingTreatment={loadingTreatment}
-                    currentTime={currentTime}
+                    currentHour={currentTime.getHours()}
                     onChannelContextMenu={onChannelContextMenu}
                     pinnedChannels={pinnedChannels}
                     togglePinChannel={togglePinChannel}
@@ -17509,7 +17566,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 <TVContent 
                   mode="realm"
                   active={activeChannel} 
-                  setActive={(ch) => handleChannelSelect(ch, true)} 
+                  setActive={handleChannelSelectKeepTab} 
                   isDark={isDark} 
                   favorites={favorites} 
                   toggleFavorite={toggleFavorite} 
@@ -17525,7 +17582,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   bypassed={bypassed}
                   setIsPlayerInView={setIsPlayerInView}
                   loadingTreatment={loadingTreatment}
-                  currentTime={currentTime}
+                  currentHour={currentTime.getHours()}
                   onChannelContextMenu={onChannelContextMenu}
                   pinnedChannels={pinnedChannels}
                   togglePinChannel={togglePinChannel}
