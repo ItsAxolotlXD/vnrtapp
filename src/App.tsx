@@ -692,7 +692,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isVplayLive = alt.toLowerCase().includes("vplay live");
 
   const scaleClass = isUpdatedLogo
-    ? "scale-[0.95]"
+    ? "scale-[0.75]"
     : isSCTV
       ? "scale-[0.83]"
       : isVplayLive
@@ -820,6 +820,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
   const isVTV6 = ch.name.includes("VTV6");
+  const realTimeUpdates = typeof window !== "undefined" && window.localStorage && window.localStorage.getItem("vplay_real_time_updates") !== "false";
 
   const [showVTV5Dropdown, setShowVTV5Dropdown] = useState(false);
 
@@ -900,28 +901,36 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
       className={`relative group ${className || ""}`}
     >
       {/* Background glow when hover (no glow for active) */}
-      <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-none z-0 ${isDark ? "bg-white/2" : "bg-slate-500/5"}`} />
+      <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-none z-0 ${realTimeUpdates ? (isDark ? "bg-white/2" : "bg-slate-500/5") : "hidden"}`} />
 
       <motion.button
-        whileTap={{ scale: 0.98 }}
+        whileTap={realTimeUpdates ? { scale: 0.98 } : undefined}
         onClick={handleCardClick}
         style={{
           backgroundImage: isDark 
             ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px)"
             : "repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px)"
         }}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-[background-color,background-image,backdrop-filter,opacity,box-shadow,transform] duration-300 z-10 rounded-2xl border-[1.5px] ${
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden ${
+          realTimeUpdates ? "transition-[background-color,background-image,backdrop-filter,opacity,box-shadow,transform] duration-300" : "transition-none duration-0"
+        } z-10 rounded-2xl ${
+          realTimeUpdates ? "border-[1.5px]" : (isActuallyActive ? "border-[3px]" : "border-[1.5px]")
+        } ${
           isDark 
             ? "bg-white/[0.08] backdrop-blur-2xl border-white/15 text-white shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]" 
             : "bg-white/45 backdrop-blur-2xl border-white/30 text-slate-900 shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]"
         } ${
-          isLargeLayout
-            ? (isActuallyActive 
-                ? "border-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.35)]" 
-                : (isDark ? "border-white/10 group-hover:border-[#4AC4FE] hover:bg-white/[0.12] shadow-md" : "border-slate-200/40 group-hover:border-[#4AC4FE] hover:bg-white/80 shadow-md"))
-            : (isActuallyActive
-                ? "border-[#4AC4FE] shadow-[0_0_10px_rgba(74,196,254,0.35)]"
-                : (isDark ? "border-white/10 group-hover:border-[#4AC4FE] hover:bg-white/[0.12] hover:brightness-105" : "border-slate-200/40 group-hover:border-[#4AC4FE] hover:bg-white/80 hover:brightness-105"))
+          realTimeUpdates 
+            ? (isLargeLayout
+                ? (isActuallyActive 
+                    ? "border-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.35)]" 
+                    : (isDark ? "border-white/10 group-hover:border-[#4AC4FE] hover:bg-white/[0.12] shadow-md" : "border-slate-200/40 group-hover:border-[#4AC4FE] hover:bg-white/80 shadow-md"))
+                : (isActuallyActive
+                    ? "border-[#4AC4FE] shadow-[0_0_10px_rgba(74,196,254,0.35)]"
+                    : (isDark ? "border-white/10 group-hover:border-[#4AC4FE] hover:bg-white/[0.12] hover:brightness-105" : "border-slate-200/40 group-hover:border-[#4AC4FE] hover:bg-white/80 hover:brightness-105")))
+            : (isActuallyActive 
+                ? "border-white" 
+                : "border-white/10 hover:border-white hover:border-[3px]")
         }`}
       >
 
@@ -1013,7 +1022,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
                 ? (ch.category === "Địa phương" || ch.category === "Các kênh địa phương" ? "pb-[28px] pt-[6px] px-[15px]" : "p-[15px]") 
                 : "p-[5px] sm:p-[8px]")
         } ${isLargeLayout ? "scale-[0.78]" : "scale-100"}`}>
-          <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 ease-out">
+          <div className={`relative w-full h-full flex items-center justify-center ${realTimeUpdates ? "transition-transform duration-300 ease-out" : "transition-none duration-0"}`}>
             {/* Main Centered Logo */}
             <ChannelLogo 
                src={ch.logo} 
@@ -1121,6 +1130,7 @@ const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean
 };
 
 const RenderSlideContent = ({ slide }: { slide: any }) => {
+  const isRealTimeDisabled = typeof window !== "undefined" && window.localStorage && window.localStorage.getItem("vplay_real_time_updates") === "false";
   if (slide.logo) {
     const isVTVcab = slide.channel?.category === "VTVcab" || slide.tag?.includes("VTVcab") || slide.title?.includes("VTVCab");
     const logoScale = isVTVcab ? "" : "scale-[1.25] sm:scale-[1.3] md:scale-[1.35]";
@@ -1151,10 +1161,14 @@ const RenderSlideContent = ({ slide }: { slide: any }) => {
     );
   }
 
+  const slideUrl = (isRealTimeDisabled && slide.url && slide.url.includes(".gif"))
+    ? "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80"
+    : slide.url;
+
   return (
     <div className="relative w-full h-full select-none overflow-hidden bg-[#0d0f17]">
       <img
-        src={slide.url}
+        src={slideUrl}
         alt={slide.title}
         className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
         referrerPolicy="no-referrer"
@@ -1181,7 +1195,8 @@ function HomeContent({
   useNewDesign,
   activeChannelName,
   featureFlags,
-  showChannelNumbers
+  showChannelNumbers,
+  focusMode
 }: {
   setActiveTab: (tab: string) => void,
   setActiveChannel: (ch: typeof channels[0]) => void,
@@ -1200,7 +1215,8 @@ function HomeContent({
   useNewDesign?: boolean,
   activeChannelName?: string,
   featureFlags?: { [key: string]: boolean },
-  showChannelNumbers?: boolean
+  showChannelNumbers?: boolean,
+  focusMode?: boolean
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
   const [suggestedChannel, setSuggestedChannel] = useState<Channel | null>(null);
@@ -1349,9 +1365,11 @@ function HomeContent({
 
   return (
     <div className="relative space-y-16 pb-32 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-4 md:px-12">
-      {/* Dynamic Hero Section */}
-      <div 
-        onTouchStart={handleSlideTouchStart}
+      {!focusMode && (
+        <>
+          {/* Dynamic Hero Section */}
+          <div 
+            onTouchStart={handleSlideTouchStart}
         onTouchEnd={handleSlideTouchEnd}
         className="relative w-full overflow-visible py-4 select-none"
       >
@@ -1544,10 +1562,13 @@ function HomeContent({
           </motion.div>
         </AnimatePresence>
       </div>
+        </>
+      )}
 
       {/* VTV6 Return Banner */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+      {!focusMode && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
@@ -1616,6 +1637,7 @@ function HomeContent({
           </motion.a>
         </div>
       </motion.div>
+      )}
 
       {/* Promoted / Suggested Channels Horizontal Slider */}
       {randomChannels && randomChannels.length > 0 && (
@@ -1692,7 +1714,7 @@ function HomeContent({
       )}
 
       {/* Premium Guest Loyalty Banner - Replaced with Explore Style */}
-      {!user && !bypassed && (
+      {!user && !bypassed && !focusMode && (
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1736,7 +1758,7 @@ function HomeContent({
       )}
 
       {/* Favorites Section */}
-      {favorites.length > 0 && (
+      {favorites.length > 0 && !focusMode && (
         <div className="space-y-10">
           <div className="flex flex-col gap-2 px-2">
             <div className="flex items-center gap-3">
@@ -2010,7 +2032,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-const TVContent = React.memo(function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentHour, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20 }: { 
+const TVContent = React.memo(function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentHour, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20, onAlert }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -2044,8 +2066,10 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
   isMuted?: boolean,
   setIsMuted?: (m: boolean) => void,
   searchBoxBlur?: number,
-  searchBoxOpacity?: number
+  searchBoxOpacity?: number,
+  onAlert?: (title: string, msg: string) => void
 }) {
+  const realTimeUpdates = typeof window !== "undefined" && window.localStorage && window.localStorage.getItem("vplay_real_time_updates") !== "false";
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -2443,6 +2467,12 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
   const [isMultiview, setIsMultiview] = useState(false);
   const [multiviewCount, setMultiviewCount] = useState(4); // Default 4 channels
   const [multiviewChannels, setMultiviewChannels] = useState<(Channel | null)[]>([]);
+
+  useEffect(() => {
+    if (!realTimeUpdates) {
+      setIsMultiview(false);
+    }
+  }, [realTimeUpdates]);
   const [multiviewVolumes, setMultiviewVolumes] = useState<{ [key: number]: number }>({});
   const [showLayoutMenu, setShowLayoutMenu] = useState(false);
 
@@ -2470,6 +2500,10 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
   }, [active, isMultiview]);
 
   const toggleMultiview = () => {
+    if (!realTimeUpdates) {
+      onAlert?.("Yêu cầu cài đặt", "Yêu cầu bật tùy chọn Dynamic Motion & Real-time Updates để sử dụng tính năng Multiview!");
+      return;
+    }
     if (!isMultiview) {
       setMultiviewChannels([active, ...Array(multiviewCount - 1).fill(null)]);
     }
@@ -3372,6 +3406,10 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
                                           <button 
                                             key={n}
                                             onClick={() => {
+                                              if (!realTimeUpdates) {
+                                                onAlert?.("Yêu cầu cài đặt", "Yêu cầu bật tùy chọn Dynamic Motion & Real-time Updates để sử dụng tính năng Multiview!");
+                                                return;
+                                              }
                                               setMultiviewCount(n);
                                               if (!isMultiview) setIsMultiview(true);
                                             }}
@@ -8033,7 +8071,7 @@ function SettingsNew(props: any) {
                     {renderBullet(
                       <div className="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/5">
                         <div>
-                           <p className="font-semibold text-sm text-left">Real-time Updates</p>
+                           <p className="font-semibold text-sm text-left">Dynamic Motion & Real-time Updates</p>
                            <p className="text-xs opacity-50 text-left font-normal animate-none">Cập nhật đồng hồ theo từng giây, theo dõi con trỏ chuột và kích hoạt hiệu ứng mượt mà</p>
                         </div>
                         <GlassToggle
@@ -10656,6 +10694,7 @@ function DynamicIsland({
   toasts,
   notifications = [],
   setNotifications,
+  realTimeUpdates = true,
 }: {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
@@ -10675,6 +10714,7 @@ function DynamicIsland({
   toasts?: ToastMessage[];
   notifications?: ToastMessage[];
   setNotifications?: React.Dispatch<React.SetStateAction<ToastMessage[]>>;
+  realTimeUpdates?: boolean;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(false);
@@ -10932,7 +10972,7 @@ function DynamicIsland({
   const formattedTimeWithSeconds = currentTime.toLocaleTimeString("vi-VN", {
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
+    ...(realTimeUpdates ? { second: "2-digit" } : {}),
     hour12: false,
   });
 
@@ -10964,7 +11004,7 @@ function DynamicIsland({
       <motion.div
         ref={containerRef}
         layout
-        transition={{
+        transition={!realTimeUpdates ? { duration: 0 } : {
           type: "spring",
           stiffness: 300,
           damping: 18,
@@ -16612,10 +16652,20 @@ const [headingBar, setHeadingBar] = useState(() => {
               <div className="flex gap-3 border-t border-black/[0.05] dark:border-white/5 pt-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0 mt-2" />
                 <p className={`text-xs leading-relaxed ${isDark ? "text-white/70" : "text-slate-600"} font-semibold`}>
-                  Đã khắc phục tình trạng web bị giật lag điên cuồng do việc re-render liên tục khi cập nhật đồng hồ và tính toán dữ liệu của các kênh mà chưa được tối ưu hóa bằng React memo và useCallback. Nếu web vẫn còn lag, bạn hãy truy cập <strong className="text-[#4AC4FE]">Cài đặt 👉 Accessibility</strong> và tắt tùy chọn <strong className="text-[#4AC4FE]">Real-time Updates</strong>.
+                  Đã khắc phục tình trạng web bị giật lag điên cuồng do việc re-render liên tục khi cập nhật đồng hồ và tính toán dữ liệu của các kênh mà chưa được tối ưu hóa bằng React memo và useCallback. Nếu web vẫn còn lag, bạn hãy truy cập <strong className="text-[#4AC4FE]">Cài đặt 👉 Accessibility</strong> và tắt tùy chọn <strong className="text-[#4AC4FE]">Dynamic Motion & Real-time Updates</strong>.
                 </p>
               </div>
             </div>
+
+            <button 
+              onClick={() => {
+                setRealTimeUpdates(false);
+                onAlert("Đã tắt", "Đã tắt Dynamic Motion & Real-time Updates thành công!");
+              }}
+              className={`w-full py-3.5 border-[1.5px] ${isDark ? "border-[#FF453A]/30 hover:bg-[#FF453A]/10 text-[#FF453A]" : "border-[#FF453A]/30 hover:bg-[#FF453A]/5 text-[#FF3B30]"} font-black rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-1.5`}
+            >
+              Disable Dynamic Motion & Real-time Updates
+            </button>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <a 
@@ -16699,6 +16749,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               toasts={toasts}
               notifications={notifications}
               setNotifications={setNotifications}
+              realTimeUpdates={realTimeUpdates}
             />
           ) : (
             <TopBar 
@@ -17613,6 +17664,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     setIsMuted={setIsMuted}
                     searchBoxBlur={searchBoxBlur}
                     searchBoxOpacity={searchBoxOpacity}
+                    onAlert={onAlert}
                   />
                 </div>
               )}
@@ -17651,6 +17703,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   setIsMuted={setIsMuted}
                   searchBoxBlur={searchBoxBlur}
                   searchBoxOpacity={searchBoxOpacity}
+                  onAlert={onAlert}
                 />
               )}
               {displayTab === "Experiments" && (
@@ -18214,7 +18267,9 @@ const [headingBar, setHeadingBar] = useState(() => {
         <motion.div 
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className={`flex flex-col items-center gap-0 pointer-events-auto w-full px-4 transition-all duration-500 ease-out ${
+          className={`flex flex-col items-center gap-0 pointer-events-auto w-full px-4 transition-all ${
+            realTimeUpdates ? "duration-500 ease-out" : "duration-0"
+          } ${
             isNavVisible ? "max-w-lg scale-100" : "max-w-[280px] xs:max-w-sm md:max-w-md scale-95"
           }`}
         >
@@ -18224,7 +18279,9 @@ const [headingBar, setHeadingBar] = useState(() => {
             animate={{ scale: 1 }}
             onTouchStart={handleNavTouchStart}
             onTouchEnd={handleNavTouchEnd}
-            className={`flex-1 w-full flex items-center justify-between p-1 transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.22)] border-black/5 dark:border-white/20 ${
+            className={`flex-1 w-full flex items-center justify-between p-1 transform transition-all ${
+              realTimeUpdates ? "duration-500 hover:scale-[1.01] hover:-translate-y-px active:scale-[0.995] ease-out" : "duration-0"
+            } overflow-hidden relative rounded-full border shadow-[0_12px_32px_rgba(0,0,0,0.15),_inset_0_1px_1.5px_rgba(255,255,255,0.22)] border-black/5 dark:border-white/20 ${
               isNavVisible ? "h-16 md:h-18" : "h-11 md:h-13"
             }`}
             style={{
@@ -18233,14 +18290,16 @@ const [headingBar, setHeadingBar] = useState(() => {
               backgroundColor: `rgba(255, 255, 255, ${dockOpacity / 100})`
             }}>
             
-            <div className={`flex-1 overflow-hidden relative flex items-center justify-center w-full transition-all duration-300 ${isNavVisible ? "h-14" : "h-10"}`}>
+            <div className={`flex-1 overflow-hidden relative flex items-center justify-center w-full transition-all ${
+              realTimeUpdates ? "duration-300" : "duration-0"
+            } ${isNavVisible ? "h-14" : "h-10"}`}>
               <AnimatePresence initial={false}>
                 <motion.div
                   key={`nav-page-${navPage}`}
-                  initial={{ x: slideDirection * 160, opacity: 0 }}
+                  initial={realTimeUpdates ? { x: slideDirection * 160, opacity: 0 } : { x: 0, opacity: 1 }}
                   animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -slideDirection * 160, opacity: 0, position: "absolute", transition: { duration: 0.12 } }}
-                  transition={{ type: "spring", damping: 28, stiffness: 350 }}
+                  exit={realTimeUpdates ? { x: -slideDirection * 160, opacity: 0, position: "absolute", transition: { duration: 0.12 } } : { opacity: 0, position: "absolute", transition: { duration: 0 } }}
+                  transition={realTimeUpdates ? { type: "spring", damping: 28, stiffness: 350 } : { duration: 0 }}
                   className="absolute inset-x-0 top-0 bottom-0 flex items-center justify-around w-full h-full px-4"
                 >
                   {navPage === 0 && (
@@ -18258,7 +18317,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center p-0.5">
                             <button
                               onClick={() => {
-                                triggerNavBounce();
+                                if (realTimeUpdates) triggerNavBounce();
                                 if (tabId === "Thông báo") {
                                   setFeatureFlags(prev => ({ ...prev, dynamic_island: true }));
                                   window.dispatchEvent(new CustomEvent("vplay-island", { detail: { mode: "notifications", active: true } }));
@@ -18273,7 +18332,9 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 }
                                 setActiveTab(tabId);
                               }}
-                              className={`relative flex flex-col items-center justify-center px-1.5 rounded-full transition-all duration-300 group z-10 w-full ${
+                              className={`relative flex flex-col items-center justify-center px-1.5 rounded-full ${
+                                realTimeUpdates ? "transition-all duration-300" : "transition-none duration-0"
+                              } group z-10 w-full ${
                                 isNavVisible ? "py-1 h-13" : "py-0 h-8 md:h-9.5"
                               } ${
                                 isActive 
@@ -18293,20 +18354,22 @@ const [headingBar, setHeadingBar] = useState(() => {
                                     WebkitBackdropFilter: "blur(4px)",
                                     boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
                                   }}
-                                  transition={{ type: "spring", stiffness: 480, damping: 28 }}
+                                  transition={realTimeUpdates ? { type: "spring", stiffness: 480, damping: 28 } : { duration: 0 }}
                                 />
                               )}
                               <motion.div
                                 animate={isActive ? { scale: 1 } : { scale: 1 }}
-                                whileTap={{ scale: 0.8 }}
+                                whileTap={realTimeUpdates ? { scale: 0.8 } : undefined}
                                 className="z-10 relative flex flex-col items-center justify-center w-full"
                               >
                                 <Icon 
                                   size={23}
-                                  className={`h-6 w-6 flex-shrink-0 transition-colors duration-300 ${
-                                    isActive 
-                                      ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.08)] stroke-[2.2px]" 
-                                      : "text-black/60 group-hover:text-black"
+                                  className={`h-6 w-6 flex-shrink-0 ${realTimeUpdates ? "transition-colors duration-300" : ""} ${
+                                    !realTimeUpdates 
+                                      ? "text-white" 
+                                      : isActive 
+                                        ? "text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.08)] stroke-[2.2px]" 
+                                        : "text-black/60 group-hover:text-black"
                                   }`} 
                                 />
                                 {tabId === "Cài đặt" && !user && (
