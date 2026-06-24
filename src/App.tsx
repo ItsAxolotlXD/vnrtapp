@@ -515,7 +515,11 @@ function LiquidModal({
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const isRealTimeDisabled = typeof window !== "undefined" && window.localStorage && window.localStorage.getItem("vplay_real_time_updates") === "false";
+  const showGlow = isHovered && !isRealTimeDisabled;
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isRealTimeDisabled) return;
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     setCoords({
@@ -546,7 +550,7 @@ function LiquidModal({
             transition={{ type: "spring", damping: 26, stiffness: 320 }}
             className={`relative w-full ${maxWidthClass} overflow-hidden p-[1.5px] rounded-[32px] transition-all duration-300 ease-out`}
             style={{
-              background: isHovered 
+              background: showGlow 
                 ? `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.05) 75%, transparent 100%), linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%)`
                 : `linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.15) 100%)`,
               boxShadow: isDark 
@@ -594,7 +598,11 @@ function ShinyGlassWrapper({
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const isRealTimeDisabled = typeof window !== "undefined" && window.localStorage && window.localStorage.getItem("vplay_real_time_updates") === "false";
+  const showGlow = isHovered && !isRealTimeDisabled;
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isRealTimeDisabled) return;
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     setCoords({
@@ -611,7 +619,7 @@ function ShinyGlassWrapper({
       onMouseLeave={() => setIsHovered(false)}
       className={`relative p-[1.5px] overflow-hidden transition-all duration-300 ease-out ${roundedClass} ${className}`}
       style={{
-        background: isHovered 
+        background: showGlow 
           ? `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.05) 75%, transparent 100%), linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%)`
           : `linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.15) 100%)`,
         boxShadow: isDark 
@@ -684,7 +692,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isVplayLive = alt.toLowerCase().includes("vplay live");
 
   const scaleClass = isUpdatedLogo
-    ? "scale-[0.55]"
+    ? "scale-[0.95]"
     : isSCTV
       ? "scale-[0.83]"
       : isVplayLive
@@ -7490,6 +7498,7 @@ function SettingsNew(props: any) {
   const {
     isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
     disableLiquidGlass, setDisableLiquidGlass,
+    realTimeUpdates, setRealTimeUpdates,
     liquidGlassBlur, setLiquidGlassBlur, liquidGlassOpacity, setLiquidGlassOpacity,
     useSidebar, setUseSidebar, isSidebarRight, setIsSidebarRight, isSidebarLocked, setIsSidebarLocked,
     isPinningEnabled, setIsPinningEnabled, user, userData, setUserData, onAlert, onLogin, onLogout,
@@ -8017,6 +8026,19 @@ function SettingsNew(props: any) {
                         <GlassToggle
                           active={!!featureFlags.low_latency_profile}
                           onToggle={() => setFeatureFlags((prev: any) => ({ ...prev, low_latency_profile: !prev.low_latency_profile }))}
+                          isDark={isDark}
+                        />
+                      </div>
+                    )}
+                    {renderBullet(
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/5">
+                        <div>
+                           <p className="font-semibold text-sm text-left">Real-time Updates</p>
+                           <p className="text-xs opacity-50 text-left font-normal animate-none">Cập nhật đồng hồ theo từng giây, theo dõi con trỏ chuột và kích hoạt hiệu ứng mượt mà</p>
+                        </div>
+                        <GlassToggle
+                          active={realTimeUpdates}
+                          onToggle={() => setRealTimeUpdates(!realTimeUpdates)}
                           isDark={isDark}
                         />
                       </div>
@@ -15222,6 +15244,17 @@ function App() {
     localStorage.setItem("vplay_disable_liquid_glass", disableLiquidGlass.toString());
   }, [disableLiquidGlass]);
 
+  const [realTimeUpdates, setRealTimeUpdates] = useState<boolean>(() => {
+    const saved = localStorage.getItem("vplay_real_time_updates");
+    return saved === null ? true : saved === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_real_time_updates", realTimeUpdates ? "true" : "false");
+  }, [realTimeUpdates]);
+
+  const isGlassDisabled = disableLiquidGlass || !realTimeUpdates;
+
   const [dockBlur, setDockBlur] = useState<number>(() => {
     const saved = localStorage.getItem("vplay_dock_blur");
     return saved ? parseInt(saved, 10) : 15;
@@ -15671,9 +15704,10 @@ const [headingBar, setHeadingBar] = useState(() => {
     return () => window.removeEventListener('resize', handleResize);
   }, [useSidebar]);
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const intervalMs = realTimeUpdates ? 1000 : 15000;
+    const timer = setInterval(() => setCurrentTime(new Date()), intervalMs);
     return () => clearInterval(timer);
-  }, []);
+  }, [realTimeUpdates]);
 
   const formatTime = (date: Date) => {
     let hours = date.getHours();
@@ -15688,7 +15722,7 @@ const [headingBar, setHeadingBar] = useState(() => {
     
     const hStr = hours.toString().padStart(2, '0');
     
-    if (clockFormat === "hh:mm") return `${hStr}:${minutes}${timeFormat === "12h" ? " " + ampm : ""}`;
+    if (!realTimeUpdates || clockFormat === "hh:mm") return `${hStr}:${minutes}${timeFormat === "12h" ? " " + ampm : ""}`;
     return `${hStr}:${minutes}:${seconds}${timeFormat === "12h" ? " " + ampm : ""}`;
   };
 
@@ -16406,6 +16440,8 @@ const [headingBar, setHeadingBar] = useState(() => {
     setShowWhatsNew(false);
   };
 
+  const disableAnimation = !realTimeUpdates || featureFlags.disable_animation;
+
   if (isAuthLoading) {
     return null;
   }
@@ -16413,8 +16449,8 @@ const [headingBar, setHeadingBar] = useState(() => {
   if (!user && !isGuestMode) {
     return (
       <MotionConfig 
-        transition={featureFlags.disable_animation ? { duration: 0 } : (featureFlags.low_latency_profile ? { duration: 0.15, ease: "easeOut" } : undefined)}
-        reducedMotion={featureFlags.disable_animation ? "always" : "user"}
+        transition={disableAnimation ? { duration: 0 } : (featureFlags.low_latency_profile ? { duration: 0.15, ease: "easeOut" } : undefined)}
+        reducedMotion={disableAnimation ? "always" : "user"}
       >
         <GatingLoginPage 
           isDark={isDark} 
@@ -16429,8 +16465,8 @@ const [headingBar, setHeadingBar] = useState(() => {
 
   return (
     <MotionConfig 
-      transition={featureFlags.disable_animation ? { duration: 0 } : (featureFlags.low_latency_profile ? { duration: 0.15, ease: "easeOut" } : undefined)}
-      reducedMotion={featureFlags.disable_animation ? "always" : "user"}
+      transition={disableAnimation ? { duration: 0 } : (featureFlags.low_latency_profile ? { duration: 0.15, ease: "easeOut" } : undefined)}
+      reducedMotion={disableAnimation ? "always" : "user"}
     >
       <style>{`
         /* Dynamic Button & Toggle Blur and Opacity Override */
@@ -16453,7 +16489,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           color: #0f172a !important;
         }
 
-        ${disableLiquidGlass ? `
+        ${isGlassDisabled ? `
           /* Turn off backdrop filters across the entire app */
           *, *::before, *::after {
             backdrop-filter: none !important;
@@ -16558,11 +16594,29 @@ const [headingBar, setHeadingBar] = useState(() => {
           isDark={isDark}
           liquidGlass={liquidGlass}
           title="Nhà mới, sức sống mới"
+          maxWidthClass="max-w-2xl"
         >
-          <div className="mt-4 space-y-6 text-center">
-            <p className={`text-sm leading-relaxed ${isDark ? "text-white/80" : "text-slate-700"} font-medium`}>
-              26.7 sẽ là bản cập nhật cuối cùng của Vplay tại nơi này. Bản cập nhật tiếp theo 26.8, Vplay sẽ tiếp tục ở một nơi mới với dự án <strong className="text-[#4AC4FE] font-extrabold">Vplay Refresh</strong>. Mục tiêu của dự án là dựng lại Vplay từ đầu nhằm loại bỏ những vấn đề về hiệu năng, các code cũ chồng chất lên code mới, đem đến cho người dùng một trải nghiệm mượt mà hơn, tinh tế hơn với hiệu ứng <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-[#4AC4FE]">Liquid Glass</span>. Cảm ơn bạn đã luôn quan tâm và trải nghiệm Vplay, hẹn gặp ở nơi mới!
+          <div className="mt-4 space-y-5 text-left">
+            <p className={`text-sm leading-relaxed ${isDark ? "text-white/90" : "text-slate-800"} font-medium`}>
+              26.7 sẽ là bản cập nhật cuối cùng của Vplay tại nơi này. Bản cập nhật tiếp theo 26.8, Vplay sẽ tiếp tục ở một nơi mới với dự án <strong className="text-[#4AC4FE] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-[#4AC4FE]">Vplay Refresh</strong>. Mục tiêu của dự án là dựng lại Vplay từ đầu nhằm loại bỏ những vấn đề về hiệu năng, các code cũ chồng chất lên code mới, đem đến cho người dùng một trải nghiệm mượt mà hơn, tinh tế hơn với hiệu ứng <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-[#4AC4FE]">Liquid Glass</span>. Cảm ơn bạn đã luôn quan tâm và trải nghiệm Vplay, hẹn gặp ở nơi mới!
             </p>
+            
+            <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-slate-50 border-slate-100"} space-y-4`}>
+              <div className="flex gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE] shrink-0 mt-2" />
+                <p className={`text-xs leading-relaxed ${isDark ? "text-white/70" : "text-slate-600"} font-semibold`}>
+                  Web này sẽ không bị bỏ hoang mà sẽ trở thành web thử nghiệm để test trước các tính năng mới cho web chính trong tương lai (app function, app features, luồng kênh, logo v.v)
+                </p>
+              </div>
+              
+              <div className="flex gap-3 border-t border-black/[0.05] dark:border-white/5 pt-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0 mt-2" />
+                <p className={`text-xs leading-relaxed ${isDark ? "text-white/70" : "text-slate-600"} font-semibold`}>
+                  Đã khắc phục tình trạng web bị giật lag điên cuồng do việc re-render liên tục khi cập nhật đồng hồ và tính toán dữ liệu của các kênh mà chưa được tối ưu hóa bằng React memo và useCallback. Nếu web vẫn còn lag, bạn hãy truy cập <strong className="text-[#4AC4FE]">Cài đặt 👉 Accessibility</strong> và tắt tùy chọn <strong className="text-[#4AC4FE]">Real-time Updates</strong>.
+                </p>
+              </div>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <a 
                 href="https://vplay-refresh.vercel.app" 
@@ -16821,7 +16875,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         setIsDev={setIsDev}
         liquidGlass={liquidGlass}
         setLiquidGlass={setLiquidGlass}
-        disableLiquidGlass={disableLiquidGlass}
+        disableLiquidGlass={isGlassDisabled}
         setDisableLiquidGlass={setDisableLiquidGlass}
         liquidGlassBlur={liquidGlassBlur}
         setLiquidGlassBlur={setLiquidGlassBlur}
@@ -17621,8 +17675,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setFeatureFlags={setFeatureFlags}
                       liquidGlass={liquidGlass} 
                       setLiquidGlass={setLiquidGlass}
-                      disableLiquidGlass={disableLiquidGlass}
+                      disableLiquidGlass={isGlassDisabled}
                       setDisableLiquidGlass={setDisableLiquidGlass}
+                      realTimeUpdates={realTimeUpdates}
+                      setRealTimeUpdates={setRealTimeUpdates}
                       liquidGlassBlur={liquidGlassBlur}
                       setLiquidGlassBlur={setLiquidGlassBlur}
                       liquidGlassOpacity={liquidGlassOpacity}
