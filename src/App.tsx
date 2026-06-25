@@ -2549,7 +2549,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
           || (filterType === "Hoạt động" && ch.status !== "maintenance")
           || (filterType === "Bảo trì" && ch.status === "maintenance")
           || (filterType === "Thiết yếu" && (ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")))
-          || (filterType === "VTV" && ch.category === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today"].includes(ch.name))
+          || (filterType === "VTV" && ch.category === "VTV" && ["VTV1", "VTV2", "VTV2 5 9 ENC Test", "VTV3", "VTV4", "VTV5", "VTV6", "VTV6 Thử nghiệm", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today", "Vietnam Today (Luồng Thử nghiệm)"].includes(ch.name))
           || (filterType === "VTVcab" && ch.category === "VTVcab")
           || (filterType === "SCTV" && ch.category === "SCTV")
           || (filterType === "HTV" && ch.category === "HTV")
@@ -2566,7 +2566,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
       });
   }, [displayChannelsList, searchQuery, liveSearchQuery, filterType, sortOrder]);
 
-  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"];
+  const LIVE_CATEGORIES = ["Thử nghiệm", "Thiết yếu", "Đặc biệt", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"];
   const filteredCategories = useMemo(() => {
     if (liveSubTab === "custom") {
       const cats = Array.from(new Set(filteredChannels.map(c => c.category || "Kênh tự thêm")));
@@ -2585,8 +2585,11 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
           c.name.includes("QPVN")
         );
       }
+      if (cat === "Đặc biệt") {
+        return filteredChannels.some(c => c.category === "Đặc biệt");
+      }
       if (cat === "VTV") {
-        const vtvNames = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today"];
+        const vtvNames = ["VTV1", "VTV2", "VTV2 5 9 ENC Test", "VTV3", "VTV4", "VTV5", "VTV6", "VTV6 Thử nghiệm", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today", "Vietnam Today (Luồng Thử nghiệm)"];
         return filteredChannels.some(c => c.category === "VTV" && vtvNames.includes(c.name));
       }
       if (cat === "VTVcab") {
@@ -4368,7 +4371,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
               <>
                 <div className="hidden xl:block h-6 w-px bg-white/15 self-center shrink-0" />
                 <div className="flex gap-1 overflow-x-auto no-scrollbar w-full xl:flex-1 py-1">
-                  {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"].map((type) => {
+                  {["Tất cả", "Thử nghiệm", "Thiết yếu", "Đặc biệt", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"].map((type) => {
                     const isSelected = filterType === type;
                     return (
                       <button
@@ -4593,84 +4596,100 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
             </div>
           ) : liveSubTab === "vplay" || liveSubTab === "custom" ? (
             <>
-              {filteredCategories.map((cat, catIdx) => {
-                let playlistChannels = liveSubTab === "custom"
-                  ? filteredChannels.filter(c => c.category === cat || (!c.category && cat === "Kênh tự thêm"))
-                  : (cat === "Thử nghiệm"
-                      ? filteredChannels.filter(c => c.category === "Thử nghiệm")
-                      : cat === "Thiết yếu" 
-                          ? filteredChannels.filter(c => c.name === "VTV1" || c.name === "VTV5" || c.name === "Vietnam Today" || c.name.includes("ANTV") || c.name.includes("QPVN"))
-                      : cat === "VTV"
-                        ? filteredChannels.filter(c => c.category === "VTV" && ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today"].includes(c.name))
-                        : cat === "VTVcab"
-                          ? filteredChannels.filter(c => c.category === "VTVcab")
-                          : cat === "HTV"
-                            ? filteredChannels.filter(c => c.category === "HTV")
-                            : cat === "HTVC"
-                              ? filteredChannels.filter(c => c.category === "HTVC")
-                              : cat === "SCTV"
-                                ? filteredChannels.filter(c => c.category === "SCTV")
-                                : cat === "Địa phương"
-                                  ? filteredChannels.filter(c => c.category === "Địa phương")
-                                  : cat === "Quốc tế"
-                                    ? filteredChannels.filter(c => c.category === "Quốc tế")
-                                    : filteredChannels.filter(c => c.category === cat));
-
-                if (cat === "Địa phương" && liveSubTab === "vplay") {
-                  const thvlChannels = playlistChannels.filter(c => c.name.toUpperCase().includes("VĨNH LONG") || c.name.toUpperCase().includes("THVL"));
-                  const nonThvlChannels = playlistChannels.filter(c => !(c.name.toUpperCase().includes("VĨNH LONG") || c.name.toUpperCase().includes("THVL")));
-                  playlistChannels = [...nonThvlChannels, ...thvlChannels];
-                }
-
-                const displaySubset = liveSubTab === "custom"
-                  ? playlistChannels.slice(customPage * 24, (customPage + 1) * 24)
-                  : playlistChannels;
-
-                if (displaySubset.length === 0 && liveSubTab === "custom") return null;
-
-                return (
-                  <div key={`${cat}-${catIdx}`} className="space-y-8 md:space-y-12 pb-14 md:pb-24 border-b border-white/80 last:border-b-0">
-                    <div className="flex items-center justify-between px-2 mb-3 md:mb-5">
-                      <div className="flex items-center gap-3 md:gap-4">
-                        <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
-                        <div>
-                          <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>{cat}</h3>
-                        </div>
+              {liveSubTab === "vplay" ? (
+                <div className="space-y-8 md:space-y-12 pb-14 md:pb-24">
+                  <div className="flex items-center justify-between px-2 mb-3 md:mb-5">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
+                      <div>
+                        <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>
+                          {filterType === "Tất cả" ? "Danh sách kênh" : `Kênh ${filterType}`}
+                        </h3>
                       </div>
-                      
-                      <span className={`text-[10px] font-black px-3 py-1 rounded-full ${isDark ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-500"}`}>
-                        {playlistChannels.length} Kênh
-                      </span>
                     </div>
-
-                    <div className={
-                      `mt-4 md:mt-6 ${isLargeLayout 
-                        ? "grid grid-cols-2 gap-4 md:gap-8" 
-                        : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"}`
-                    }>
-                      {displaySubset.map((ch) => (
-                        <ChannelCard 
-                          key={`tv-${cat}-${ch.name}-${ch.stream}`} 
-                          ch={ch} 
-                          onClick={playChannelAndEnterFullscreen} 
-                          isDark={isDark} 
-                          isActive={active.name === ch.name} 
-                          favorites={favorites} 
-                          toggleFavorite={toggleFavorite} 
-                          liquidGlass={liquidGlass}
-                          isLiveTab={true}
-                          onContextMenu={onChannelContextMenu}
-                          useNewDesign={useNewDesign}
-                          activeChannelName={active?.name}
-                          isLargeLayout={isLargeLayout}
-                          quickSwitchEnabled={featureFlags.quick_channel_switch}
-                          showChannelNumbers={showChannelNumbers}
-                        />
-                      ))}
-                    </div>
+                    
+                    <span className={`text-[10px] font-black px-3 py-1 rounded-full ${isDark ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-500"}`}>
+                      {filteredChannels.length} Kênh
+                    </span>
                   </div>
-                );
-              })}
+
+                  <div className={
+                    `mt-4 md:mt-6 ${isLargeLayout 
+                      ? "grid grid-cols-2 gap-4 md:gap-8" 
+                      : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"}`
+                  }>
+                    {filteredChannels.map((ch) => (
+                      <ChannelCard 
+                        key={`tv-all-${ch.name}-${ch.stream}`} 
+                        ch={ch} 
+                        onClick={playChannelAndEnterFullscreen} 
+                        isDark={isDark} 
+                        isActive={active.name === ch.name} 
+                        favorites={favorites} 
+                        toggleFavorite={toggleFavorite} 
+                        liquidGlass={liquidGlass}
+                        isLiveTab={true}
+                        onContextMenu={onChannelContextMenu}
+                        useNewDesign={useNewDesign}
+                        activeChannelName={active?.name}
+                        isLargeLayout={isLargeLayout}
+                        quickSwitchEnabled={featureFlags.quick_channel_switch}
+                        showChannelNumbers={showChannelNumbers}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                filteredCategories.map((cat, catIdx) => {
+                  let playlistChannels = filteredChannels.filter(c => c.category === cat || (!c.category && cat === "Kênh tự thêm"));
+                  const displaySubset = playlistChannels.slice(customPage * 24, (customPage + 1) * 24);
+
+                  if (displaySubset.length === 0) return null;
+
+                  return (
+                    <div key={`${cat}-${catIdx}`} className="space-y-8 md:space-y-12 pb-14 md:pb-24 border-b border-white/80 last:border-b-0">
+                      <div className="flex items-center justify-between px-2 mb-3 md:mb-5">
+                        <div className="flex items-center gap-3 md:gap-4">
+                          <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
+                          <div>
+                            <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>{cat}</h3>
+                          </div>
+                        </div>
+                        
+                        <span className={`text-[10px] font-black px-3 py-1 rounded-full ${isDark ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-500"}`}>
+                          {playlistChannels.length} Kênh
+                        </span>
+                      </div>
+
+                      <div className={
+                        `mt-4 md:mt-6 ${isLargeLayout 
+                          ? "grid grid-cols-2 gap-4 md:gap-8" 
+                          : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"}`
+                      }>
+                        {displaySubset.map((ch) => (
+                          <ChannelCard 
+                            key={`tv-${cat}-${ch.name}-${ch.stream}`} 
+                            ch={ch} 
+                            onClick={playChannelAndEnterFullscreen} 
+                            isDark={isDark} 
+                            isActive={active.name === ch.name} 
+                            favorites={favorites} 
+                            toggleFavorite={toggleFavorite} 
+                            liquidGlass={liquidGlass}
+                            isLiveTab={true}
+                            onContextMenu={onChannelContextMenu}
+                            useNewDesign={useNewDesign}
+                            activeChannelName={active?.name}
+                            isLargeLayout={isLargeLayout}
+                            quickSwitchEnabled={featureFlags.quick_channel_switch}
+                            showChannelNumbers={showChannelNumbers}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
 
               {/* Custom M3u Paging indicators */}
               {liveSubTab === "custom" && filteredChannels.length > 24 && (
@@ -11676,7 +11695,7 @@ function DynamicIsland({
                       </div>
                       
                       <div className="flex-1 overflow-y-auto no-scrollbar pt-2 pr-1 space-y-1.5">
-                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"].map((type) => {
+                        {["Tất cả", "Thử nghiệm", "Thiết yếu", "Đặc biệt", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"].map((type) => {
                           const isSelected = currentFilter === type;
                           return (
                             <button
