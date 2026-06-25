@@ -543,11 +543,11 @@ function LiquidModal({
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            initial={{ scale: 1.12, opacity: 0, y: 0 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 1.12, opacity: 0, y: 0 }}
-            transition={{ type: "spring", damping: 26, stiffness: 320 }}
-            className={`relative w-full ${maxWidthClass} overflow-hidden p-[1.5px] rounded-[32px] transition-all duration-300 ease-out`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0 }}
+            className={`relative w-full ${maxWidthClass} overflow-hidden p-[1.5px] rounded-[32px]`}
             style={{
               background: showGlow 
                 ? `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.05) 75%, transparent 100%), linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%)`
@@ -1687,19 +1687,15 @@ function HomeContent({
                     setActiveTab("Live");
                   }}
                 >
-                  <div className={`p-4 rounded-3xl border transition-all duration-300 flex flex-col items-center gap-4 text-center h-[175px] justify-between ${
+                  <div className={`p-4 rounded-3xl border transition-all duration-300 flex items-center justify-center text-center h-[175px] ${
                     isDark 
                       ? "bg-white/[0.03] border-white/5 hover:border-[#4AC4FE]/30 hover:bg-white/[0.05]" 
                       : "bg-[#4AC4FE]/5 border-[#4AC4FE]/10 hover:border-[#4AC4FE]/40 hover:bg-[#4AC4FE]/10 shadow-sm"
                   }`}>
-                    <div className={`w-11 h-11 sm:w-13 sm:h-13 flex items-center justify-center rounded-2xl border-[1.5px] transition-transform duration-300 group-hover/card-wrapper:scale-110 ${
+                    <div className={`w-24 h-24 flex items-center justify-center rounded-2xl border-[1.5px] transition-transform duration-300 group-hover/card-wrapper:scale-110 ${
                       isDark ? "bg-white/[0.05] border-white/10" : "bg-white border-slate-200"
                     }`}>
-                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[70%] object-contain scale-[0.65]" isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} />
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className={`text-xs font-black truncate max-w-full ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
-                      <span className="text-[9px] font-bold opacity-50 uppercase tracking-widest">{ch.category}</span>
+                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[80%] object-contain scale-[1.15]" isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} />
                     </div>
                   </div>
                 </motion.div>
@@ -2028,7 +2024,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-const TVContent = React.memo(function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentHour, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20, onAlert, focusMode }: { 
+const TVContent = React.memo(function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentHour, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20, onAlert, focusMode, askToChooseChannel, hasChosenInLiveSession }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -2064,7 +2060,9 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
   searchBoxBlur?: number,
   searchBoxOpacity?: number,
   onAlert?: (title: string, msg: string) => void,
-  focusMode?: boolean
+  focusMode?: boolean,
+  askToChooseChannel?: boolean,
+  hasChosenInLiveSession?: boolean
 }) {
   const realTimeUpdates = typeof window !== "undefined" && window.localStorage && window.localStorage.getItem("vplay_real_time_updates") !== "false";
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -3133,7 +3131,30 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
               liquidGlass ? "rounded-none md:rounded-2xl" : "rounded-none md:rounded-lg"
             } ${isDark ? "border-slate-800/40 md:border-slate-800" : "border-slate-300"}`}
           >
-        {!user && !isDev && !bypassed ? (
+        {askToChooseChannel && !hasChosenInLiveSession ? (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center bg-slate-950/80 backdrop-blur-md">
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              className={`p-10 border shadow-2xl flex flex-col items-center space-y-5 max-w-sm ${
+                isDark 
+                  ? "bg-[#18181c]/90 border-white/10 text-white" 
+                  : "bg-white/90 border-slate-200 text-slate-900"
+              } backdrop-blur-md rounded-3xl`}
+            >
+              <div className="p-4 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] animate-bounce">
+                <Play size={36} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-black tracking-tight uppercase">Yêu cầu chọn kênh</h3>
+                <p className={`text-xs leading-relaxed opacity-70 ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+                  Chế độ "Yêu cầu chọn kênh" đang bật. Vui lòng chọn một kênh truyền hình từ danh sách phía dưới để bắt đầu xem.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        ) : !user && !isDev && !bypassed ? (
           <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/40 p-6 text-center ${
             liquidGlass ? "backdrop-blur-xl" : "backdrop-blur-none"
           }`}>
@@ -10272,11 +10293,11 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               layoutId="auth-modal"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.5, opacity: 0 }}
-              transition={{ type: "spring", damping: 30, stiffness: 400 }}
-              className="relative w-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] rounded-[40px] md:rounded-[56px] p-[1.5px] transition-all duration-300 ease-out"
+               initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0 }}
+              className="relative w-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] rounded-[40px] md:rounded-[56px] p-[1.5px]"
               style={{
                 background: isHovered 
                   ? `radial-gradient(350px circle at ${coords.x}px ${coords.y}px, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.05) 75%, transparent 100%), linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%)`
@@ -10538,10 +10559,10 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
       className="fixed inset-0 z-[2000] flex items-center justify-center p-2 sm:p-4 md:p-8 backdrop-blur-2xl bg-black/60"
     >
       <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.5, opacity: 0 }}
-        transition={{ type: "spring", damping: 30, stiffness: 400 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0 }}
         className="w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[40px] md:rounded-[56px]"
       >
         <ShinyGlassWrapper 
@@ -12419,7 +12440,7 @@ function TopBar({
             </div>
           </Tooltip>
         )}
-        {(showClock || showDate) && (
+        {!removeClockAndDate && (showClock || showDate) && (
           <div 
             onClick={onSystemTrayClick}
             className="hidden sm:flex flex-col items-end text-right leading-none mr-3 font-google cursor-pointer hover:opacity-80 transition-all active:scale-95"
@@ -15196,8 +15217,8 @@ function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-md rounded-[32px]">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0 }} className="relative w-full max-w-md rounded-[32px]">
             <ShinyGlassWrapper isDark={isDark} roundedClass="rounded-[32px]" innerClass={`p-8 shadow-2xl relative w-full h-full flex flex-col ${isDark ? "bg-[#18181c]/92 text-white" : "bg-white/92 text-slate-800"}`}>
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-2xl font-bold tracking-tight">Chọn vị trí</h3>
@@ -16123,6 +16144,24 @@ const [headingBar, setHeadingBar] = useState(() => {
   const [showDate, setShowDate] = useState(() => localStorage.getItem("vplay_show_date") !== "false");
   const [floatyBars, setFloatyBars] = useState<boolean>(() => localStorage.getItem("vplay_floaty_bars") === "true");
 
+  const [removeClockAndDate, setRemoveClockAndDate] = useState(() => localStorage.getItem("vplay_remove_clock_and_date") === "true");
+  const [askToChooseChannel, setAskToChooseChannel] = useState(() => localStorage.getItem("vplay_ask_to_choose_channel") === "true");
+  const [hasChosenInLiveSession, setHasChosenInLiveSession] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_remove_clock_and_date", removeClockAndDate ? "true" : "false");
+  }, [removeClockAndDate]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_ask_to_choose_channel", askToChooseChannel ? "true" : "false");
+  }, [askToChooseChannel]);
+
+  useEffect(() => {
+    if (activeTab !== "Live") {
+      setHasChosenInLiveSession(false);
+    }
+  }, [activeTab]);
+
   useEffect(() => {
     localStorage.setItem("vplay_floaty_bars", floatyBars.toString());
   }, [floatyBars]);
@@ -16630,6 +16669,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       return;
     }
     setActiveChannel(ch);
+    setHasChosenInLiveSession(true);
     setPipExplicitlyClosed(false);
     if (!keepTab) {
       setActiveTab("Live");
@@ -18005,6 +18045,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                     searchBoxOpacity={searchBoxOpacity}
                     onAlert={onAlert}
                     focusMode={focusMode}
+                    askToChooseChannel={askToChooseChannel}
+                    hasChosenInLiveSession={hasChosenInLiveSession}
                   />
                 </div>
               )}
@@ -18535,7 +18577,7 @@ const [headingBar, setHeadingBar] = useState(() => {
 
               {/* Footer Section */}
               <div className={`p-6 mt-auto space-y-4 border-t ${isDark ? "border-white/5" : "border-slate-100"}`}>
-                {isSidebarExpanded && !headingBar && (
+                {isSidebarExpanded && !headingBar && !removeClockAndDate && (
                   <div className="flex flex-col gap-4 mb-2">
                     <div className="flex flex-col">
                       <div className="flex items-baseline gap-3">
@@ -18820,7 +18862,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     </div>
                   )}
 
-                  {!featureFlags.dynamic_island && navPage === 2 && (
+                  {!featureFlags.dynamic_island && navPage === 2 && !removeClockAndDate && (
                     <motion.div 
                       onClick={() => {
                         setIsWidgetsOpen(true);
