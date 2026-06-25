@@ -709,17 +709,20 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
   const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
+  const isUpdatedVTV = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV10", "VTV Cần Thơ", "Vietnam Today"].some(name => alt.includes(name));
 
   if (logoNumber) {
     return (
       <div className="relative w-full h-full flex items-center justify-center gap-1.5 select-none px-1">
-        <img 
-          src={finalSrc} 
-          alt={alt} 
-          referrerPolicy="no-referrer"
-          onError={() => setError(true)}
-          className={`${className} object-contain p-0 transition-opacity duration-300 scale-[0.55] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
-        />
+        <div className={isUpdatedVTV ? "scale-x-[0.88] flex items-center justify-center" : ""}>
+          <img 
+            src={finalSrc} 
+            alt={alt} 
+            referrerPolicy="no-referrer"
+            onError={() => setError(true)}
+            className={`${className} object-contain p-0 transition-opacity duration-300 scale-[0.55] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+          />
+        </div>
         <span 
           className="text-white text-lg font-black tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] filter pr-1 shrink-0"
         >
@@ -783,13 +786,15 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">
-      <img 
-        src={finalSrc} 
-        alt={alt} 
-        referrerPolicy="no-referrer"
-        onError={() => setError(true)}
-        className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-      />
+      <div className={isUpdatedVTV ? "scale-x-[0.88] flex items-center justify-center w-full h-full" : "w-full h-full flex items-center justify-center"}>
+        <img 
+          src={finalSrc} 
+          alt={alt} 
+          referrerPolicy="no-referrer"
+          onError={() => setError(true)}
+          className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+        />
+      </div>
     </div>
   );
 }
@@ -2032,7 +2037,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-const TVContent = React.memo(function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentHour, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20, onAlert }: { 
+const TVContent = React.memo(function TVContent({ key, mode = "live", active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentHour, onChannelContextMenu, pinnedChannels, togglePinChannel, isTopBarVisible = true, useNewDesign, setUseNewDesign, showChannelNumbers, setShowChannelNumbers, volume: volumeProp, setVolume: setVolumeProp, isMuted: isMutedProp, setIsMuted: setIsMutedProp, searchBoxBlur = 20, searchBoxOpacity = 20, onAlert, focusMode }: { 
   key?: string,
   mode?: "live" | "realm",
   active: Channel, 
@@ -2067,7 +2072,8 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
   setIsMuted?: (m: boolean) => void,
   searchBoxBlur?: number,
   searchBoxOpacity?: number,
-  onAlert?: (title: string, msg: string) => void
+  onAlert?: (title: string, msg: string) => void,
+  focusMode?: boolean
 }) {
   const realTimeUpdates = typeof window !== "undefined" && window.localStorage && window.localStorage.getItem("vplay_real_time_updates") !== "false";
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -2889,6 +2895,15 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
     setActive(ch);
   }, [setActive]);
 
+  useEffect(() => {
+    if (focusMode && active) {
+      const timer = setTimeout(() => {
+        enterFullscreen();
+      }, 550);
+      return () => clearTimeout(timer);
+    }
+  }, [active, focusMode]);
+
   const toggleMute = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -3109,7 +3124,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
       {/* MAIN WATCH AREA WITH SIDEBAR SCHEDULE */}
       <div className={`w-full max-w-full mx-auto flex flex-col lg:block gap-4 md:gap-6 mb-4 md:mb-6 relative z-10 transition-all duration-300 ${
         isDark ? "bg-vplay-background md:bg-transparent text-white" : "bg-white md:bg-transparent text-black"
-      } ${active.category === "Radio" ? "" : "lg:pr-[344px] xl:pr-[389px]"} pt-0 pb-0 md:py-0 md:px-0 px-0`}>
+      } ${active.category === "Radio" || focusMode ? "" : "lg:pr-[344px] xl:pr-[389px]"} pt-0 pb-0 md:py-0 md:px-0 px-0`}>
         
         {/* VIDEO PLAYER */}
         {isScrolledPast && (
@@ -3488,7 +3503,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
         </div>
 
         {/* LỊCH PHÁT SÓNG SECTION */}
-        {active.category !== "Radio" && (
+        {active.category !== "Radio" && !focusMode && (
         <div 
           className={`hidden lg:flex lg:absolute lg:top-0 lg:bottom-0 lg:right-0 lg:w-[320px] xl:w-[365px] shrink-0 flex-col p-4 md:p-5 border shadow-2xl overflow-hidden transition-all duration-300 lg:h-auto ${
             liquidGlass ? "rounded-xl md:rounded-2xl" : "rounded-lg"
@@ -3845,6 +3860,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
              </button>
            )}
            {/* Mobile-only Lịch Phát Sóng Button */}
+           {!focusMode && (
            <button 
              onClick={() => setIsMobileScheduleOpen(true)}
              className={`md:hidden p-3 rounded-xl border transition-all ${
@@ -3856,6 +3872,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
             >
               <Clock size={16} />
             </button>
+           )}
           </div>
         </div>
       {mode === "realm" && (
@@ -7552,7 +7569,8 @@ function SettingsNew(props: any) {
     dockBlur, setDockBlur, dockOpacity, setDockOpacity,
     contextMenuBlur, setContextMenuBlur, contextMenuOpacity, setContextMenuOpacity,
     buttonBlur, setButtonBlur, buttonOpacity, setButtonOpacity,
-    searchBoxBlur, setSearchBoxBlur, searchBoxOpacity, setSearchBoxOpacity
+    searchBoxBlur, setSearchBoxBlur, searchBoxOpacity, setSearchBoxOpacity,
+    focusMode, setFocusMode, amoledDark, setAmoledDark
   } = props;
 
   const [localActivePage, setLocalActivePage] = useState<number>(1);
@@ -7565,6 +7583,12 @@ function SettingsNew(props: any) {
   } | null>(null);
   const activePage = settingsActivePage !== undefined ? settingsActivePage : localActivePage;
   const setActivePage = setSettingsActivePage !== undefined ? setSettingsActivePage : setLocalActivePage;
+
+  useEffect(() => {
+    if (!realTimeUpdates && activePage === 3) {
+      setActivePage(2);
+    }
+  }, [realTimeUpdates, activePage, setActivePage]);
   const [settingsSearchQuery, setSettingsSearchQuery] = useState("");
   const [guestName, setGuestName] = useState(() => localStorage.getItem("vplay_guest_name") || "Khách");
   const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
@@ -7774,35 +7798,42 @@ function SettingsNew(props: any) {
         <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-3 md:pb-0 no-scrollbar">
           {pages.map((p) => {
             const isActive = activePage === p.num && settingsSearchQuery.trim() === "";
-            const PageIcon = p.icon;
+            const isLocked = p.num === 3 && !realTimeUpdates;
+            const PageIcon = isLocked ? Lock : p.icon;
             return (
               <button
                 key={`page-${p.num}`}
                 onClick={() => {
+                  if (isLocked) {
+                    onAlert("Cài đặt bị khóa", "Chủ đề giao diện bị khóa khi tắt Dynamic Motion & Real-time!");
+                    return;
+                  }
                   setActivePage(p.num);
                   setSettingsSearchQuery("");
                 }}
                 className={`relative flex items-center gap-3.5 pl-6 pr-5 py-3 rounded-full text-sm font-bold transition-all shrink-0 select-none ${
-                  isActive
-                    ? (isDark 
-                        ? "bg-white/5 text-[#4AC4FE] border border-white/10 shadow-md" 
-                        : "bg-slate-100 text-sky-600 border border-slate-200/50 shadow-sm")
-                    : (isDark 
-                        ? "hover:bg-white/5 border border-transparent text-slate-400" 
-                        : "hover:bg-slate-100/50 border border-transparent text-slate-500")
+                  isLocked
+                    ? "opacity-40 cursor-not-allowed border border-transparent text-slate-500"
+                    : isActive
+                      ? (isDark 
+                          ? "bg-white/5 text-[#4AC4FE] border border-white/10 shadow-md" 
+                          : "bg-slate-100 text-sky-600 border border-slate-200/50 shadow-sm")
+                      : (isDark 
+                          ? "hover:bg-white/5 border border-transparent text-slate-400" 
+                          : "hover:bg-slate-100/50 border border-transparent text-slate-500")
                 }`}
               >
-                {isActive && (
+                {isActive && !isLocked && (
                   <motion.div 
                     layoutId="activeVerticalPill" 
                     className="absolute left-2.5 top-3.5 bottom-3.5 w-1 rounded-full bg-[#4AC4FE]"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
-                <div className={`p-1.5 rounded-full shrink-0 ${isActive ? "bg-[#4AC4FE]/10 text-[#4AC4FE]" : "bg-transparent text-current"}`}>
+                <div className={`p-1.5 rounded-full shrink-0 ${isActive && !isLocked ? "bg-[#4AC4FE]/10 text-[#4AC4FE]" : "bg-transparent text-current"}`}>
                    <PageIcon size={18} />
                 </div>
-                <span className="text-inherit">{p.label}</span>
+                <span className="text-inherit">{p.label} {isLocked && "(Khóa)"}</span>
               </button>
             );
           })}
@@ -8100,6 +8131,19 @@ function SettingsNew(props: any) {
                         />
                       </div>
                     )}
+                    {renderBullet(
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/5">
+                        <div>
+                           <p className="font-semibold text-sm text-left">Focus Mode</p>
+                           <p className="text-xs opacity-50 text-left font-normal animate-none">Tập trung tối đa bằng cách ẩn các banner, ảnh thu nhỏ ở trang chủ và tự động phát toàn màn hình</p>
+                        </div>
+                        <GlassToggle
+                          active={focusMode}
+                          onToggle={() => setFocusMode(!focusMode)}
+                          isDark={isDark}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -8186,6 +8230,21 @@ function SettingsNew(props: any) {
                           className={`w-12 h-6 rounded-full transition-all duration-300 flex items-center p-0.5 shrink-0 select-none cursor-pointer ${disableLiquidGlass ? "bg-[#4AC4FE]" : "bg-slate-300 dark:bg-white/10"}`}
                         >
                           <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-all duration-300 ${disableLiquidGlass ? "translate-x-6" : "translate-x-0"}`} />
+                        </button>
+                      </div>
+                    )}
+
+                    {renderBullet(
+                      <div className="flex items-center justify-between w-full text-left">
+                        <div className="flex-1">
+                           <p className="font-semibold text-sm">AMOLED Dark</p>
+                           <p className="text-xs opacity-50 font-normal">Đổi background gradient thành màu đen tối tuyệt đối, tiết kiệm pin cho màn hình AMOLED</p>
+                        </div>
+                        <button
+                          onClick={() => setAmoledDark(!amoledDark)}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 flex items-center p-0.5 shrink-0 select-none cursor-pointer ${amoledDark ? "bg-[#4AC4FE]" : "bg-slate-300 dark:bg-white/10"}`}
+                        >
+                          <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-all duration-300 ${amoledDark ? "translate-x-6" : "translate-x-0"}`} />
                         </button>
                       </div>
                     )}
@@ -15289,6 +15348,22 @@ function App() {
     return saved === null ? true : saved === "true";
   });
 
+  const [focusMode, setFocusMode] = useState<boolean>(() => {
+    return localStorage.getItem("vplay_focus_mode") === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_focus_mode", focusMode ? "true" : "false");
+  }, [focusMode]);
+
+  const [amoledDark, setAmoledDark] = useState<boolean>(() => {
+    return localStorage.getItem("vplay_amoled_dark") === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_amoled_dark", amoledDark ? "true" : "false");
+  }, [amoledDark]);
+
   useEffect(() => {
     localStorage.setItem("vplay_real_time_updates", realTimeUpdates ? "true" : "false");
   }, [realTimeUpdates]);
@@ -16529,6 +16604,17 @@ const [headingBar, setHeadingBar] = useState(() => {
           color: #0f172a !important;
         }
 
+        ${amoledDark ? `
+          .bg-vplay-background, body, html, #root, [class*="bg-vplay-background"] {
+            background: #000000 !important;
+            background-color: #000000 !important;
+            background-image: none !important;
+          }
+          :root {
+            --vplay-background: #000000 !important;
+          }
+        ` : ""}
+
         ${isGlassDisabled ? `
           /* Turn off backdrop filters across the entire app */
           *, *::before, *::after {
@@ -16719,7 +16805,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         paddingRight: useSidebar && !isMobile && isSidebarRight 
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (!floatyBars ? 16 : 0) : (80 + (!floatyBars ? 16 : 0))) 
           : "env(safe-area-inset-right, 10px)",
-        paddingTop: headingBar ? (featureFlags.dynamic_island ? (floatyBars ? "calc(48px + env(safe-area-inset-top, 0px))" : "calc(64px + env(safe-area-inset-top, 0px))") : (floatyBars ? 56 : 76)) : 0,
+        paddingTop: headingBar ? ((featureFlags.dynamic_island && !focusMode) ? (floatyBars ? "calc(48px + env(safe-area-inset-top, 0px))" : "calc(64px + env(safe-area-inset-top, 0px))") : (floatyBars ? 56 : 76)) : 0,
       }}
       >
       {!showSplash && headingBar && (
@@ -16729,7 +16815,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             : "fixed top-3 left-3 right-3 md:left-4 md:right-4 z-[9999] transition-all duration-300 mt-[env(safe-area-inset-top,10px)]"
           }
         >
-          {featureFlags.dynamic_island ? (
+          {featureFlags.dynamic_island && !focusMode ? (
             <DynamicIsland 
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -17585,6 +17671,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   activeChannelName={activeChannel?.name}
                   featureFlags={featureFlags}
                   showChannelNumbers={showChannelNumbers}
+                  focusMode={focusMode}
                 />
               )}
               {displayTab === "Tìm kiếm" && (
@@ -17665,6 +17752,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     searchBoxBlur={searchBoxBlur}
                     searchBoxOpacity={searchBoxOpacity}
                     onAlert={onAlert}
+                    focusMode={focusMode}
                   />
                 </div>
               )}
@@ -17704,6 +17792,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   searchBoxBlur={searchBoxBlur}
                   searchBoxOpacity={searchBoxOpacity}
                   onAlert={onAlert}
+                  focusMode={focusMode}
                 />
               )}
               {displayTab === "Experiments" && (
@@ -17806,6 +17895,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                       setSearchBoxBlur={setSearchBoxBlur}
                       searchBoxOpacity={searchBoxOpacity}
                       setSearchBoxOpacity={setSearchBoxOpacity}
+                      focusMode={focusMode}
+                      setFocusMode={setFocusMode}
+                      amoledDark={amoledDark}
+                      setAmoledDark={setAmoledDark}
                     />
                   </div>
                 </div>
