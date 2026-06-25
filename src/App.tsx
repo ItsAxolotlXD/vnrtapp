@@ -482,7 +482,6 @@ const baseTabs = [
   { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
   { name: "Tìm kiếm", icon: SearchIcon, id: "Tìm kiếm" },
   { name: "Live", icon: TvIcon, id: "Live" },
-  { name: "Package", icon: PackageIcon, id: "Package" },
   { name: "Thông báo", icon: BellIcon, id: "Thông báo" },
   { name: "Settings (new)", icon: SettingsIcon, id: "Settings (new)" },
   { name: "Quản trị", icon: AdminIcon, id: "Quản trị" },
@@ -693,21 +692,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
 
   const isVTV1to10AndOthers = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV10", "Cần Thơ", "Vietnam Today"].some(name => alt.includes(name));
 
-  const scaleClass = (isUpdatedLogo && !isVTV1to10AndOthers)
-    ? "scale-[0.75]"
-    : isSCTV
-      ? "scale-[0.83]"
-      : isVplayLive
-        ? "scale-[1.0]"
-        : isVTVcab 
-          ? "scale-[1.1]" 
-          : isVTV
-            ? "scale-[1.12]"
-            : (isShrunk || isQuocTe)
-              ? "scale-[0.80]" 
-              : (isHTVGroup || isLocalGroup)
-                ? "scale-[1.25]"
-                : "scale-[1.35]";
+  const scaleClass = "scale-[0.82]";
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
   const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
@@ -934,26 +919,14 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
             ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 11px)"
             : "repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 11px)"
         }}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden ${
-          realTimeUpdates ? "transition-[background-color,background-image,backdrop-filter,opacity,box-shadow,transform] duration-300" : "transition-none duration-0"
-        } z-10 rounded-2xl ${
-          realTimeUpdates ? "border-[1.5px]" : (isActuallyActive ? "border-[3px]" : "border-[1.5px]")
-        } ${
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-[border-color,background-color] duration-150 z-10 rounded-2xl border-[1.5px] ${
           isDark 
-            ? "bg-white/[0.08] backdrop-blur-2xl border-white/15 text-white shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]" 
-            : "bg-white/45 backdrop-blur-2xl border-white/30 text-slate-900 shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]"
+            ? "bg-white/[0.08] backdrop-blur-2xl text-white shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]" 
+            : "bg-white/45 backdrop-blur-2xl text-slate-900 shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]"
         } ${
-          realTimeUpdates 
-            ? (isLargeLayout
-                ? (isActuallyActive 
-                    ? "border-[#4AC4FE] shadow-[0_0_15px_rgba(74,196,254,0.35)]" 
-                    : (isDark ? "border-white/10 group-hover:border-[#4AC4FE] hover:bg-white/[0.12] shadow-md" : "border-slate-200/40 group-hover:border-[#4AC4FE] hover:bg-white/80 shadow-md"))
-                : (isActuallyActive
-                    ? "border-[#4AC4FE] shadow-[0_0_10px_rgba(74,196,254,0.35)]"
-                    : (isDark ? "border-white/10 group-hover:border-[#4AC4FE] hover:bg-white/[0.12] hover:brightness-105" : "border-slate-200/40 group-hover:border-[#4AC4FE] hover:bg-white/80 hover:brightness-105")))
-            : (isActuallyActive 
-                ? "border-white" 
-                : "border-white/10 hover:border-white hover:border-[3px]")
+          isActuallyActive 
+            ? "border-white shadow-[0_0_12px_rgba(255,255,255,0.25)]" 
+            : "border-white/10 hover:border-white hover:bg-white/[0.12]"
         }`}
       >
 
@@ -2106,6 +2079,12 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
   const [isRemoteOpen, setIsRemoteOpen] = useState(false);
   const [remoteInput, setRemoteInput] = useState("");
   const [liveSearchQuery, setLiveSearchQuery] = useState("");
+  const [isCreateChannelOpen, setIsCreateChannelOpen] = useState(false);
+  const [createTab, setCreateTab] = useState<"single" | "m3u">("single");
+  const [createChannelName, setCreateChannelName] = useState("");
+  const [createChannelStream, setCreateChannelStream] = useState("");
+  const [createChannelLogo, setCreateChannelLogo] = useState("");
+  const [createChannelCategory, setCreateChannelCategory] = useState("Custom");
 
   const [liveSubTab, setLiveSubTab] = useState<"vplay" | "custom" | "url">(mode === "realm" ? "custom" : "vplay");
   const [liveTabSection, setLiveTabSection] = useState<"channels" | "schedule" | "favorites">("channels");
@@ -2549,25 +2528,13 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
   const filteredChannels = useMemo(() => {
     return displayChannelsList
       .filter(ch => {
-        if (
-          ch.name === "VTV5 Tây Nam Bộ" || 
-          ch.name === "VTV5 Tây Nguyên" ||
-          ch.name === "VOV4 Tây Bắc" || 
-          ch.name === "VOV4 Tây Nguyên" ||
-          ch.name === "VOV Giao Thông Hà Nội" || 
-          ch.name === "VOV Giao Thông TP.HCM" || 
-          ch.name === "VOV Giao Thông Mê Kông" || 
-          ch.name === "VOV Giao Thông Duyên Hải"
-        ) {
-          return false;
-        }
         const finalQuery = liveSearchQuery.trim() !== "" ? liveSearchQuery : searchQuery;
         const matchesSearch = ch.name.toLowerCase().includes(finalQuery.toLowerCase());
         const matchesType = filterType === "Tất cả" 
           || (filterType === "Hoạt động" && ch.status !== "maintenance")
           || (filterType === "Bảo trì" && ch.status === "maintenance")
           || (filterType === "Thiết yếu" && (ch.name === "VTV1" || ch.name === "VTV5" || ch.name === "Vietnam Today" || ch.name.includes("ANTV") || ch.name.includes("QPVN")))
-          || (filterType === "VTV" && ch.category === "VTV" && ["VTV1", "VTV2", "VTV2 5 9 ENC Test", "VTV3", "VTV4", "VTV5", "VTV6", "VTV6 Thử nghiệm", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today", "Vietnam Today (Luồng Thử nghiệm)"].includes(ch.name))
+          || (filterType === "VTV" && ch.category === "VTV" && ["VTV1", "VTV2", "VTV2 ENC", "VTV4 ENC", "VTV9 ENC", "VTV3", "VTV4", "VTV5", "VTV6", "VTV6 Thử nghiệm", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV Cần Thơ HD new test", "VTV10 HD", "Vietnam Today", "Vietnam Today (Luồng Thử nghiệm)", "VTV5 Tây Nam Bộ", "VTV5 Tây Nguyên"].includes(ch.name))
           || (filterType === "VTVcab" && ch.category === "VTVcab")
           || (filterType === "SCTV" && ch.category === "SCTV")
           || (filterType === "HTV" && ch.category === "HTV")
@@ -2607,7 +2574,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
         return filteredChannels.some(c => c.category === "Đặc biệt");
       }
       if (cat === "VTV") {
-        const vtvNames = ["VTV1", "VTV2", "VTV2 5 9 ENC Test", "VTV3", "VTV4", "VTV5", "VTV6", "VTV6 Thử nghiệm", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV10 HD", "Vietnam Today", "Vietnam Today (Luồng Thử nghiệm)"];
+        const vtvNames = ["VTV1", "VTV2", "VTV2 ENC", "VTV4 ENC", "VTV9 ENC", "VTV3", "VTV4", "VTV5", "VTV6", "VTV6 Thử nghiệm", "VTV7", "VTV8", "VTV9", "VTV Cần Thơ", "VTV Cần Thơ HD new test", "VTV10 HD", "Vietnam Today", "Vietnam Today (Luồng Thử nghiệm)", "VTV5 Tây Nam Bộ", "VTV5 Tây Nguyên"];
         return filteredChannels.some(c => c.category === "VTV" && vtvNames.includes(c.name));
       }
       if (cat === "VTVcab") {
@@ -3933,7 +3900,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
         </div>
       )}
 
-      {liveSubTab === "custom" && mode === "realm" && (
+      {liveSubTab === "custom" && (
         <div className="mt-6 flex flex-col gap-4 w-full px-2 md:max-w-4xl lg:max-w-6xl xl:max-w-[1280px] mx-auto">
           <div className="flex flex-wrap items-center gap-3 justify-center">
             {customPlaylists.map((pl, idx) => {
@@ -4154,6 +4121,264 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
         </div>
       )}
 
+      {isCreateChannelOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-10" onClick={() => setIsCreateChannelOpen(false)} />
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className={`relative w-full max-w-2xl rounded-3xl border shadow-2xl p-6 z-20 overflow-hidden flex flex-col max-h-[85vh] ${
+              isDark ? "bg-[#181924] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+              <h3 className="text-lg font-black tracking-tighter uppercase flex items-center gap-2 text-[#4AC4FE]">
+                <Plus size={18} />
+                Tạo kênh & Nhập Package
+              </h3>
+              <button onClick={() => setIsCreateChannelOpen(false)} className="p-1.5 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Tab Switcher inside modal */}
+            <div className="flex gap-4 mb-4 border-b border-white/5 pb-2">
+              <button
+                onClick={() => setCreateTab("single")}
+                className={`pb-2 text-xs font-bold transition-all relative ${createTab === "single" ? "text-[#4AC4FE]" : "text-slate-400"}`}
+              >
+                Tạo kênh lẻ (URL)
+                {createTab === "single" && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#4AC4FE] rounded-full" />}
+              </button>
+              <button
+                onClick={() => setCreateTab("m3u")}
+                className={`pb-2 text-xs font-bold transition-all relative ${createTab === "m3u" ? "text-[#4AC4FE]" : "text-slate-400"}`}
+              >
+                Nhập danh sách M3U (Package)
+                {createTab === "m3u" && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#4AC4FE] rounded-full" />}
+              </button>
+            </div>
+
+            <div className="space-y-4 overflow-y-auto pr-1 flex-1">
+              {createTab === "single" ? (
+                <>
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider opacity-60 mb-1.5 block">Tên Kênh</label>
+                    <input
+                      type="text"
+                      value={createChannelName}
+                      onChange={(e) => setCreateChannelName(e.target.value)}
+                      className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold border ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-100 border-slate-200 text-slate-850"}`}
+                      placeholder="Ví dụ: Kênh Thử Nghiệm HD"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider opacity-60 mb-1.5 block">Đường dẫn luồng (Stream URL)</label>
+                    <input
+                      type="text"
+                      value={createChannelStream}
+                      onChange={(e) => setCreateChannelStream(e.target.value)}
+                      className={`w-full px-3 py-2.5 rounded-xl text-xs font-mono border ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-100 border-slate-200 text-slate-850"}`}
+                      placeholder="https://example.com/live.m3u8"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider opacity-60 mb-1.5 block">Đường dẫn ảnh Logo (Logo URL)</label>
+                    <input
+                      type="text"
+                      value={createChannelLogo}
+                      onChange={(e) => setCreateChannelLogo(e.target.value)}
+                      className={`w-full px-3 py-2.5 rounded-xl text-xs font-mono border ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-100 border-slate-200 text-slate-850"}`}
+                      placeholder="https://example.com/logo.png"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider opacity-60 mb-1.5 block">Chọn Package lưu trữ</label>
+                    <select
+                      value={activePlaylistIdx}
+                      onChange={(e) => setActivePlaylistIdx(Number(e.target.value))}
+                      className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold border ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-100 border-slate-200 text-slate-850"}`}
+                    >
+                      {customPlaylists.map((pl, idx) => (
+                        <option key={pl.id} value={idx}>
+                          {pl.name || `Package ${idx + 1}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider opacity-60 mb-1.5 block">Chọn Package ghi đè / tạo mới</label>
+                    <select
+                      value={activePlaylistIdx}
+                      onChange={(e) => setActivePlaylistIdx(Number(e.target.value))}
+                      className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold border ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-100 border-slate-200 text-slate-850"}`}
+                    >
+                      {customPlaylists.map((pl, idx) => (
+                        <option key={pl.id} value={idx}>
+                          {pl.name || `Package ${idx + 1}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider opacity-60 mb-1.5 block">Tên Package</label>
+                    <input
+                      type="text"
+                      value={tempPlaylistName}
+                      onChange={(e) => setTempPlaylistName(e.target.value)}
+                      className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold border ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-100 border-slate-200 text-slate-850"}`}
+                      placeholder="Ví dụ: Danh sách kênh thể thao"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider opacity-60 mb-1.5 block">Mã danh sách (M3U Code)</label>
+                    <textarea
+                      value={tempPlaylistContent}
+                      onChange={(e) => setTempPlaylistContent(e.target.value)}
+                      className={`w-full h-40 px-3 py-2.5 rounded-xl text-xs font-mono border whitespace-pre resize-none overflow-y-auto ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-100 border-slate-200 text-slate-850"}`}
+                      placeholder={`#EXTM3U\n#EXTINF:-1 tvg-logo="http://logo.url",Kênh thể thao\nhttp://stream-link.m3u8`}
+                    />
+                  </div>
+
+                  {/* Upload file zone */}
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider opacity-60 mb-1.5 block">Hoặc tải tệp tin .m3u từ thiết bị</label>
+                    <div
+                      onClick={() => {
+                        const el = document.getElementById("m3u-modal-file-picker");
+                        if (el) el.click();
+                      }}
+                      className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all hover:bg-white/5 flex flex-col items-center justify-center gap-1.5 ${
+                        isDark ? "border-white/10 bg-white/5 text-slate-300" : "border-slate-300 bg-slate-50 text-slate-700"
+                      }`}
+                    >
+                      <Upload size={20} className="text-[#4AC4FE]" />
+                      <p className="text-xs font-bold">Nhấn để chọn file .m3u / .m3u8</p>
+                      <input
+                        id="m3u-modal-file-picker"
+                        type="file"
+                        accept=".m3u,.m3u8,text/plain"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const filename = file.name.toLowerCase();
+                            const r = new FileReader();
+                            r.onload = (loaded) => {
+                              const res = loaded.target?.result;
+                              if (res && typeof res === "string") {
+                                const trimmedRes = res.trim();
+                                try {
+                                  const parsed = parseM3U(res);
+                                  if (parsed && parsed.length > 0) {
+                                    setTempPlaylistContent(res);
+                                    if (file.name) {
+                                      setTempPlaylistName(file.name.replace(/\.[^/.]+$/, ""));
+                                    }
+                                    showToast("Nhập tệp thành công", "success");
+                                  } else {
+                                    showToast("Nhập tệp thất bại", "error");
+                                  }
+                                } catch (err) {
+                                  showToast("Nhập tệp thất bại", "error");
+                                }
+                              }
+                            };
+                            r.readAsText(file);
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mt-5 pt-3 border-t border-white/5">
+              <button
+                onClick={() => setIsCreateChannelOpen(false)}
+                className={`py-3 rounded-xl font-bold text-xs ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200 text-slate-700"}`}
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={() => {
+                  if (createTab === "single") {
+                    if (!createChannelName.trim() || !createChannelStream.trim()) {
+                      showToast("Vui lòng nhập Tên kênh và Link luồng!", "error");
+                      return;
+                    }
+                    const newChan: Channel = {
+                      name: createChannelName.trim(),
+                      category: createChannelCategory.trim() || "Custom",
+                      logo: createChannelLogo.trim() || "https://static.wikia.nocookie.net/ftv/images/e/ed/FTV_Channel.png/revision/latest?cb=20260424160410&path-prefix=vi",
+                      stream: createChannelStream.trim(),
+                      desc: "Kênh tự tạo lẻ"
+                    };
+                    
+                    setCustomPlaylists(prev => {
+                      const next = [...prev];
+                      const currentPl = next[activePlaylistIdx];
+                      const updatedChans = [...currentPl.channels, newChan];
+                      next[activePlaylistIdx] = {
+                        ...currentPl,
+                        channels: updatedChans,
+                        content: currentPl.content + `\n#EXTINF:-1 tvg-logo="${newChan.logo}" group-title="${newChan.category}",${newChan.name}\n${newChan.stream}`
+                      };
+                      localStorage.setItem("vplay_custom_playlists_v2", JSON.stringify(next));
+                      return next;
+                    });
+                    
+                    showToast(`Đã thêm kênh "${createChannelName}" vào Package!`, "success");
+                    setCreateChannelName("");
+                    setCreateChannelStream("");
+                    setCreateChannelLogo("");
+                    setIsCreateChannelOpen(false);
+                    setLiveSubTab("custom");
+                  } else {
+                    if (!tempPlaylistContent.trim()) {
+                      showToast("Vui lòng nhập danh sách M3U!", "error");
+                      return;
+                    }
+                    const parsed = parseM3U(tempPlaylistContent);
+                    if (parsed.length === 0) {
+                      showToast("Không tìm thấy kênh hợp lệ trong M3U!", "error");
+                      return;
+                    }
+                    setCustomPlaylists(prev => {
+                      const next = [...prev];
+                      next[activePlaylistIdx] = {
+                        ...next[activePlaylistIdx],
+                        name: tempPlaylistName || `Package ${activePlaylistIdx + 1}`,
+                        content: tempPlaylistContent,
+                        channels: parsed
+                      };
+                      localStorage.setItem("vplay_custom_playlists_v2", JSON.stringify(next));
+                      return next;
+                    });
+                    showToast(`Đã lưu danh sách "${tempPlaylistName || `Package ${activePlaylistIdx + 1}`}" với ${parsed.length} kênh!`, "success");
+                    setIsCreateChannelOpen(false);
+                    setLiveSubTab("custom");
+                  }
+                }}
+                className="py-3 rounded-xl font-bold text-xs bg-[#4AC4FE] hover:bg-[#3bb0f0] text-white"
+              >
+                Lưu lại
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {liveSubTab === "url" && (
         <div className="mt-8 px-2 md:max-w-4xl mx-auto w-full">
           <div className={`p-6 rounded-3xl border shadow-xl space-y-4 ${
@@ -4348,30 +4573,15 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
 
             <div className="hidden xl:block h-6 w-px bg-white/15 self-center shrink-0" />
 
-            {/* Reverted simpler search input inside the unified bar */}
-            <div className="relative flex items-center gap-2.5 h-10 px-3.5 w-full xl:flex-1 min-w-[200px] xl:max-w-xs bg-black/20 rounded-xl xl:rounded-full border border-white/5">
-              <SearchCustomIcon size={16} className="shrink-0 text-white/60" />
-              <input
-                type="text"
-                value={liveSearchQuery}
-                onChange={(e) => {
-                  if (liveTabSection !== "channels") {
-                    setLiveTabSection("channels");
-                  }
-                  setLiveSearchQuery(e.target.value);
-                }}
-                placeholder="Tìm kiếm kênh..."
-                className="bg-transparent border-none outline-none text-xs md:text-sm w-full font-bold border-0 p-0 focus:ring-0 text-white placeholder-white/45"
-              />
-              {liveSearchQuery && (
-                <button 
-                  onClick={() => setLiveSearchQuery("")} 
-                  className="p-1 hover:bg-white/10 rounded-full transition-all text-white/50 hover:text-white"
-                >
-                  <X size={13} />
-                </button>
-              )}
-            </div>
+            {/* Create channel button */}
+            <button
+              onClick={() => setIsCreateChannelOpen(true)}
+              className="relative flex items-center justify-center gap-2 h-10 px-4 w-full md:w-auto bg-[#4AC4FE] hover:bg-[#3bb0f0] text-xs font-bold text-white rounded-xl xl:rounded-full border border-[#4AC4FE]/20 cursor-pointer shadow-lg shadow-[#4AC4FE]/10 transition-all duration-250 shrink-0"
+              title="Tạo kênh tự chọn hoặc nhập danh sách M3U (Package)"
+            >
+              <Plus size={14} className="text-white" />
+              <span>Create channel</span>
+            </button>
 
             <div className="hidden xl:block h-6 w-px bg-white/15 self-center shrink-0" />
 
@@ -4385,12 +4595,12 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
             </button>
 
             {/* Inline filters for categories if on channels list */}
-            {liveSubTab === "vplay" && (
+            {(liveSubTab === "vplay" || liveSubTab === "custom") && (
               <>
                 <div className="hidden xl:block h-6 w-px bg-white/15 self-center shrink-0" />
                 <div className="flex gap-1 overflow-x-auto no-scrollbar w-full xl:flex-1 py-1">
-                  {["Tất cả", "Thử nghiệm", "Thiết yếu", "Đặc biệt", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế"].map((type) => {
-                    const isSelected = filterType === type;
+                  {["Tất cả", "Thử nghiệm", "Thiết yếu", "Đặc biệt", "VTV", "VTVcab", "SCTV", "HTV", "HTVC", "Địa phương", "Radio", "Quốc tế", "Tự tạo / Package"].map((type) => {
+                    const isSelected = type === "Tự tạo / Package" ? liveSubTab === "custom" : (liveSubTab === "vplay" && filterType === type);
                     return (
                       <button
                         key={type}
@@ -4398,7 +4608,12 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
                           if (liveTabSection !== "channels") {
                             setLiveTabSection("channels");
                           }
-                          setFilterType(type);
+                          if (type === "Tự tạo / Package") {
+                            setLiveSubTab("custom");
+                          } else {
+                            setLiveSubTab("vplay");
+                            setFilterType(type);
+                          }
                         }}
                         className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                           isSelected && liveTabSection === "channels"
@@ -17793,45 +18008,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   />
                 </div>
               )}
-              {displayTab === "Package" && (
-                <TVContent 
-                  mode="realm"
-                  active={activeChannel} 
-                  setActive={handleChannelSelectKeepTab} 
-                  isDark={isDark} 
-                  favorites={favorites} 
-                  toggleFavorite={toggleFavorite} 
-                  user={user}
-                  onLogin={handleLogin}
-                  isDev={isDev}
-                  liquidGlass={liquidGlass}
-                  sortOrder={sortOrder}
-                  setSortOrder={setSortOrder}
-                  showSplash={showSplash}
-                  featureFlags={featureFlags}
-                  searchQuery={searchQuery}
-                  bypassed={bypassed}
-                  setIsPlayerInView={setIsPlayerInView}
-                  loadingTreatment={loadingTreatment}
-                  currentHour={currentTime.getHours()}
-                  onChannelContextMenu={onChannelContextMenu}
-                  pinnedChannels={pinnedChannels}
-                  togglePinChannel={togglePinChannel}
-                  isTopBarVisible={isTopBarVisible}
-                  useNewDesign={useNewDesign}
-                  setUseNewDesign={setUseNewDesign}
-                  showChannelNumbers={showChannelNumbers}
-                  setShowChannelNumbers={setShowChannelNumbers}
-                  volume={volume}
-                  setVolume={setVolume}
-                  isMuted={isMuted}
-                  setIsMuted={setIsMuted}
-                  searchBoxBlur={searchBoxBlur}
-                  searchBoxOpacity={searchBoxOpacity}
-                  onAlert={onAlert}
-                  focusMode={focusMode}
-                />
-              )}
+
               {displayTab === "Experiments" && (
                 <ExperimentalContent 
                   isDark={isDark} 
