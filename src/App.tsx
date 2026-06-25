@@ -691,7 +691,9 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isQuocTe = category === "Quốc tế";
   const isVplayLive = alt.toLowerCase().includes("vplay live");
 
-  const scaleClass = isUpdatedLogo
+  const isVTV1to10AndOthers = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV10", "Cần Thơ", "Vietnam Today"].some(name => alt.includes(name));
+
+  const scaleClass = (isUpdatedLogo && !isVTV1to10AndOthers)
     ? "scale-[0.75]"
     : isSCTV
       ? "scale-[0.83]"
@@ -710,6 +712,8 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
   const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
   const isUpdatedVTV = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV10", "VTV Cần Thơ", "Vietnam Today"].some(name => alt.includes(name));
+  const isVietnamWildLive = alt === "VTVgo 3: Vietnam Wild LIVE Test";
+  const isVtv6ThuNghiem = alt === "VTV6 Thử nghiệm";
 
   if (logoNumber) {
     return (
@@ -720,7 +724,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
             alt={alt} 
             referrerPolicy="no-referrer"
             onError={() => setError(true)}
-            className={`${className} object-contain p-0 transition-opacity duration-300 scale-[0.55] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+            className={`${className} object-fill p-0 transition-opacity duration-300 scale-[0.55] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
           />
         </div>
         <span 
@@ -740,7 +744,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
           alt={alt} 
           referrerPolicy="no-referrer"
           onError={() => setError(true)}
-          className={`max-h-[65%] object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          className={`max-h-[65%] object-fill p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
         />
         <span 
           className="text-[8.5px] sm:text-[10px] font-extrabold text-[#FFDF00] tracking-wider uppercase text-center whitespace-nowrap leading-none filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
@@ -761,7 +765,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
             src={finalSrc} 
             alt="" 
             referrerPolicy="no-referrer"
-            className={`max-h-[65%] object-contain p-0 scale-y-[-1] blur-[3px] opacity-75 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
+            className={`max-h-[65%] object-fill p-0 scale-y-[-1] blur-[3px] opacity-75 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
           />
         </div>
       </div>
@@ -777,7 +781,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
             alt={alt} 
             referrerPolicy="no-referrer"
             onError={() => setError(true)}
-            className={`${className} object-contain p-0 transition-opacity duration-300 translate-y-[16%] scale-[1.35] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+            className={`${className} object-fill p-0 transition-opacity duration-300 translate-y-[16%] scale-[1.35] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
           />
         </div>
       </div>
@@ -792,9 +796,23 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
           alt={alt} 
           referrerPolicy="no-referrer"
           onError={() => setError(true)}
-          className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          className={`${className} object-fill p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
         />
       </div>
+      {isVietnamWildLive && (
+        <div className="absolute bottom-1 left-0 right-0 z-20 flex flex-col items-center pointer-events-none">
+          <span className="text-[7.5px] sm:text-[9.5px] font-black text-amber-300 tracking-wider uppercase text-center select-none bg-black/75 px-1 py-0.5 rounded leading-none filter drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.95)]">
+            VIETNAM WILD LIVE
+          </span>
+        </div>
+      )}
+      {isVtv6ThuNghiem && (
+        <div className="absolute bottom-1 left-0 right-0 z-20 flex flex-col items-center pointer-events-none">
+          <span className="text-[7.5px] sm:text-[9.5px] font-extrabold text-white bg-red-600/90 tracking-wide uppercase text-center select-none px-1.5 py-0.5 rounded leading-none filter drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.5)]">
+            Thử nghiệm
+          </span>
+        </div>
+      )}
     </div>
   );
 }
