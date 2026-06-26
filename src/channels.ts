@@ -1,3 +1,5 @@
+import { getExtraChannels } from "./extraChannels";
+
 export type Channel = {
   category: string;
   name: string;
@@ -232,7 +234,7 @@ const rawChannels: Channel[] = [
   { category: "Thử nghiệm", name: "Vplay LIVE", logo: "https://static.wikia.nocookie.net/ftv/images/a/ab/Imagexvxvz.png/revision/latest/scale-to-width-down/1000?cb=20260429082350&path-prefix=vi", stream: "https://vplay.live/Colorbars", desc: "KÊNH THỬ NGHIỆM VPLAY" },
 ];
 
-export const channels: Channel[] = rawChannels.map(ch => {
+const processedChannels = rawChannels.map(ch => {
   if (ch.category === "Địa phương") {
     return {
       ...ch,
@@ -241,3 +243,13 @@ export const channels: Channel[] = rawChannels.map(ch => {
   }
   return ch;
 });
+
+const vtv10Index = processedChannels.findIndex(ch => ch.name === "VTV10 HD");
+
+export const channels: Channel[] = vtv10Index !== -1
+  ? [
+      ...processedChannels.slice(0, vtv10Index + 1),
+      ...getExtraChannels(),
+      ...processedChannels.slice(vtv10Index + 1)
+    ]
+  : [...processedChannels, ...getExtraChannels()];
