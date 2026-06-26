@@ -70,73 +70,81 @@ const rawExtraData: [string, string, string, string?][] = [
   ["Russia-24 (720p)", "https://stream.smotrim.ru/hls2/russia24nl_smotrim/playlist_5.m3u8", "Russia24.ru@SD"]
 ];
 
-function detectCategoryAndLogo(tvgId: string, name: string): { category: string; logo: string } {
+function detectCategoryAndLogo(tvgId: string, name: string): { category: string; logo: string; countryFlag?: string } {
   const idLower = tvgId.toLowerCase();
   const nameLower = name.toLowerCase();
 
   let category = "Quốc tế";
-  let logo = "https://static.wikia.nocookie.net/logos/images/3/32/THVL1_logo_ident_2025.png/revision/latest/scale-to-width-down/1000?cb=20251206083051&path-prefix=vi"; // Elegant default logo
+  let countryFlag: string | undefined = undefined;
 
   if (idLower.includes(".in@") || idLower.includes("india") || nameLower.includes("aaj tak") || nameLower.includes("9x") || nameLower.includes("colors") || nameLower.includes("dangal") || nameLower.includes("news18") || nameLower.includes("etv") || nameLower.includes("star sports") || nameLower.includes("republic") || nameLower.includes("sony") || nameLower.includes("wion") || nameLower.includes("abp")) {
     category = "Kênh Ấn Độ";
-    logo = "https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg";
+    countryFlag = "https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg";
   } else if (idLower.includes(".us@") || idLower.includes("america") || nameLower.includes("abc") || nameLower.includes("bein") || nameLower.includes("bloomberg") || nameLower.includes("comedy central") || nameLower.includes("disney") || nameLower.includes("fox") || nameLower.includes("mtv") || nameLower.includes("nbc") || nameLower.includes("nickelodeon") || nameLower.includes("paramount") || nameLower.includes("pbs") || nameLower.includes("showtime") || nameLower.includes("starz") || nameLower.includes("usa network")) {
     category = "Kênh Mỹ";
-    logo = "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg";
+    countryFlag = "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg";
   } else if (idLower.includes(".cn@") || idLower.includes("china") || nameLower.includes("cctv") || nameLower.includes("hunan") || nameLower.includes("zhejiang") || nameLower.includes("phoenix")) {
     category = "Kênh Trung Quốc";
-    logo = "https://upload.wikimedia.org/wikipedia/commons/f/fa/Flag_of_the_People%27s_Republic_of_China.svg";
+    countryFlag = "https://upload.wikimedia.org/wikipedia/commons/f/fa/Flag_of_the_People%27s_Republic_of_China.svg";
   } else if (idLower.includes(".es@") || idLower.includes("spain") || nameLower.includes("antena") || nameLower.includes("real madrid") || nameLower.includes("teledeporte") || nameLower.includes("tve")) {
     category = "Kênh Tây Ban Nha";
-    logo = "https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg";
+    countryFlag = "https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg";
   } else if (idLower.includes(".it@") || idLower.includes("italy") || nameLower.includes("canale 5") || nameLower.includes("italia 1") || nameLower.includes("rai")) {
     category = "Kênh Ý";
-    logo = "https://upload.wikimedia.org/wikipedia/commons/0/03/Flag_of_Italy.svg";
+    countryFlag = "https://upload.wikimedia.org/wikipedia/commons/0/03/Flag_of_Italy.svg";
   } else if (idLower.includes(".ru@") || idLower.includes("russia") || nameLower.includes("360°") || nameLower.includes("ntv") || nameLower.includes("russia-1") || nameLower.includes("russia-24")) {
     category = "Kênh Nga";
-    logo = "https://upload.wikimedia.org/wikipedia/en/f/f3/Flag_of_Russia.svg";
+    countryFlag = "https://upload.wikimedia.org/wikipedia/en/f/f3/Flag_of_Russia.svg";
   }
 
-  // Set highly specific and elegant premium channel logos if possible
-  if (nameLower.includes("abc")) logo = "https://upload.wikimedia.org/wikipedia/commons/3/30/ABC_logo_2021.svg";
-  if (nameLower.includes("bloomberg")) logo = "https://upload.wikimedia.org/wikipedia/commons/5/50/Bloomberg_logo.svg";
-  if (nameLower.includes("disney")) logo = "https://upload.wikimedia.org/wikipedia/commons/3/3d/Disney_XD_logo_2015.svg";
-  if (nameLower.includes("mtv")) logo = "https://upload.wikimedia.org/wikipedia/commons/6/67/MTV_logo_2021.svg";
-  if (nameLower.includes("nickelodeon")) logo = "https://upload.wikimedia.org/wikipedia/commons/c/c4/Nickelodeon_logo_2023.svg";
-  if (nameLower.includes("paramount")) logo = "https://upload.wikimedia.org/wikipedia/commons/d/df/Paramount_Network_logo_2018.svg";
-  if (nameLower.includes("showtime")) logo = "https://upload.wikimedia.org/wikipedia/commons/2/22/Showtime_logo.svg";
-  if (nameLower.includes("starz")) logo = "https://upload.wikimedia.org/wikipedia/commons/7/70/Starz_2016.svg";
-  if (nameLower.includes("bein sports")) logo = "https://upload.wikimedia.org/wikipedia/commons/3/32/BeIN_Sports_logo.svg";
-  if (nameLower.includes("cctv-1")) logo = "https://upload.wikimedia.org/wikipedia/commons/8/87/CCTV-1_logo.svg";
-  if (nameLower.includes("cctv-3")) logo = "https://upload.wikimedia.org/wikipedia/commons/2/23/CCTV-3_logo.svg";
-  if (nameLower.includes("cctv-6")) logo = "https://upload.wikimedia.org/wikipedia/commons/5/59/CCTV-6_logo.svg";
-  if (nameLower.includes("cctv-13")) logo = "https://upload.wikimedia.org/wikipedia/commons/b/b3/CCTV-13_logo.svg";
-  if (nameLower.includes("hunan tv")) logo = "https://upload.wikimedia.org/wikipedia/commons/5/5a/Hunan_TV_logo.svg";
-  if (nameLower.includes("phoenix")) logo = "https://upload.wikimedia.org/wikipedia/commons/3/3c/Phoenix_Satellite_Television_logo.svg";
-  if (nameLower.includes("real madrid")) logo = "https://upload.wikimedia.org/wikipedia/commons/5/56/Real_Madrid_CF.svg";
-  if (nameLower.includes("rai 1")) logo = "https://upload.wikimedia.org/wikipedia/commons/5/5a/Rai_1_logo_%282016%29.svg";
-  if (nameLower.includes("rai 2")) logo = "https://upload.wikimedia.org/wikipedia/commons/f/fc/Rai_2_logo_%282016%29.svg";
-  if (nameLower.includes("canale 5")) logo = "https://upload.wikimedia.org/wikipedia/commons/a/af/Canale_5_logo_2018.svg";
-  if (nameLower.includes("italia 1")) logo = "https://upload.wikimedia.org/wikipedia/commons/3/3e/Italia_1_logo_2018.svg";
-  if (nameLower.includes("russia-1")) logo = "https://upload.wikimedia.org/wikipedia/commons/a/a2/Rossiya_1_logo_2012.svg";
-  if (nameLower.includes("russia-24")) logo = "https://upload.wikimedia.org/wikipedia/commons/e/ee/Rossiya_24_logo_2012.svg";
-  if (nameLower.includes("ntv")) logo = "https://upload.wikimedia.org/wikipedia/commons/0/07/NTV_Logo_Russia.svg";
-  if (nameLower.includes("wion")) logo = "https://upload.wikimedia.org/wikipedia/commons/e/e0/WION_Logo.svg";
-  if (nameLower.includes("aaj tak")) logo = "https://upload.wikimedia.org/wikipedia/commons/a/a9/Aaj_Tak_Logo.svg";
-  if (nameLower.includes("star sports")) logo = "https://upload.wikimedia.org/wikipedia/commons/f/ff/Star_Sports_logo_2021.svg";
+  let brandLogo: string | null = null;
+  if (nameLower.includes("abc")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/3/30/ABC_logo_2021.svg";
+  else if (nameLower.includes("bloomberg")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/5/50/Bloomberg_logo.svg";
+  else if (nameLower.includes("disney")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/3/3d/Disney_XD_logo_2015.svg";
+  else if (nameLower.includes("mtv")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/6/67/MTV_logo_2021.svg";
+  else if (nameLower.includes("nickelodeon")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/c/c4/Nickelodeon_logo_2023.svg";
+  else if (nameLower.includes("paramount")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/d/df/Paramount_Network_logo_2018.svg";
+  else if (nameLower.includes("showtime")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/2/22/Showtime_logo.svg";
+  else if (nameLower.includes("starz")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/7/70/Starz_2016.svg";
+  else if (nameLower.includes("bein sports")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/3/32/BeIN_Sports_logo.svg";
+  else if (nameLower.includes("cctv-1")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/8/87/CCTV-1_logo.svg";
+  else if (nameLower.includes("cctv-3")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/2/23/CCTV-3_logo.svg";
+  else if (nameLower.includes("cctv-6")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/5/59/CCTV-6_logo.svg";
+  else if (nameLower.includes("cctv-13")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/b/b3/CCTV-13_logo.svg";
+  else if (nameLower.includes("hunan tv")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/5/5a/Hunan_TV_logo.svg";
+  else if (nameLower.includes("phoenix")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/3/3c/Phoenix_Satellite_Television_logo.svg";
+  else if (nameLower.includes("real madrid")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/5/56/Real_Madrid_CF.svg";
+  else if (nameLower.includes("rai 1")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/5/5a/Rai_1_logo_%282016%29.svg";
+  else if (nameLower.includes("rai 2")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/f/fc/Rai_2_logo_%282016%29.svg";
+  else if (nameLower.includes("canale 5")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/a/af/Canale_5_logo_2018.svg";
+  else if (nameLower.includes("italia 1")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/3/3e/Italia_1_logo_2018.svg";
+  else if (nameLower.includes("russia-1")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/a/a2/Rossiya_1_logo_2012.svg";
+  else if (nameLower.includes("russia-24")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/e/ee/Rossiya_24_logo_2012.svg";
+  else if (nameLower.includes("ntv")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/0/07/NTV_Logo_Russia.svg";
+  else if (nameLower.includes("wion")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/e/e0/WION_Logo.svg";
+  else if (nameLower.includes("aaj tak")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/a/a9/Aaj_Tak_Logo.svg";
+  else if (nameLower.includes("star sports")) brandLogo = "https://upload.wikimedia.org/wikipedia/commons/f/ff/Star_Sports_logo_2021.svg";
 
-  return { category, logo };
+  const logo = brandLogo || countryFlag || "https://static.wikia.nocookie.net/logos/images/3/32/THVL1_logo_ident_2025.png/revision/latest/scale-to-width-down/1000?cb=20251206083051&path-prefix=vi";
+
+  return { category, logo, countryFlag };
 }
 
 export function getExtraChannels(): Channel[] {
+  const vtvGoLogo = "https://static.wikia.nocookie.net/ep-deo/images/6/64/Vtv_s%E1%BB%A7a.png/revision/latest/scale-to-width-down/1000?cb=20260625120702";
   return rawExtraData.map(([name, stream, tvgId, customLogo]) => {
-    const { category, logo } = detectCategoryAndLogo(tvgId, name);
+    const { category, logo, countryFlag } = detectCategoryAndLogo(tvgId, name);
+    // If the detected logo is the generic flag itself, replace it with VTVgo logo
+    const isUsingFlagAsLogo = logo === countryFlag;
+    const finalLogo = isUsingFlagAsLogo ? vtvGoLogo : (customLogo || logo);
+
     return {
       category,
       name,
-      logo: customLogo || logo,
+      logo: finalLogo,
       stream,
       desc: `Kênh ${name} từ nguồn danh sách IPTV Quốc tế.`,
+      countryFlag,
     };
   });
 }

@@ -662,7 +662,7 @@ function FloatingTooltip({ text, show, targetRect }: { text: string, show: boole
   );
 }
 
-function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, category, isUpdatedLogo, logoNumber }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted", status?: string, category?: string, isUpdatedLogo?: boolean, logoNumber?: string }) {
+function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, category, isUpdatedLogo, logoNumber, countryFlag }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted", status?: string, category?: string, isUpdatedLogo?: boolean, logoNumber?: string, countryFlag?: string }) {
   const [error, setError] = useState(false);
   const [vtvgoError, setVtvgoError] = useState(false);
 
@@ -670,15 +670,6 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
 
   const isInvalidLogo = !src || src === "LOGO THÊM VÀO SAU" || src.trim() === "";
   const isUsingVtvGoFallback = error || isInvalidLogo;
-
-  if (vtvgoError) {
-    return (
-      <div className={`${className || "w-full h-full"} flex flex-col items-center justify-center bg-slate-800/50 rounded-[23px] border border-slate-700/50 p-3 text-center`}>
-        <TvIcon size={24} className={liquidGlass === "tinted" ? "text-black" : "text-slate-500 mb-2"} />
-        <span className={`text-[10px] font-black leading-tight line-clamp-2 uppercase ${liquidGlass === "tinted" ? "text-black/80" : "text-white/80"}`}>{alt}</span>
-      </div>
-    );
-  }
 
   const handleImageError = () => {
     if (isUsingVtvGoFallback) {
@@ -715,14 +706,53 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isVietnamWildLive = alt === "VTVgo 3: Vietnam Wild LIVE Test";
   const isVtv6ThuNghiem = alt === "VTV6 Thử nghiệm";
 
-  if (logoNumber) {
-    const isVTVgo = alt.toLowerCase().includes("vtvgo");
-    const isLocalNumber = alt.toLowerCase().includes("cần thơ") || alt.toLowerCase().includes("quảng ngãi") || alt.toLowerCase().includes("qngtv");
+  const isVTVgoLogo = finalSrc === vtvGoLogo || alt.toLowerCase().includes("vtvgo");
+  let finalLogoNumber = logoNumber;
+  if (isVTVgoLogo && !finalLogoNumber) {
+    const match = alt.match(/vtvgo\s*(\d+)/i);
+    if (match) {
+      finalLogoNumber = match[1];
+    }
+  }
 
-    if (isLocalNumber) {
+  const renderContent = () => {
+    if (vtvgoError) {
       return (
-        <div className="relative w-full h-full flex items-center justify-center select-none px-1 gap-1.5">
-          <div className="flex items-center justify-center max-w-[65%] shrink-0">
+        <div className={`${className || "w-full h-full"} flex flex-col items-center justify-center bg-slate-800/50 rounded-[23px] border border-slate-700/50 p-3 text-center`}>
+          <TvIcon size={24} className={liquidGlass === "tinted" ? "text-black" : "text-slate-500 mb-2"} />
+          <span className={`text-[10px] font-black leading-tight line-clamp-2 uppercase ${liquidGlass === "tinted" ? "text-black/80" : "text-white/80"}`}>{alt}</span>
+        </div>
+      );
+    }
+
+    if (finalLogoNumber) {
+      const isLocalNumber = alt.toLowerCase().includes("cần thơ") || alt.toLowerCase().includes("quảng ngãi") || alt.toLowerCase().includes("qngtv");
+
+      if (isLocalNumber) {
+        return (
+          <div className="relative w-full h-full flex items-center justify-center select-none px-1 gap-1.5">
+            <div className="flex items-center justify-center max-w-[65%] shrink-0">
+              <img 
+                src={finalSrc} 
+                alt={alt} 
+                referrerPolicy="no-referrer"
+                onError={handleImageError}
+                className={`${className} object-contain p-0 transition-opacity duration-300 scale-[1.1] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+              />
+            </div>
+            <span 
+              className="-ml-0.5 text-white text-2xl sm:text-[2.0rem] lg:text-[2.5rem] font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] filter shrink-0 pl-0.5"
+            >
+              {finalLogoNumber}
+            </span>
+          </div>
+        );
+      }
+
+      // Default or VTVgo with number
+      return (
+        <div className="relative w-full h-full flex items-center justify-center select-none px-2 gap-2.5">
+          <div className="flex items-center justify-center max-w-[68%] shrink-0">
             <img 
               src={finalSrc} 
               alt={alt} 
@@ -732,107 +762,102 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
             />
           </div>
           <span 
-            className="-ml-0.5 text-white text-2xl sm:text-[2.0rem] lg:text-[2.5rem] font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] filter shrink-0 pl-0.5"
+            className="ml-2 text-white text-lg sm:text-[1.4rem] lg:text-[1.75rem] font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] filter shrink-0 pl-1"
           >
-            {logoNumber}
+            {finalLogoNumber}
           </span>
         </div>
       );
     }
 
-    // Default or VTVgo with number
-    return (
-      <div className="relative w-full h-full flex items-center justify-center select-none px-2 gap-2.5">
-        <div className="flex items-center justify-center max-w-[68%] shrink-0">
+    if (isVTV5_TN || isVTV5_TNB) {
+      return (
+        <div className="relative w-full h-full flex flex-col items-center justify-center select-none gap-2 pt-1">
           <img 
             src={finalSrc} 
             alt={alt} 
             referrerPolicy="no-referrer"
             onError={handleImageError}
-            className={`${className} object-contain p-0 transition-opacity duration-300 scale-[1.1] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+            className={`max-h-[65%] object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
           />
-        </div>
-        <span 
-          className="ml-2 text-white text-lg sm:text-[1.4rem] lg:text-[1.75rem] font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] filter shrink-0 pl-1"
-        >
-          {logoNumber}
-        </span>
-      </div>
-    );
-  }
-
-  if (isVTV5_TN || isVTV5_TNB) {
-    return (
-      <div className="relative w-full h-full flex flex-col items-center justify-center select-none gap-2 pt-1">
-        <img 
-          src={finalSrc} 
-          alt={alt} 
-          referrerPolicy="no-referrer"
-          onError={handleImageError}
-          className={`max-h-[65%] object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-        />
-        <span 
-          className="text-[8.5px] sm:text-[10px] font-extrabold text-[#FFDF00] tracking-wider uppercase text-center whitespace-nowrap leading-none filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
-          style={{ fontFamily: "Montserrat, sans-serif" }}
-        >
-          {isVTV5_TN ? "TÂY NGUYÊN" : "TÂY NAM BỘ"}
-        </span>
-
-        {/* Reflection */}
-        <div 
-          className="absolute top-[80%] left-0 right-0 h-10 pointer-events-none select-none opacity-20 flex items-start justify-center overflow-hidden z-0"
-          style={{
-            maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 60%)",
-            WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 60%)",
-          }}
-        >
-          <img 
-            src={finalSrc} 
-            alt="" 
-            referrerPolicy="no-referrer"
-            className={`max-h-[65%] object-contain p-0 scale-y-[-1] blur-[3px] opacity-75 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (isVplayLive) {
-    return (
-      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-        <div className="w-full h-full relative flex items-center justify-center overflow-hidden">
-          <img 
-            src={finalSrc} 
-            alt={alt} 
-            referrerPolicy="no-referrer"
-            onError={handleImageError}
-            className={`${className} object-contain p-0 transition-opacity duration-300 translate-y-[16%] scale-[1.35] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
-          />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative w-full h-full flex items-center justify-center">
-      <div className="w-full h-full flex items-center justify-center">
-        <img 
-          src={finalSrc} 
-          alt={alt} 
-          referrerPolicy="no-referrer"
-          onError={handleImageError}
-          className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
-        />
-      </div>
-      {isVietnamWildLive && (
-        <div className="absolute bottom-1 left-0 right-0 z-20 flex flex-col items-center pointer-events-none">
-          <span className="text-[7.5px] sm:text-[9.5px] font-black text-amber-300 tracking-wider uppercase text-center select-none bg-black/75 px-1 py-0.5 rounded leading-none filter drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.95)]">
-            VIETNAM WILD LIVE
+          <span 
+            className="text-[8.5px] sm:text-[10px] font-extrabold text-[#FFDF00] tracking-wider uppercase text-center whitespace-nowrap leading-none filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
+            style={{ fontFamily: "Montserrat, sans-serif" }}
+          >
+            {isVTV5_TN ? "TÂY NGUYÊN" : "TÂY NAM BỘ"}
           </span>
+
+          {/* Reflection */}
+          <div 
+            className="absolute top-[80%] left-0 right-0 h-10 pointer-events-none select-none opacity-20 flex items-start justify-center overflow-hidden z-0"
+            style={{
+              maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 60%)",
+              WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 60%)",
+            }}
+          >
+            <img 
+              src={finalSrc} 
+              alt="" 
+              referrerPolicy="no-referrer"
+              className={`max-h-[65%] object-contain p-0 scale-y-[-1] blur-[3px] opacity-75 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
+            />
+          </div>
         </div>
-      )}
-    </div>
-  );
+      );
+    }
+
+    if (isVplayLive) {
+      return (
+        <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+          <div className="w-full h-full relative flex items-center justify-center overflow-hidden">
+            <img 
+              src={finalSrc} 
+              alt={alt} 
+              referrerPolicy="no-referrer"
+              onError={handleImageError}
+              className={`${className} object-contain p-0 transition-opacity duration-300 translate-y-[16%] scale-[1.35] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative w-full h-full flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center">
+          <img 
+            src={finalSrc} 
+            alt={alt} 
+            referrerPolicy="no-referrer"
+            onError={handleImageError}
+            className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          />
+        </div>
+        {isVietnamWildLive && (
+          <div className="absolute bottom-1 left-0 right-0 z-20 flex flex-col items-center pointer-events-none">
+            <span className="text-[7.5px] sm:text-[9.5px] font-black text-amber-300 tracking-wider uppercase text-center select-none bg-black/75 px-1 py-0.5 rounded leading-none filter drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.95)]">
+              VIETNAM WILD LIVE
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const rendered = renderContent();
+
+  if (countryFlag) {
+    return (
+      <div className="relative w-full h-full flex items-center justify-center">
+        {rendered}
+        <div className="absolute bottom-0 right-0 z-30 w-[22px] h-[15px] sm:w-[26px] sm:h-[18px] rounded border border-white/20 shadow-md overflow-hidden bg-slate-900 flex items-center justify-center scale-90 sm:scale-100 origin-bottom-right">
+          <img src={countryFlag} alt="Flag" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+        </div>
+      </div>
+    );
+  }
+
+  return rendered;
 }
 
 const getProvinceName = (fullName: string) => {
@@ -1063,6 +1088,7 @@ const ChannelCard = React.memo(function ChannelCard({ ch, onClick, isDark, isAct
                category={ch.category}
                isUpdatedLogo={ch.isUpdatedLogo}
                logoNumber={ch.logoNumber}
+               countryFlag={ch.countryFlag}
              />
           </div>
         </div>
@@ -1728,7 +1754,7 @@ function HomeContent({
                     <div className={`w-24 h-24 flex items-center justify-center rounded-2xl border-[1.5px] transition-transform duration-300 group-hover/card-wrapper:scale-110 ${
                       isDark ? "bg-white/[0.05] border-white/10" : "bg-white border-slate-200"
                     }`}>
-                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[80%] object-contain" isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} />
+                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[80%] object-contain" isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} countryFlag={ch.countryFlag} />
                     </div>
                   </div>
                 </motion.div>
@@ -3302,7 +3328,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
                 {/* Individual Control Bar */}
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover/slot:opacity-100 transition-opacity flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 truncate">
-                    {ch && <ChannelLogo src={ch.logo} alt={ch.name} className="w-5 h-5" isDark={true} isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} />}
+                    {ch && <ChannelLogo src={ch.logo} alt={ch.name} className="w-5 h-5" isDark={true} isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} countryFlag={ch.countryFlag} />}
                     <span className="text-[10px] font-bold text-white truncate">{ch?.name || "Chọn kênh"}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -3352,7 +3378,7 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
                   animate={{ opacity: 1, scale: 1 }}
                   className="relative z-10 flex flex-col items-center text-center space-y-6"
                 >
-                  <ChannelLogo src={active.logo} alt={active.name} className="w-48 h-48 md:w-64 md:h-64" isDark={true} isUpdatedLogo={active.isUpdatedLogo} logoNumber={active.logoNumber} />
+                  <ChannelLogo src={active.logo} alt={active.name} className="w-48 h-48 md:w-64 md:h-64" isDark={true} isUpdatedLogo={active.isUpdatedLogo} logoNumber={active.logoNumber} countryFlag={active.countryFlag} />
                   <div className="space-y-1">
                     <p className="text-white/60 text-lg md:text-xl font-medium">Kênh chưa tồn tại trong hệ thống</p>
                   </div>

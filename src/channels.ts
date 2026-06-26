@@ -11,6 +11,7 @@ export type Channel = {
   desc?: string;
   isUpdatedLogo?: boolean;
   logoNumber?: string;
+  countryFlag?: string;
 };
 
 function formatLocalChannelName(name: string): string {
@@ -246,10 +247,35 @@ const processedChannels = rawChannels.map(ch => {
 
 const vtv10Index = processedChannels.findIndex(ch => ch.name === "VTV10 HD");
 
-export const channels: Channel[] = vtv10Index !== -1
+function assignVtvGoLogoNumbers(list: Channel[]): Channel[] {
+  const vtvGoLogo = "https://static.wikia.nocookie.net/ep-deo/images/6/64/Vtv_s%E1%BB%A7a.png/revision/latest/scale-to-width-down/1000?cb=20260625120702";
+  let nextNumber = 10;
+  return list.map(ch => {
+    const isVtvGo = ch.logo === vtvGoLogo || ch.name.toLowerCase().includes("vtvgo");
+    if (isVtvGo) {
+      if (ch.logoNumber) {
+        const parsed = parseInt(ch.logoNumber);
+        if (!isNaN(parsed) && parsed < 10) {
+          // Keep VTVgo 1 to 9 as is
+          return ch;
+        }
+      }
+      // Assign or overwrite with sequential number starting from 10
+      return {
+        ...ch,
+        logoNumber: String(nextNumber++)
+      };
+    }
+    return ch;
+  });
+}
+
+const baseChannels = vtv10Index !== -1
   ? [
       ...processedChannels.slice(0, vtv10Index + 1),
       ...getExtraChannels(),
       ...processedChannels.slice(vtv10Index + 1)
     ]
   : [...processedChannels, ...getExtraChannels()];
+
+export const channels: Channel[] = assignVtvGoLogoNumbers(baseChannels);
