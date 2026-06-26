@@ -664,18 +664,33 @@ function FloatingTooltip({ text, show, targetRect }: { text: string, show: boole
 
 function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, category, isUpdatedLogo, logoNumber }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted", status?: string, category?: string, isUpdatedLogo?: boolean, logoNumber?: string }) {
   const [error, setError] = useState(false);
+  const [vtvgoError, setVtvgoError] = useState(false);
 
-  if (error || !src || src === "LOGO THÊM VÀO SAU") {
+  const vtvGoLogo = "https://static.wikia.nocookie.net/ep-deo/images/6/64/Vtv_s%E1%BB%A7a.png/revision/latest/scale-to-width-down/1000?cb=20260625120702";
+
+  const isInvalidLogo = !src || src === "LOGO THÊM VÀO SAU" || src.trim() === "";
+  const isUsingVtvGoFallback = error || isInvalidLogo;
+
+  if (vtvgoError) {
     return (
       <div className={`${className || "w-full h-full"} flex flex-col items-center justify-center bg-slate-800/50 rounded-[23px] border border-slate-700/50 p-3 text-center`}>
         <TvIcon size={24} className={liquidGlass === "tinted" ? "text-black" : "text-slate-500 mb-2"} />
-        <span className={`text-[10px] font-black leading-tight line-clamp-2 uppercase ${liquidGlass === "tinted" ? "text-black/80" : "text-white/80"}`}>{src === "LOGO THÊM VÀO SAU" ? "LOGO THÊM VÀO SAU" : alt}</span>
+        <span className={`text-[10px] font-black leading-tight line-clamp-2 uppercase ${liquidGlass === "tinted" ? "text-black/80" : "text-white/80"}`}>{alt}</span>
       </div>
     );
   }
 
-  let finalSrc = src;
-  if (alt === "Vietnam Today" && !isUpdatedLogo) {
+  const handleImageError = () => {
+    if (isUsingVtvGoFallback) {
+      setVtvgoError(true);
+    } else {
+      setError(true);
+    }
+  };
+
+  let finalSrc = isUsingVtvGoFallback ? vtvGoLogo : src;
+
+  if (alt === "Vietnam Today" && !isUpdatedLogo && !isUsingVtvGoFallback) {
     finalSrc = !isDark 
       ? "https://static.wikia.nocookie.net/ftv/images/e/ef/Vtd2.png/revision/latest/scale-to-width-down/1000?cb=20260601094937&path-prefix=vi"
       : "https://static.wikia.nocookie.net/ftv/images/7/7f/Vtd.png/revision/latest/scale-to-width-down/1000?cb=20260601094859&path-prefix=vi";
@@ -692,7 +707,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
 
   const isVTV1to10AndOthers = ["VTV1", "VTV2", "VTV3", "VTV4", "VTV5", "VTV6", "VTV7", "VTV8", "VTV9", "VTV10", "Cần Thơ", "Vietnam Today"].some(name => alt.includes(name));
 
-  const scaleClass = "scale-[0.82]";
+  const scaleClass = "scale-[0.85]";
 
   const isVTV5_TN = alt === "VTV5 Tây Nguyên";
   const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
@@ -701,19 +716,44 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
   const isVtv6ThuNghiem = alt === "VTV6 Thử nghiệm";
 
   if (logoNumber) {
+    const isVTVgo = alt.toLowerCase().includes("vtvgo");
+    const isLocalNumber = alt.toLowerCase().includes("cần thơ") || alt.toLowerCase().includes("quảng ngãi") || alt.toLowerCase().includes("qngtv");
+
+    if (isLocalNumber) {
+      return (
+        <div className="relative w-full h-full flex items-center justify-center select-none px-1 gap-1.5">
+          <div className="flex items-center justify-center max-w-[65%] shrink-0">
+            <img 
+              src={finalSrc} 
+              alt={alt} 
+              referrerPolicy="no-referrer"
+              onError={handleImageError}
+              className={`${className} object-contain p-0 transition-opacity duration-300 scale-[1.1] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+            />
+          </div>
+          <span 
+            className="-ml-0.5 text-white text-2xl sm:text-[2.0rem] lg:text-[2.5rem] font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] filter shrink-0 pl-0.5"
+          >
+            {logoNumber}
+          </span>
+        </div>
+      );
+    }
+
+    // Default or VTVgo with number
     return (
-      <div className="relative w-full h-full flex items-center justify-center gap-1.5 select-none px-1">
-        <div className={isUpdatedVTV ? "scale-x-[0.88] flex items-center justify-center" : ""}>
+      <div className="relative w-full h-full flex items-center justify-center select-none px-2 gap-2.5">
+        <div className="flex items-center justify-center max-w-[68%] shrink-0">
           <img 
             src={finalSrc} 
             alt={alt} 
             referrerPolicy="no-referrer"
-            onError={() => setError(true)}
-            className={`${className} object-fill p-0 transition-opacity duration-300 scale-[0.55] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+            onError={handleImageError}
+            className={`${className} object-contain p-0 transition-opacity duration-300 scale-[1.1] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
           />
         </div>
         <span 
-          className="text-white text-lg font-black tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] filter pr-1 shrink-0"
+          className="ml-2 text-white text-lg sm:text-[1.4rem] lg:text-[1.75rem] font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] filter shrink-0 pl-1"
         >
           {logoNumber}
         </span>
@@ -728,8 +768,8 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
           src={finalSrc} 
           alt={alt} 
           referrerPolicy="no-referrer"
-          onError={() => setError(true)}
-          className={`max-h-[65%] object-fill p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          onError={handleImageError}
+          className={`max-h-[65%] object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
         />
         <span 
           className="text-[8.5px] sm:text-[10px] font-extrabold text-[#FFDF00] tracking-wider uppercase text-center whitespace-nowrap leading-none filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
@@ -750,7 +790,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
             src={finalSrc} 
             alt="" 
             referrerPolicy="no-referrer"
-            className={`max-h-[65%] object-fill p-0 scale-y-[-1] blur-[3px] opacity-75 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
+            className={`max-h-[65%] object-contain p-0 scale-y-[-1] blur-[3px] opacity-75 ${scaleClass} ${status === "maintenance" ? "grayscale" : ""}`} 
           />
         </div>
       </div>
@@ -765,8 +805,8 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
             src={finalSrc} 
             alt={alt} 
             referrerPolicy="no-referrer"
-            onError={() => setError(true)}
-            className={`${className} object-fill p-0 transition-opacity duration-300 translate-y-[16%] scale-[1.35] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
+            onError={handleImageError}
+            className={`${className} object-contain p-0 transition-opacity duration-300 translate-y-[16%] scale-[1.35] ${status === "maintenance" ? "grayscale opacity-20" : ""}`} 
           />
         </div>
       </div>
@@ -775,26 +815,19 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, categor
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">
-      <div className={isUpdatedVTV ? "scale-x-[0.88] flex items-center justify-center w-full h-full" : "w-full h-full flex items-center justify-center"}>
+      <div className="w-full h-full flex items-center justify-center">
         <img 
           src={finalSrc} 
           alt={alt} 
           referrerPolicy="no-referrer"
-          onError={() => setError(true)}
-          className={`${className} object-fill p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          onError={handleImageError}
+          className={`${className} object-contain p-0 transition-opacity duration-300 ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
         />
       </div>
       {isVietnamWildLive && (
         <div className="absolute bottom-1 left-0 right-0 z-20 flex flex-col items-center pointer-events-none">
           <span className="text-[7.5px] sm:text-[9.5px] font-black text-amber-300 tracking-wider uppercase text-center select-none bg-black/75 px-1 py-0.5 rounded leading-none filter drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.95)]">
             VIETNAM WILD LIVE
-          </span>
-        </div>
-      )}
-      {isVtv6ThuNghiem && (
-        <div className="absolute bottom-1 left-0 right-0 z-20 flex flex-col items-center pointer-events-none">
-          <span className="text-[7.5px] sm:text-[9.5px] font-extrabold text-white bg-red-600/90 tracking-wide uppercase text-center select-none px-1.5 py-0.5 rounded leading-none filter drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.5)]">
-            Thử nghiệm
           </span>
         </div>
       )}
@@ -1695,7 +1728,7 @@ function HomeContent({
                     <div className={`w-24 h-24 flex items-center justify-center rounded-2xl border-[1.5px] transition-transform duration-300 group-hover/card-wrapper:scale-110 ${
                       isDark ? "bg-white/[0.05] border-white/10" : "bg-white border-slate-200"
                     }`}>
-                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[80%] object-contain scale-[1.15]" isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} />
+                      <ChannelLogo src={ch.logo} alt={ch.name} isDark={isDark} category={ch.category} className="max-h-[80%] object-contain" isUpdatedLogo={ch.isUpdatedLogo} logoNumber={ch.logoNumber} />
                     </div>
                   </div>
                 </motion.div>
@@ -1955,6 +1988,11 @@ function ExploreContent({
 }
 
 
+const shouldLoop = (streamUrl: string): boolean => {
+  const s = streamUrl.toLowerCase();
+  return s.includes(".mp4") || s.includes("sl.m3u8") || s.includes("vm7nh0kl.m3u8");
+};
+
 function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Channel, isMuted: boolean, volume: number, isDark: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -1978,7 +2016,21 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
       hlsRef.current.destroy();
     }
 
-    if (Hls.isSupported()) {
+    const isMp4 = channel.stream.toLowerCase().includes(".mp4");
+
+    const onEnded = () => {
+      if (shouldLoop(channel.stream)) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
+    };
+    video.addEventListener('ended', onEnded);
+
+    if (isMp4) {
+      video.src = channel.stream;
+      video.loop = true;
+      video.play().catch(() => {});
+    } else if (Hls.isSupported()) {
       const hls = new Hls({ enableWorker: true });
       hlsRef.current = hls;
       hls.loadSource(channel.stream);
@@ -1992,6 +2044,12 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
 
     return () => {
       if (hlsRef.current) hlsRef.current.destroy();
+      video.removeEventListener('ended', onEnded);
+      if (isMp4 && video) {
+        video.loop = false;
+        video.removeAttribute('src');
+        video.load();
+      }
     };
   }, [channel, isImageStream]);
 
@@ -2711,8 +2769,35 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
     }
 
     let hls: Hls | null = null;
+    const isMp4 = active.stream.toLowerCase().includes(".mp4");
 
-    if (Hls.isSupported()) {
+    const onEnded = () => {
+      if (shouldLoop(active.stream)) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
+    };
+    video.addEventListener('ended', onEnded);
+
+    if (isMp4) {
+      video.src = active.stream;
+      video.loop = true;
+      const onCanPlay = () => {
+        if (!isEffectMounted) return;
+        setStreamError(null);
+        setIsPlaying(true);
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            if (e.name === 'AbortError') return;
+            video.muted = true;
+            setIsMuted(true);
+            video.play().catch(() => {});
+          });
+        }
+      };
+      video.addEventListener('canplay', onCanPlay);
+    } else if (Hls.isSupported()) {
       hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
@@ -2809,11 +2894,17 @@ const TVContent = React.memo(function TVContent({ key, mode = "live", active, se
 
     return () => {
       isEffectMounted = false;
+      if (video) {
+        video.removeEventListener('ended', onEnded);
+      }
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
       }
       if (video) {
+        if (isMp4) {
+          video.loop = false;
+        }
         video.pause();
         video.removeAttribute('src');
         video.load();
@@ -5861,7 +5952,24 @@ function MiniPlayer({
     const video = videoRef.current;
     if (!video || !channel.stream) return;
 
-    if (Hls.isSupported()) {
+    const isMp4 = channel.stream.toLowerCase().includes(".mp4");
+
+    const onEnded = () => {
+      if (shouldLoop(channel.stream)) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
+    };
+    video.addEventListener('ended', onEnded);
+
+    if (isMp4) {
+      video.src = channel.stream;
+      video.loop = true;
+      video.play().catch(() => {
+        video.muted = true;
+        video.play().catch(() => {});
+      });
+    } else if (Hls.isSupported()) {
       const hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
@@ -5884,9 +5992,16 @@ function MiniPlayer({
     }
 
     return () => {
+      video.removeEventListener('ended', onEnded);
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
+      }
+      if (video && isMp4) {
+        video.loop = false;
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
       }
     };
   }, [channel.stream]);
@@ -12182,7 +12297,8 @@ function TopBar({
   handleLogout,
   handleOpenSettings,
   useSidebar = true,
-  floatyBars = false
+  floatyBars = false,
+  removeClockAndDate = false
 }: { 
   isDark: boolean, 
   onMenuClick: () => void, 
@@ -12224,7 +12340,8 @@ function TopBar({
   handleLogin: () => void,
   handleLogout: () => void,
   handleOpenSettings: () => void,
-  floatyBars?: boolean
+  floatyBars?: boolean,
+  removeClockAndDate?: boolean
 }) {
   const [isSearchButtonExpanded, setIsSearchButtonExpanded] = React.useState(false);
   const [showTopBarFilterDropdown, setShowTopBarFilterDropdown] = React.useState(false);
@@ -15518,7 +15635,7 @@ function App() {
   const [userData, setUserData] = useState<any>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isGuestMode, setIsGuestMode] = useState(() => {
-    return localStorage.getItem("vplay_guest_mode") === "true";
+    return localStorage.getItem("vplay_guest_mode") !== "false";
   });
 
   const [name, setName] = useState("");
@@ -16537,7 +16654,7 @@ const [headingBar, setHeadingBar] = useState(() => {
   const [isDev, setIsDev] = useState(() => {
     return localStorage.getItem("vplay_dev_mode") === "true";
   });
-  const [bypassed, setBypassed] = useState(false);
+  const [bypassed, setBypassed] = useState(true);
 
   useEffect(() => {
     localStorage.setItem("vplay_dev_mode", isDev.toString());
@@ -17026,24 +17143,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   Web này sẽ không bị bỏ hoang mà sẽ trở thành web thử nghiệm để test trước các tính năng mới cho web chính trong tương lai (app function, app features, luồng kênh, logo v.v)
                 </p>
               </div>
-              
-              <div className="flex gap-3 border-t border-black/[0.05] dark:border-white/5 pt-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0 mt-2" />
-                <p className={`text-xs leading-relaxed ${isDark ? "text-white/70" : "text-slate-600"} font-semibold`}>
-                  Đã khắc phục tình trạng web bị giật lag điên cuồng do việc re-render liên tục khi cập nhật đồng hồ và tính toán dữ liệu của các kênh mà chưa được tối ưu hóa bằng React memo và useCallback. Nếu web vẫn còn lag, bạn hãy truy cập <strong className="text-[#4AC4FE]">Cài đặt 👉 Accessibility</strong> và tắt tùy chọn <strong className="text-[#4AC4FE]">Dynamic Motion & Real-time Updates</strong>.
-                </p>
-              </div>
             </div>
-
-            <button 
-              onClick={() => {
-                setRealTimeUpdates(false);
-                onAlert("Đã tắt", "Đã tắt Dynamic Motion & Real-time Updates thành công!");
-              }}
-              className={`w-full py-3.5 border-[1.5px] ${isDark ? "border-[#FF453A]/30 hover:bg-[#FF453A]/10 text-[#FF453A]" : "border-[#FF453A]/30 hover:bg-[#FF453A]/5 text-[#FF3B30]"} font-black rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-1.5`}
-            >
-              Disable Dynamic Motion & Real-time Updates
-            </button>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <a 
@@ -17161,6 +17261,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               isListening={isListening}
               isListeningFailed={isListeningFailed}
               location={location}
+              removeClockAndDate={removeClockAndDate}
               onSystemTrayClick={() => {
                 setIsWidgetsOpen(true);
                 setActiveDashboardTab("settings");
